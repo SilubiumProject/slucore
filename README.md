@@ -1,4 +1,4 @@
-## "# slucore"  ##
+## "# slucore"  
 
 Silubium公链第二代SLU，于北京时间2018-07-28 17:33:01启动产生创世块。
 SLU是一条集多种开放功能于一体的公链，可以实现基于UTXO安全模型的智能合约，并创新了POS共识协议新机制SILKWORM，发明了数据上链协议SILKSCREEN。主要特点有：
@@ -13,8 +13,10 @@ SLU是一条集多种开放功能于一体的公链，可以实现基于UTXO安�
 （3）设计了配套的数据上链和查询接口。
 4. SLU设计了低交易成本机制，SLU直接转帐按转帐金额比例计算0.00005%-0.00001%，交易量越大费率越低，并限定了最小值为0.0001SLU，最大值为0.5SLU。智能合约调用免费，发送操作需消耗少量GAS，最低GAS价格为0.00000010SLU。
 
-### 官网网址：http://www.silubium.org ###
+### 官网网址：http://www.silubium.org 
 
-### 钱包升级网址：http://update.silubium.org ###
+### 区块浏览器地址：https://silkchain2.silubium.org 
 
-# 2018年8月31日起开始SLB兑换为SLU，期间一个月。 详细说明参见：https://www.silktrader.net/#/slu #
+### 钱包升级网址：http://update.silubium.org 
+
+# 2018年8月31日起开始SLB兑换为SLU，期间一个月。 详细说明参见：https://www.silktrader.net/#/slu 
