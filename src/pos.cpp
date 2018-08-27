@@ -32,8 +32,8 @@ uint256 ComputeStakeModifier(const CBlockIndex* pindexPrev, const uint256& kerne
     return Hash(ss.begin(), ss.end());
 }
 
-// BlackCoin kernel protocol
-// coinstake must meet hash target according to the protocol:
+// BlackCoin kernel protocol 内核协议
+// coinstake must meet hash target according to the protocol:必须是满足如下协议的散列目标
 // kernel (input 0) must meet the formula
 //     hash(nStakeModifier + blockFrom.nTime + txPrev.vout.hash + txPrev.vout.n + nTime) < bnTarget * nWeight
 // this ensures that the chance of getting a coinstake is proportional to the

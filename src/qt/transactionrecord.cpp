@@ -104,20 +104,22 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                         {
                             if(ExtractDestination(wtx.tx->vout[j].scriptPubKey, addressBit, &txType))
                             {
-                                if(txType == TX_PUBKEY)
+                                isminetype ismine = wallet->IsMine(wtx.tx->vout[j]);
+                                if(ismine)
                                 {
-                                    sub.type= TransactionRecord::Interest;
-                                    isminetype ismine = wallet->IsMine(wtx.tx->vout[j]);
-                                    if(ismine)
+                                    if(txType == TX_PUBKEY)
+                                    {
+                                        sub.type= TransactionRecord::Interest;
                                         sub.interest=wtx.tx->vout[j].nValue;
-                                }
-                                else if(txType == TX_PUBKEYHASH)
-                                {
-                                    sub.type= TransactionRecord::GasChange;
-                                    isminetype ismine = wallet->IsMine(wtx.tx->vout[j]);
-                                    if(ismine)
+                                    }
+                                    else if(txType == TX_PUBKEYHASH)
+                                    {
+                                        sub.type= TransactionRecord::GasChange;
                                         sub.gaschange+=wtx.tx->vout[j].nValue;
+                                    }
                                 }
+                                else
+                                    sub.type = TransactionRecord::Generated;
                             }
                         }
                     }
