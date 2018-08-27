@@ -1,0 +1,11 @@
+[Protocol]
+exec=silubium-qt '%u'
+protocol=silubium
+input=none
+output=none
+helper=true
+listing=
+reading=false
+writing=false
+makedir=false
+deleting=false
