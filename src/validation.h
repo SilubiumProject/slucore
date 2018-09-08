@@ -180,8 +180,8 @@ static const bool DEFAULT_PEERBLOOMFILTERS = true;
 /** Default for -stopatheight */
 static const int DEFAULT_STOPATHEIGHT = 0;
 
-static const uint64_t DEFAULT_GAS_LIMIT_OP_CREATE=25000000;//2500000;
-static const uint64_t DEFAULT_GAS_LIMIT_OP_SEND=2500000;//250000;
+static const uint64_t DEFAULT_GAS_LIMIT_OP_CREATE=2500000;
+static const uint64_t DEFAULT_GAS_LIMIT_OP_SEND=250000;
 //static const CAmount DEFAULT_GAS_PRICE=0.00000040*COIN;
 static const CAmount DEFAULT_GAS_PRICE=0.00000010*COIN;
 static const CAmount MAX_RPC_GAS_PRICE=0.00000100*COIN;
