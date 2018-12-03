@@ -1,23 +1,23 @@
-// Copyright (c) 2011-2016 The Bitcoin Core developers
+// Copyright (c) 2011-2017 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "overviewpage.h"
-#include "ui_overviewpage.h"
+#include <qt/overviewpage.h>
+#include <qt/forms/ui_overviewpage.h>
 
-#include "bitcoinunits.h"
-#include "clientmodel.h"
-#include "guiconstants.h"
-#include "guiutil.h"
-#include "optionsmodel.h"
-#include "platformstyle.h"
-#include "transactionfilterproxy.h"
-#include "transactiontablemodel.h"
-#include "walletmodel.h"
-#include "tokenitemmodel.h"
-#include "wallet/wallet.h"
-#include "transactiondescdialog.h"
-#include "styleSheet.h"
+#include <qt/bitcoinunits.h>
+#include <qt/clientmodel.h>
+#include <qt/guiconstants.h>
+#include <qt/guiutil.h>
+#include <qt/optionsmodel.h>
+#include <qt/platformstyle.h>
+#include <qt/transactionfilterproxy.h>
+#include <qt/transactiontablemodel.h>
+#include <qt/walletmodel.h>
+#include <qt/tokenitemmodel.h>
+#include <wallet/wallet.h>
+#include <qt/transactiondescdialog.h>
+#include <qt/styleSheet.h>
 
 #include <QAbstractItemDelegate>
 #include <QPainter>
@@ -35,15 +35,15 @@
 
 #define TX_SIZE 40
 #define DECORATION_SIZE 20
-#define DATE_WIDTH 150
+#define DATE_WIDTH 110
 #define TYPE_WIDTH 140
-#define AMOUNT_WIDTH 255
+#define AMOUNT_WIDTH 205
 
 class TxViewDelegate : public QAbstractItemDelegate
 {
     Q_OBJECT
 public:
-    TxViewDelegate(const PlatformStyle *_platformStyle, QObject *parent=nullptr):
+    explicit TxViewDelegate(const PlatformStyle *_platformStyle, QObject *parent=nullptr):
         QAbstractItemDelegate(parent), unit(BitcoinUnits::BTC),
         platformStyle(_platformStyle)
     {
@@ -54,7 +54,6 @@ public:
                       const QModelIndex &index ) const
     {
         painter->save();
-
         QDateTime date = index.data(TransactionTableModel::DateRole).toDateTime();
         QIcon icon = qvariant_cast<QIcon>(index.data(TransactionTableModel::RawDecorationRole));
         QString address = index.data(Qt::DisplayRole).toString();
@@ -151,7 +150,6 @@ public:
 
     int unit;
     const PlatformStyle *platformStyle;
-
 };
 
 class TknViewDelegate : public QAbstractItemDelegate
@@ -210,8 +208,7 @@ public:
 
     const PlatformStyle *platformStyle;
 };
-
-#include "overviewpage.moc"
+#include <qt/overviewpage.moc>
 
 OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) :
     QWidget(parent),
@@ -235,12 +232,6 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     SetObjectStyleSheet(ui->labelWalletStatus, StyleSheetNames::ButtonTransparent);
     SetObjectStyleSheet(ui->labelTokenStatus, StyleSheetNames::ButtonTransparent);
     SetObjectStyleSheet(ui->labelTransactionsStatus, StyleSheetNames::ButtonTransparent);
-
-    if(GetLangTerritory().contains("zh_CN"))
-    {
-        ui->buttonAddToken->setText("添加代币");
-        ui->showMoreButton->setText("显示更多...");
-    }
 
     if (!platformStyle->getImagesOnButtons()) {
         ui->buttonAddToken->setIcon(QIcon());
@@ -279,7 +270,6 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     // Token list
     ui->listTokens->setItemDelegate(tkndelegate);
     ui->listTokens->setAttribute(Qt::WA_MacShowFocusRect, false);
-
     // start with displaying the "out of sync" warnings
     showOutOfSyncWarning(true);
     connect(ui->labelWalletStatus, SIGNAL(clicked()), this, SLOT(handleOutOfSyncWarningClicks()));
@@ -435,7 +425,6 @@ void OverviewPage::updateDisplayUnit()
         if(currentBalance != -1)
             setBalance(currentBalance, currentUnconfirmedBalance, currentImmatureBalance, currentStake,
                        currentWatchOnlyBalance, currentWatchUnconfBalance, currentWatchImmatureBalance, currentWatchOnlyStake);
-
         // Update txdelegate->unit with the current unit
         txdelegate->unit = walletModel->getOptionsModel()->getDisplayUnit();
 
@@ -477,21 +466,4 @@ void OverviewPage::showDetails()
         dlg->setAttribute(Qt::WA_DeleteOnClose);
         dlg->show();
     }
-}
-
-#include <QSettings>
-
-QString OverviewPage::GetLangTerritory()
-{
-    QSettings settings;
-    // Get desired locale (e.g. "de_DE")
-    // 1) System default language
-    QString lang_territory = QLocale::system().name();
-    // 2) Language from QSettings
-    QString lang_territory_qsettings = settings.value("language", "").toString();
-    if(!lang_territory_qsettings.isEmpty())
-        lang_territory = lang_territory_qsettings;
-    // 3) -lang command line argument
-    //    lang_territory = QString::fromStdString(gArgs.GetArg("-lang", lang_territory.toStdString()));
-    return lang_territory;
 }

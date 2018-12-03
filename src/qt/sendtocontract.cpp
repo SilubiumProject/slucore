@@ -1,25 +1,25 @@
-#include "sendtocontract.h"
-#include "ui_sendtocontract.h"
-#include "platformstyle.h"
-#include "walletmodel.h"
-#include "clientmodel.h"
-#include "guiconstants.h"
-#include "rpcconsole.h"
-#include "execrpccommand.h"
-#include "bitcoinunits.h"
-#include "optionsmodel.h"
-#include "validation.h"
-#include "utilmoneystr.h"
-#include "abifunctionfield.h"
-#include "contractabi.h"
-#include "tabbarinfo.h"
-#include "contractresult.h"
-#include "contractbookpage.h"
-#include "editcontractinfodialog.h"
-#include "contracttablemodel.h"
-#include "styleSheet.h"
-#include "guiutil.h"
-#include "sendcoinsdialog.h"
+#include <qt/sendtocontract.h>
+#include <qt/forms/ui_sendtocontract.h>
+#include <qt/platformstyle.h>
+#include <qt/walletmodel.h>
+#include <qt/clientmodel.h>
+#include <qt/guiconstants.h>
+#include <qt/rpcconsole.h>
+#include <qt/execrpccommand.h>
+#include <qt/bitcoinunits.h>
+#include <qt/optionsmodel.h>
+#include <validation.h>
+#include <utilmoneystr.h>
+#include <qt/abifunctionfield.h>
+#include <qt/contractabi.h>
+#include <qt/tabbarinfo.h>
+#include <qt/contractresult.h>
+#include <qt/contractbookpage.h>
+#include <qt/editcontractinfodialog.h>
+#include <qt/contracttablemodel.h>
+#include <qt/styleSheet.h>
+#include <qt/guiutil.h>
+#include <qt/sendcoinsdialog.h>
 #include <QClipboard>
 
 namespace SendToContract_NS
@@ -70,15 +70,11 @@ SendToContract::SendToContract(const PlatformStyle *platformStyle, QWidget *pare
     ui->labelContractAddress->setToolTip(tr("The contract address that will receive the funds and data."));
     ui->labelAmount->setToolTip(tr("The amount in SILUBIUM to send. Default = 0."));
     ui->labelSenderAddress->setToolTip(tr("The quantum address that will be used as sender."));
+    if (gArgs.IsArgSet("-showdbg"))
+        ui->lineEditSenderAddress->setEditable(true);
 
     m_tabInfo = new TabBarInfo(ui->stackedWidget);
-    if(GetLangTerritory().contains("zh_CN"))
-        {
-        m_tabInfo->addTab(0,tr("发送到智能合约"));
-        ui->pushButtonSendToContract->setText(tr("发送到智能合约"));
-        }
-    else
-        m_tabInfo->addTab(0, tr("Send To Contract"));
+    m_tabInfo->addTab(0, tr("Send To Contract"));
 
     // Set defaults
     ui->lineEditGasPrice->setValue(DEFAULT_GAS_PRICE);
@@ -88,6 +84,7 @@ SendToContract::SendToContract(const PlatformStyle *platformStyle, QWidget *pare
     ui->lineEditGasLimit->setValue(DEFAULT_GAS_LIMIT_OP_SEND);
     ui->textEditInterface->setIsValidManually(true);
     ui->pushButtonSendToContract->setEnabled(false);
+    ui->lineEditSenderAddress->setSenderAddress(true);
 
     // Create new PRC command line interface
     QStringList lstMandatory;
@@ -248,10 +245,8 @@ void SendToContract::on_sendToContractClicked()
                 ui->stackedWidget->addWidget(widgetResult);
                 int position = ui->stackedWidget->count() - 1;
                 m_results = position == 1 ? 1 : m_results + 1;
-                if(GetLangTerritory().contains("zh_CN"))
-                    m_tabInfo->addTab(position, tr("结果%1").arg(m_results));
-                else
-                    m_tabInfo->addTab(position, tr("Result %1").arg(m_results));
+
+                m_tabInfo->addTab(position, tr("Result %1").arg(m_results));
                 m_tabInfo->setCurrent(position);
             }
             else
@@ -416,21 +411,4 @@ bool SendToContract::isFunctionPayable()
     if(func < 0) return true;
     FunctionABI function = m_contractABI->functions[func];
     return function.payable;
-}
-
-#include <QSettings>
-
-QString SendToContract::GetLangTerritory()
-{
-    QSettings settings;
-    // Get desired locale (e.g. "de_DE")
-    // 1) System default language
-    QString lang_territory = QLocale::system().name();
-    // 2) Language from QSettings
-    QString lang_territory_qsettings = settings.value("language", "").toString();
-    if(!lang_territory_qsettings.isEmpty())
-        lang_territory = lang_territory_qsettings;
-    // 3) -lang command line argument
-    //    lang_territory = QString::fromStdString(gArgs.GetArg("-lang", lang_territory.toStdString()));
-    return lang_territory;
 }

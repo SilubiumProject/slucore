@@ -1,7 +1,7 @@
 #ifndef SILUBIUM_QT_TOKENTOKENTRANSACTIONTABLEMODEL_H
 #define SILUBIUM_QT_TOKENTOKENTRANSACTIONTABLEMODEL_H
 
-#include "bitcoinunits.h"
+#include <qt/bitcoinunits.h>
 
 #include <QAbstractTableModel>
 #include <QStringList>

@@ -1,11 +1,10 @@
-#include "restoredialog.h"
-#include "ui_restoredialog.h"
-#include "guiutil.h"
-#include "walletmodel.h"
+#include <qt/restoredialog.h>
+#include <qt/forms/ui_restoredialog.h>
+#include <qt/guiutil.h>
+#include <qt/walletmodel.h>
 #include <QMessageBox>
 #include <QFile>
-#include "styleSheet.h"
-#include <QPushButton>
+#include <qt/styleSheet.h>
 
 RestoreDialog::RestoreDialog(QWidget *parent) :
     QDialog(parent),
@@ -14,9 +13,6 @@ RestoreDialog::RestoreDialog(QWidget *parent) :
 {
     ui->setupUi(this);
     SetObjectStyleSheet(ui->btnReset, StyleSheetNames::ButtonWhite);
-    ui->btnBoxRestore->button(QDialogButtonBox::Ok)->setText(tr("&OK"));
-    ui->btnBoxRestore->button(QDialogButtonBox::Cancel)->setText(tr("&CANCEL"));
-
 }
 
 RestoreDialog::~RestoreDialog()

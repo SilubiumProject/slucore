@@ -30,7 +30,6 @@ public:
     bool isValidInterfaceABI();
     bool isDataValid();
     void setContractAddress(const QString &address);
-    QString GetLangTerritory();
 
 Q_SIGNALS:
 

@@ -1,15 +1,15 @@
-#include "tokentransactionview.h"
+#include <qt/tokentransactionview.h>
 
-#include "walletmodel.h"
-#include "platformstyle.h"
-#include "tokentransactiontablemodel.h"
-#include "tokentransactionrecord.h"
-#include "tokenfilterproxy.h"
-#include "guiutil.h"
-#include "optionsmodel.h"
-#include "tokenitemmodel.h"
-#include "tokendescdialog.h"
-#include "styleSheet.h"
+#include <qt/walletmodel.h>
+#include <qt/platformstyle.h>
+#include <qt/tokentransactiontablemodel.h>
+#include <qt/tokentransactionrecord.h>
+#include <qt/tokenfilterproxy.h>
+#include <qt/guiutil.h>
+#include <qt/optionsmodel.h>
+#include <qt/tokenitemmodel.h>
+#include <qt/tokendescdialog.h>
+#include <qt/styleSheet.h>
 
 #include <QComboBox>
 #include <QDateTimeEdit>
@@ -186,10 +186,7 @@ QWidget *TokenTransactionView::createDateRangeWidget()
     QHBoxLayout *layout = new QHBoxLayout(dateRangeWidget);
     layout->setContentsMargins(0,0,0,0);
     layout->addSpacing(23);
-    if(GetLangTerritory().contains("zh_CN"))
-        layout->addWidget(new QLabel(tr("范围:")));
-    else
-        layout->addWidget(new QLabel(tr("Range:")));
+    layout->addWidget(new QLabel(tr("Range:")));
 
     dateFrom = new QDateTimeEdit(this);
     dateFrom->setDisplayFormat("dd/MM/yy");
@@ -197,10 +194,7 @@ QWidget *TokenTransactionView::createDateRangeWidget()
     dateFrom->setMinimumWidth(100);
     dateFrom->setDate(QDate::currentDate().addDays(-7));
     layout->addWidget(dateFrom);
-    if(GetLangTerritory().contains("zh_CN"))
-        layout->addWidget(new QLabel(tr("到")));
-    else
-        layout->addWidget(new QLabel(tr("to")));
+    layout->addWidget(new QLabel(tr("to")));
 
     dateTo = new QDateTimeEdit(this);
     dateTo->setDisplayFormat("dd/MM/yy");
@@ -427,21 +421,4 @@ void TokenTransactionView::changedAmount(const QString &amount)
     {
         tokenProxyModel->setMinAmount(0);
     }
-}
-
-#include <QSettings>
-
-QString TokenTransactionView::GetLangTerritory()
-{
-    QSettings settings;
-    // Get desired locale (e.g. "de_DE")
-    // 1) System default language
-    QString lang_territory = QLocale::system().name();
-    // 2) Language from QSettings
-    QString lang_territory_qsettings = settings.value("language", "").toString();
-    if(!lang_territory_qsettings.isEmpty())
-        lang_territory = lang_territory_qsettings;
-    // 3) -lang command line argument
-    //    lang_territory = QString::fromStdString(gArgs.GetArg("-lang", lang_territory.toStdString()));
-    return lang_territory;
 }
