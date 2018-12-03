@@ -1,10 +1,10 @@
 #ifndef SILUBIUMDGP_H
 #define SILUBIUMDGP_H
 
-#include "silubiumstate.h"
-#include "primitives/block.h"
-#include "validation.h"
-#include "utilstrencodings.h"
+#include <silubium/silubiumstate.h>
+#include <primitives/block.h>
+#include <validation.h>
+#include <utilstrencodings.h>
 
 static const dev::Address GasScheduleDGP = dev::Address("0000000000000000000000000000000000000080");
 static const dev::Address BlockSizeDGP = dev::Address("0000000000000000000000000000000000000081");

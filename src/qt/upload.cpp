@@ -1,5 +1,5 @@
-#include "upload.h"
-#include "ui_upload.h"
+#include <qt/upload.h>
+#include <qt/forms/ui_upload.h>
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QNetworkReply>

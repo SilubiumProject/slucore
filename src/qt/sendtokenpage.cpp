@@ -1,20 +1,20 @@
-#include "sendtokenpage.h"
-#include "ui_sendtokenpage.h"
+#include <qt/sendtokenpage.h>
+#include <qt/forms/ui_sendtokenpage.h>
 
-#include "walletmodel.h"
-#include "clientmodel.h"
-#include "optionsmodel.h"
-#include "validation.h"
-#include "utilmoneystr.h"
-#include "token.h"
-#include "bitcoinunits.h"
-#include "wallet/wallet.h"
-#include "validation.h"
-#include "guiutil.h"
-#include "sendcoinsdialog.h"
-#include "bitcoinaddressvalidator.h"
-#include "uint256.h"
-#include "styleSheet.h"
+#include <qt/walletmodel.h>
+#include <qt/clientmodel.h>
+#include <qt/optionsmodel.h>
+#include <validation.h>
+#include <utilmoneystr.h>
+#include <qt/token.h>
+#include <qt/bitcoinunits.h>
+#include <wallet/wallet.h>
+#include <validation.h>
+#include <qt/guiutil.h>
+#include <qt/sendcoinsdialog.h>
+#include <qt/bitcoinaddressvalidator.h>
+#include <uint256.h>
+#include <qt/styleSheet.h>
 
 static const CAmount SINGLE_STEP = 0.00000001*COIN;
 
@@ -42,11 +42,6 @@ SendTokenPage::SendTokenPage(QWidget *parent) :
 
     // Set stylesheet
     SetObjectStyleSheet(ui->clearButton, StyleSheetNames::ButtonBlack);
-    if(GetLangTerritory().contains("zh_CN"))
-        {
-        ui->clearButton->setText("清除");
-        ui->confirmButton->setText("确定");
-    }
 
     ui->labelPayTo->setToolTip(tr("The address that will receive the tokens."));
     ui->labelAmount->setToolTip(tr("The amount in Token to send."));
@@ -66,7 +61,7 @@ SendTokenPage::SendTokenPage(QWidget *parent) :
     connect(ui->lineEditAmount, SIGNAL(valueChanged()), SLOT(on_updateConfirmButton()));
     connect(ui->confirmButton, SIGNAL(clicked()), SLOT(on_confirmClicked()));
 
-    ui->lineEditPayTo->setCheckValidator(new BitcoinAddressCheckValidator(parent, false));
+    ui->lineEditPayTo->setCheckValidator(new BitcoinAddressCheckValidator(parent, true));
 }
 
 SendTokenPage::~SendTokenPage()
@@ -213,7 +208,7 @@ void SendTokenPage::on_confirmClicked()
     else
     {
         QString message = tr("To send %1 you need SILUBIUM on address <br /> %2.")
-                .arg(QString::fromStdString(m_selectedToken->symbol)).arg(QString::fromStdString(CBitcoinAddress(m_selectedToken->sender).ToString()));
+                .arg(QString::fromStdString(m_selectedToken->symbol)).arg(QString::fromStdString(m_selectedToken->sender));
 
         QMessageBox::warning(this, tr("Send token"), message);
     }
@@ -256,22 +251,4 @@ void SendTokenPage::setTokenData(std::string address, std::string sender, std::s
     {
         ui->lineEditAmount->setValue(value);
     }
-}
-
-
-#include <QSettings>
-
-QString SendTokenPage::GetLangTerritory()
-{
-    QSettings settings;
-    // Get desired locale (e.g. "de_DE")
-    // 1) System default language
-    QString lang_territory = QLocale::system().name();
-    // 2) Language from QSettings
-    QString lang_territory_qsettings = settings.value("language", "").toString();
-    if(!lang_territory_qsettings.isEmpty())
-        lang_territory = lang_territory_qsettings;
-    // 3) -lang command line argument
-    //    lang_territory = QString::fromStdString(gArgs.GetArg("-lang", lang_territory.toStdString()));
-    return lang_territory;
 }

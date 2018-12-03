@@ -9,7 +9,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QVBoxLayout>
-#include "silubiumversionchecker.h"
+#include <qt/silubiumversionchecker.h>
 
 namespace Ui {
 class QUpload;

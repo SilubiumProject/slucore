@@ -1,7 +1,7 @@
 #ifndef TOKENVIEW_H
 #define TOKENVIEW_H
 
-#include "guiutil.h"
+#include <qt/guiutil.h>
 
 #include <QWidget>
 #include <QKeyEvent>
@@ -25,7 +25,6 @@ public:
     explicit TokenTransactionView(const PlatformStyle *platformStyle, QWidget *parent = 0);
 
     void setModel(WalletModel *model);
-    QString GetLangTerritory();
 
     // Date ranges for filter
     enum DateEnum

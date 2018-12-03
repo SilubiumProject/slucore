@@ -1,25 +1,25 @@
-// Copyright (c) 2011-2016 The Bitcoin Core developers
+// Copyright (c) 2011-2017 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #if defined(HAVE_CONFIG_H)
-#include "config/bitcoin-config.h"
+#include <config/bitcoin-config.h>
 #endif
 
-#include "utilitydialog.h"
+#include <qt/utilitydialog.h>
 
-#include "ui_helpmessagedialog.h"
+#include <qt/forms/ui_helpmessagedialog.h>
 
-#include "bitcoingui.h"
-#include "clientmodel.h"
-#include "guiconstants.h"
-#include "intro.h"
-#include "paymentrequestplus.h"
-#include "guiutil.h"
+#include <qt/bitcoingui.h>
+#include <qt/clientmodel.h>
+#include <qt/guiconstants.h>
+#include <qt/intro.h>
+#include <qt/paymentrequestplus.h>
+#include <qt/guiutil.h>
 
-#include "clientversion.h"
-#include "init.h"
-#include "util.h"
+#include <clientversion.h>
+#include <init.h>
+#include <util.h>
 
 #include <stdio.h>
 
@@ -39,7 +39,7 @@ HelpMessageDialog::HelpMessageDialog(QWidget *parent, bool about) :
     ui->setupUi(this);
     ui->okButton->button(QDialogButtonBox::Ok)->setText(tr("&OK"));
     QString version = tr(PACKAGE_NAME) + " " + tr("version") + " " + QString::fromStdString(FormatFullVersion());
-//    ui->okButton->button(QDialogButtonBox::Ok)->setText(tr("&OK"));
+    //ui->okButton->button(QDialogButtonBox::Ok)->setText(tr("&OK"));
     /* On x86 add a bit specifier to the version so that users can distinguish between
      * 32 and 64 bit builds. On other architectures, 32/64 bit may be more ambiguous.
      */
@@ -72,7 +72,7 @@ HelpMessageDialog::HelpMessageDialog(QWidget *parent, bool about) :
     } else {
         setWindowTitle(tr("Command-line options"));
         QString header = tr("Usage:") + "\n" +
-            "  silubium-qt [" + tr("command-line options") + "]                     " + "\n";
+            "  silubium-qt [" + tr("command-line options") + "]                    " + "\n";
         QTextCursor cursor(ui->helpMessage->document());
         cursor.insertText(version);
         cursor.insertBlock();

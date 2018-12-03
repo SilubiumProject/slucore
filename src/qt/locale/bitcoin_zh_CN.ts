@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.1" language="zh_CN">
+<TS language="zh_CN" version="2.1">
+<!-- Wujiang Added -->
+
 <context>
     <name>QRCToken</name>
     <message>
@@ -32,6 +32,7 @@
         <translation>即将从列表中删除选定的代币，你确定么？</translation>
     </message>
 </context>
+<!-- Wujiang Added -->
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -64,7 +65,7 @@
     </message>
     <message>
         <source>Export the data in the current tab to a file</source>
-        <translation>导出当前分页里的数据到文件</translation>
+        <translation>将当前标签页数据导出到文件</translation>
     </message>
     <message>
         <source>&amp;Export</source>
@@ -163,6 +164,10 @@
     <message>
         <source>Repeat new passphrase</source>
         <translation>重复新密码</translation>
+    </message>
+    <message>
+        <source>Show password</source>
+        <translation>显示密码</translation>
     </message>
     <message>
         <source>Enter the new passphrase to the wallet.&lt;br/&gt;Please use a passphrase of &lt;b&gt;ten or more random characters&lt;/b&gt;, or &lt;b&gt;eight or more words&lt;/b&gt;.</source>
@@ -276,6 +281,7 @@
         <translation>在此之前禁止：</translation>
     </message>
 </context>
+<!-- Wujiang Added -->
 <context>
     <name>labelStakingIcon</name>
     <message>
@@ -300,38 +306,107 @@
     </message>
 </context>
 <context>
-    <name>BitcoinGUI</name>
+    <name>labelBlocksIcon</name>
     <message>
-        <source>Date: %1\n</source>
-        <translation>日期: %1\n</translation>
-    </message>
-    <message>
-        <source>Amount: %1\n</source>
-        <translation>金额: %1\n</translation>
-    </message>
-    <message>
-        <source>Type: %1</source>
-        <translation>类型: %1</translation>
-    </message>
-    <message>
-        <source>Label: %1\n</source>
-        <translation>标签: %1\n</translation>
-    </message>
-    <message>
-        <source>Address: %1\n</source>
-        <translation>地址: %1\n</translation>
-    </message>
-    <message>
-        <source>Sent transaction</source>
-        <translation>发送交易</translation>
-    </message>
-    <message>
-        <source>Incoming transaction</source>
-        <translation>流入交易</translation>
+        <source>Processed %n block(s) of transaction history.</source>
+        <translation>已处理 %n 个交易历史数据块。</translation>
     </message>
 </context>
 <context>
-    <name>SilubiumGUI</name>
+    <name>BitcoinGUI</name>
+    <message>
+        <source>Not staking because wallet is offline</source>
+        <translation>钱包离线，不能挖矿。</translation>
+    </message>
+    <message>
+        <source>Not staking because wallet is syncing</source>
+        <translation>钱包同步，不能挖矿。</translation>
+    </message>
+    <message>
+        <source>Not staking because wallet is locked</source>
+        <translation>钱包锁定，不能挖矿。</translation>
+    </message>
+    <message>
+        <source>Not staking because you don&apos;t have mature coins</source>
+        <translation>没有成熟的COINS，不能挖矿。</translation>
+    </message>
+    <message>
+        <source>Not staking</source>
+        <translation>不能挖矿</translation>
+    </message>
+    <message>
+    <source>Check for Updates</source>
+    <translation>检测升级</translation>
+    </message>
+    <message>
+    <source>New version of Silubium wallet is available on the Silubium source code repository: &lt;br /&gt; %1. &lt;br /&gt;It is recommended to download it and update this application.</source>
+    <translation>源代码仓库有新版本的Silubium钱包可用！&lt;br/&gt;%1&lt;br/&gt;强烈建议下载并升级这个应用。</translation>
+    </message>
+    <message>
+    <source>This is the latest version!</source>
+    <translation>当前已经是最新版本！</translation>
+    </message>
+    <message>
+        <source>Markets</source>
+        <translation>交易所</translation>
+    </message>
+    <message>
+        <source>Welcome to Silubium matkets!</source>
+        <translation>欢迎进入Silubium交易所!</translation>
+    </message>
+    <message>
+        <source>Online Update</source>
+        <translation>在线升级</translation>
+    </message>
+    <message>
+        <source>Check whether there is a new version, and the Windows version can be upgraded online.</source>
+        <translation>检测是否有新版本,Windows版本可以在线升级.</translation>
+    </message>
+    <message>
+        <source>Smart &amp;Contracts</source>
+        <translation>智能合约(&amp;C)</translation>
+    </message>
+    <message>
+        <source>Smart contracts</source>
+        <translation>智能合约</translation>
+    </message>
+    <message>
+        <source>&amp;SRC Tokens</source>
+        <translation>SRC代币(&amp;S)</translation>
+    </message>
+    <message>
+    <source>SRC Tokens (send, receive or add Tokens in list)</source>
+        <translation>SRC代币(在列表中发送、接收或者添加代币)</translation>
+    </message>
+    <message>
+        <source>Create</source>
+        <translation>创建</translation>
+    </message>
+    <message>
+        <source>Send To</source>
+        <translation>发送到</translation>
+    </message>
+    <message>
+        <source>Call</source>
+        <translation>调用</translation>
+    </message>
+    <message>
+        <source>Send</source>
+        <translation>发送</translation>
+    </message>
+    <message>
+        <source>Receive</source>
+        <translation>接收</translation>
+    </message>
+    <message>
+        <source>Add Token</source>
+        <translation>添加代币</translation>
+    </message>
+    <message>
+        <source>My &amp;wallet</source>
+        <translation>我的钱包(&amp;w)</translation>
+    </message>
+
     <message>
         <source>Sign &amp;message...</source>
         <translation>消息签名(&amp;M)...</translation>
@@ -399,6 +474,22 @@
     <message>
         <source>&amp;Backup Wallet...</source>
         <translation>备份钱包(&amp;B)...</translation>
+    </message>
+    <message>
+        <source>&amp;Restore Wallet...</source>
+        <translation>恢复钱包(&amp;R)...</translation>
+    </message>
+    <message>
+        <source>&amp;Unlock Wallet...</source>
+        <translation>解锁钱包(&amp;U)</translation>
+    </message>
+    <message>
+        <source>&amp;Lock Wallet</source>
+        <translation>钱包加锁(&amp;L)</translation>
+    </message>
+    <message>
+        <source>Restore wallet from another location</source>
+        <translation>从其他位置恢复钱包</translation>
     </message>
     <message>
         <source>&amp;Change Passphrase...</source>
@@ -532,11 +623,370 @@
         <source>&amp;Command-line options</source>
         <translation>命令行选项(&amp;C)</translation>
     </message>
+    <message>
+        <source>Indexing blocks on disk...</source>
+        <translation>正在为数据块建立索引...</translation>
+    </message>
+    <message>
+        <source>Processing blocks on disk...</source>
+        <translation>正在处理数据块...</translation>
+    </message>
+    <message>
+        <source>%1 behind</source>
+        <translation>落后 %1 </translation>
+    </message>
+    <message>
+        <source>Last received block was generated %1 ago.</source>
+        <translation>最新收到的区块产生于 %1。</translation>
+    </message>
+    <message>
+        <source>Transactions after this will not yet be visible.</source>
+        <translation>在此之后的交易尚未可见</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>错误</translation>
+    </message>
+    <message>
+        <source>Warning</source>
+        <translation>警告</translation>
+    </message>
+    <message>
+        <source>Information</source>
+        <translation>信息</translation>
+    </message>
+    <message>
+        <source>Up to date</source>
+        <translation>已是最新</translation>
+    </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Silubium network</source>
+        <source>Processed %n block(s) of transaction history.</source>
         <translation>
-            <numerusform>%n 个到SILUBIUM网络的活动连接</numerusform>
+            <numerusform>已处理%n个交易历史数据块。</numerusform>
         </translation>
+    </message>
+    <message numerus="yes">
+        <source>Staking.&lt;br&gt;Your weight is %1&lt;br&gt;Network weight is %2&lt;br&gt;Expected time to earn reward is %3</source>
+        <translation>
+            <numerusform>挖矿中...&lt;br&gt;你的权重是%1&lt;br&gt;网络权重是%2&lt;br&gt;收益产生的预估时间是%3</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Show the %1 help message to get a list with possible Silubium command-line options</source>
+        <translation>显示 %1 帮助信息，获取可用命令行选项列表</translation>
+    </message>
+    <message>
+        <source>%1 client</source>
+        <translation>%1 客戶</translation>
+    </message>
+    <message>
+        <source>Connecting to peers...</source>
+        <translation>正在连接到节点……</translation>
+    </message>
+    <message>
+        <source>Catching up...</source>
+        <translation>更新中...</translation>
+    </message>
+    <message>
+        <source>Date: %1
+    </source>
+        <translation>日期: %1
+    </translation>
+    </message>
+    <message>
+        <source>Date: %1</source>
+        <translation>日期: %1</translation>
+    </message>
+    <message>
+        <source>Amount: %1
+    </source>
+        <translation>金额: %1
+    </translation>
+    </message>
+    <message>
+        <source>Amount: %1</source>
+        <translation>金额: %1</translation>
+    </message>
+    <message>
+        <source>Type: %1
+    </source>
+        <translation>类型: %1
+    </translation>
+    </message>
+    <message>
+        <source>Type: %1</source>
+        <translation>类型: %1</translation>
+    </message>
+    <message>
+        <source>Label: %1
+    </source>
+        <translation>标签: %1
+    </translation>
+    </message>
+    <message>
+        <source>Label: %1</source>
+        <translation>标签: %1</translation>
+    </message>
+    <message>
+        <source>Address: %1
+    </source>
+        <translation>地址: %1
+    </translation>
+    </message>
+    <message>
+        <source>Address: %1</source>
+        <translation>地址: %1</translation>
+    </message>
+    <message>
+        <source>Sent transaction</source>
+        <translation>发送交易</translation>
+    </message>
+    <message>
+        <source>Incoming transaction</source>
+        <translation>流入交易</translation>
+    </message>
+    <message>
+        <source>HD key generation is &lt;b&gt;enabled&lt;/b&gt;</source>
+        <translation>HD密钥生成&lt;b&gt;启用&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>HD key generation is &lt;b&gt;disabled&lt;/b&gt;</source>
+        <translation>HD密钥生成&lt;b&gt;禁用&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;unlocked&lt;/b&gt;</source>
+        <translation>钱包已被&lt;b&gt;加密&lt;/b&gt;，当前为&lt;b&gt;解锁&lt;/b&gt;状态</translation>
+    </message>
+    <message>
+        <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;locked&lt;/b&gt;</source>
+        <translation>钱包已被&lt;b&gt;加密&lt;/b&gt;，当前为&lt;b&gt;锁定&lt;/b&gt;状态</translation>
+    </message>
+    <message>
+        <source>A fatal error occurred. Silubium can no longer continue safely and will quit.</source>
+        <translation>发生严重错误。客户端无法安全地继续运行，即将退出。</translation>
+    </message>
+    <message>
+        <source>%n active connection(s) to Silubium network</source>
+        <translation>%n 个到SILUBIUM网络的活动连接</translation>
+    </message>
+</context>
+<!-- Wujiang Added -->
+<context>
+    <name>SilubiumGUI</name>
+    <!-- Wujiang Added -->
+
+    <!-- Wujiang Added -->
+    <message>
+        <source>Sign &amp;message...</source>
+        <translation>消息签名(&amp;M)...</translation>
+    </message>
+    <message>
+        <source>Synchronizing with network...</source>
+        <translation>正在与网络同步...</translation>
+    </message>
+    <message>
+        <source>&amp;Overview</source>
+        <translation>概况(&amp;O)</translation>
+    </message>
+    <message>
+        <source>Node</source>
+        <translation>节点</translation>
+    </message>
+    <message>
+        <source>Show general overview of wallet</source>
+        <translation>显示钱包概况</translation>
+    </message>
+    <message>
+        <source>&amp;Transactions</source>
+        <translation>交易记录(&amp;T)</translation>
+    </message>
+    <message>
+        <source>Browse transaction history</source>
+        <translation>查看交易历史</translation>
+    </message>
+    <message>
+        <source>E&amp;xit</source>
+        <translation>退出(&amp;X)</translation>
+    </message>
+    <message>
+        <source>Quit application</source>
+        <translation>退出程序</translation>
+    </message>
+    <message>
+        <source>&amp;About %1</source>
+        <translation>关于 %1</translation>
+    </message>
+    <message>
+        <source>Show information about %1</source>
+        <translation>显示 %1 相关信息</translation>
+    </message>
+    <message>
+        <source>About &amp;Qt</source>
+        <translation>关于Qt(&amp;Q)</translation>
+    </message>
+    <message>
+        <source>Show information about Qt</source>
+        <translation>显示 Qt 相关信息</translation>
+    </message>
+    <message>
+        <source>&amp;Options...</source>
+        <translation>选项(&amp;O)...</translation>
+    </message>
+    <message>
+        <source>Modify configuration options for %1</source>
+        <translation>修改%1配置选项</translation>
+    </message>
+    <message>
+        <source>&amp;Encrypt Wallet...</source>
+        <translation>加密钱包(&amp;E)...</translation>
+    </message>
+    <message>
+        <source>&amp;Backup Wallet...</source>
+        <translation>备份钱包(&amp;B)...</translation>
+    </message>
+    <message>
+        <source>&amp;Change Passphrase...</source>
+        <translation>更改密码(&amp;C)...</translation>
+    </message>
+    <message>
+        <source>&amp;Unlock Wallet...</source>
+        <translation>解锁钱包(&amp;U)</translation>
+    </message>
+    <message>
+        <source>&amp;Lock Wallet</source>
+        <translation>钱包加锁(&amp;L)</translation>
+    </message>
+    <message>
+        <source>&amp;Sending addresses...</source>
+        <translation>正在发送地址(&amp;S)...</translation>
+    </message>
+    <message>
+        <source>&amp;Receiving addresses...</source>
+        <translation>正在接收地址(&amp;R)...</translation>
+    </message>
+    <message>
+        <source>Open &amp;URI...</source>
+        <translation>打开 &amp;URI...</translation>
+    </message>
+    <message>
+        <source>Click to disable network activity.</source>
+        <translation>点击禁用网络活动。</translation>
+    </message>
+    <message>
+        <source>Network activity disabled.</source>
+        <translation>网络活动已禁用。</translation>
+    </message>
+    <message>
+        <source>Click to enable network activity again.</source>
+        <translation>点击重新开启网络活动。</translation>
+    </message>
+    <message>
+        <source>Syncing Headers (%1%)...</source>
+        <translation>同步区块头 (%1%)...</translation>
+    </message>
+    <message>
+        <source>Reindexing blocks on disk...</source>
+        <translation>正在为数据块重建索引...</translation>
+    </message>
+    <message>
+        <source>Send coins to a Silubium address</source>
+        <translation>向一个SILUBIUM地址发送SILUBIUM</translation>
+    </message>
+    <message>
+        <source>Backup wallet to another location</source>
+        <translation>备份钱包到其他文件夹</translation>
+    </message>
+    <message>
+        <source>Change the passphrase used for wallet encryption</source>
+        <translation>更改钱包加密口令</translation>
+    </message>
+    <message>
+        <source>&amp;Debug window</source>
+        <translation>调试窗口(&amp;D)</translation>
+    </message>
+    <message>
+        <source>Open debugging and diagnostic console</source>
+        <translation>打开调试和诊断控制台</translation>
+    </message>
+    <message>
+        <source>&amp;Verify message...</source>
+        <translation>验证消息(&amp;V)...</translation>
+    </message>
+    <message>
+        <source>Silubium</source>
+        <translation>SILUBIUM</translation>
+    </message>
+    <message>
+        <source>Wallet</source>
+        <translation>钱包</translation>
+    </message>
+    <message>
+        <source>&amp;Send</source>
+        <translation>发送(&amp;S)</translation>
+    </message>
+    <message>
+        <source>&amp;Receive</source>
+        <translation>接收(&amp;R)</translation>
+    </message>
+    <message>
+        <source>&amp;Show / Hide</source>
+        <translation>显示 / 隐藏(&amp;S)</translation>
+    </message>
+    <message>
+        <source>Show or hide the main Window</source>
+        <translation>显示或隐藏主窗口</translation>
+    </message>
+    <message>
+        <source>Encrypt the private keys that belong to your wallet</source>
+        <translation>对钱包中的私钥加密</translation>
+    </message>
+    <message>
+        <source>Sign messages with your Silubium addresses to prove you own them</source>
+        <translation>用SILUBIUM地址关联的私钥为消息签名，以证明您拥有这个SILUBIUM地址</translation>
+    </message>
+    <message>
+        <source>Verify messages to ensure they were signed with specified Silubium addresses</source>
+        <translation>校验消息，确保该消息是由指定的SILUBIUM地址所有者签名的</translation>
+    </message>
+    <message>
+        <source>&amp;File</source>
+        <translation>文件(&amp;F)</translation>
+    </message>
+    <message>
+        <source>&amp;Settings</source>
+        <translation>设置(&amp;S)</translation>
+    </message>
+    <message>
+        <source>&amp;Help</source>
+        <translation>帮助(&amp;H)</translation>
+    </message>
+    <message>
+        <source>Tabs toolbar</source>
+        <translation>分页工具栏</translation>
+    </message>
+    <message>
+        <source>Request payments (generates QR codes and silubium: URIs)</source>
+        <translation>请求支付 (生成二维码和 silubium: URI)</translation>
+    </message>
+    <message>
+        <source>Show the list of used sending addresses and labels</source>
+        <translation>显示用过的发送地址和标签的列表</translation>
+    </message>
+    <message>
+        <source>Show the list of used receiving addresses and labels</source>
+        <translation>显示用过的接收地址和标签的列表</translation>
+    </message>
+    <message>
+        <source>Open a silubium: URI or payment request</source>
+        <translation>打开一个 silubium: URI 或支付请求</translation>
+    </message>
+    <message>
+        <source>&amp;Command-line options</source>
+        <translation>命令行选项(&amp;C)</translation>
+    </message>
+    <message>
+        <source>%n active connection(s) to Silubium network</source>
+        <translation>%n 个到SILUBIUM网络的活动连接</translation>
     </message>
     <message>
         <source>Indexing blocks on disk...</source>
@@ -546,11 +996,9 @@
         <source>Processing blocks on disk...</source>
         <translation>正在处理数据块...</translation>
     </message>
-    <message numerus="yes">
+    <message>
         <source>Processed %n block(s) of transaction history.</source>
-        <translation>
-            <numerusform>已处理 %n 个交易历史数据块。</numerusform>
-        </translation>
+        <translation>已处理 %n 个交易历史数据块。</translation>
     </message>
     <message>
         <source>%1 behind</source>
@@ -597,25 +1045,35 @@
         <translation>更新中...</translation>
     </message>
     <message>
-        <location filename="bitcoingui.cpp" line="1422"/>
-        <source>Date: %1\n</source>
-        <translation>日期: %1\n</translation>
+        <source>Date: %1
+</source>
+        <translation>日期: %1
+</translation>
+
     </message>
     <message>
-        <source>Amount: %1\n</source>
-        <translation>金额: %1\n</translation>
+        <source>Amount: %1
+</source>
+        <translation>金额: %1
+</translation>
     </message>
     <message>
-        <source>Type: %1\n</source>
-        <translation>类型: %1\n</translation>
+        <source>Type: %1
+</source>
+        <translation>类型: %1
+</translation>
     </message>
     <message>
-        <source>Label: %1\n</source>
-        <translation>标签: %1\n</translation>
+        <source>Label: %1
+</source>
+        <translation>标签: %1
+</translation>
     </message>
     <message>
-        <source>Address: %1\n</source>
-        <translation>地址: %1\n</translation>
+        <source>Address: %1
+</source>
+        <translation>地址: %1
+</translation>
     </message>
     <message>
         <source>Sent transaction</source>
@@ -836,11 +1294,11 @@
         <translation>编辑付款地址</translation>
     </message>
     <message>
-        <source>The entered address &quot;%1&quot; is not a valid Silubium address.</source>
+        <source>The entered address "%1" is not a valid Silubium address.</source>
         <translation>输入的地址 %1 并不是有效的SILUBIUM地址。</translation>
     </message>
     <message>
-        <source>The entered address &quot;%1&quot; is already in the address book.</source>
+        <source>The entered address "%1" is already in the address book.</source>
         <translation>输入的地址 %1 已经存在地址簿。</translation>
     </message>
     <message>
@@ -850,14 +1308,6 @@
     <message>
         <source>New key generation failed.</source>
         <translation>产生新的密钥失败了。</translation>
-    </message>
-    <message>
-        <source>&amp;OK</source>
-        <translation>确定(&amp;O)</translation>
-    </message>
-    <message>
-        <source>&amp;CANCEL</source>
-        <translation>取消(&amp;C)</translation>
     </message>
 </context>
 <context>
@@ -918,7 +1368,7 @@
         <translation>在启动时选择目录（默认%u）</translation>
     </message>
     <message>
-        <source>Set language, for example &quot;de_DE&quot; (default: system locale)</source>
+        <source>Set language, for example "de_DE" (default: system locale)</source>
         <translation>设置语言, 例如“zh-CN”（默认：系统语言）</translation>
     </message>
     <message>
@@ -937,18 +1387,6 @@
         <source>Reset all settings changed in the GUI</source>
         <translation>重置图形界面所有的变更设置</translation>
     </message>
-<!--    <message>
-        <source>Please contribute if you find %s useful.</source>
-        <translation>如果你认为%s对你比较有用的话，请对我们进行一些捐赠支持。</translation>
-    </message>
-    <message>
-        <source>Visit %s for further information about the software.</source>
-        <translation>请访问%s网站来获取有关这个软件的更多信息。</translation>
-    </message>-->
-    <message>
-        <source>&amp;OK</source>
-        <translation>确定(&amp;O)</translation>
-    </message>
 </context>
 <context>
     <name>Intro</name>
@@ -958,15 +1396,19 @@
     </message>
     <message>
         <source>Welcome to %1.</source>
-        <translation>歡迎來到 %1</translation>
+        <translation>欢迎使用 %1</translation>
     </message>
     <message>
         <source>As this is the first time the program is launched, you can choose where %1 will store its data.</source>
         <translation>由于这是第一次启动此程序，您可以选择%1的数据所存储的位置</translation>
     </message>
     <message>
-        <source>%1 will download and store a copy of the Silubium block chain. At least %2GB of data will be stored in this directory, and it will grow over time. The wallet will also be stored in this directory.</source>
-        <translation>%1 会下载并存储一份SILUBIUM区块链的副本。至少有 %2GB 的数据会存储到这个目录中，并且还会持续增长。另外钱包资料也会储存在这个目录。</translation>
+        <source>When you click OK, %1 will begin to download and process the full %4 block chain (%2GB) starting with the earliest transactions in %3 when %4 initially launched.</source>
+        <translation>当你点击确认后，%1 将会在 %4 启动时从  %3 中最早的交易开始，下载并处理完整的 %4 区块链 (%2GB)。</translation>
+    </message>
+    <message>
+        <source>If you have chosen to limit block chain storage (pruning), the historical data must still be downloaded and processed, but will be deleted afterward to keep your disk usage low.</source>
+        <translation>如果你选择限制区块链存储大小（区块链裁剪模式），程序依然会下载并处理全部历史数据，此后才会删除不必须的部分，占用最少的存储空间。</translation>
     </message>
     <message>
         <source>Use the default data directory</source>
@@ -977,26 +1419,34 @@
         <translation>使用自定义的数据目录：</translation>
     </message>
     <message>
-        <source>Error: Specified data directory &quot;%1&quot; cannot be created.</source>
-        <translation>错误：无法创建 指定的数据目录 &quot;%1&quot; </translation>
+        <source>Silubium</source>
+        <translation>SILUBIUM</translation>
+    </message>
+    <message>
+        <source>At least %1 GB of data will be stored in this directory, and it will grow over time.</source>
+        <translation>此目录中至少会保存 %1 GB 的数据，并且尺寸还会随着时间增长。</translation>
+    </message>
+    <message>
+        <source>Approximately %1 GB of data will be stored in this directory.</source>
+        <translation>会在此目录中存储约 %1 GB 的数据。</translation>
+    </message>
+    <message>
+        <source>%1 will download and store a copy of the Silubium block chain.</source>
+        <translation>%1 将会下载并存储SILUBIUM区块链。</translation>
+    </message>
+    <message>
+        <source>The wallet will also be stored in this directory.</source>
+        <translation>钱包也会被保存在这个目录中。</translation>
+    </message>
+    <message>
+        <source>Error: Specified data directory "%1" cannot be created.</source>
+        <translation>错误：无法创建 指定的数据目录 "%1" </translation>
     </message>
     <message>
         <source>Error</source>
         <translation>错误</translation>
     </message>
-    <message numerus="yes">
-        <source>%n GB of free space available</source>
-        <translation>
-            <numerusform>有 %n GB 空闲空间</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>(of %n GB needed)</source>
-        <translation>
-            <numerusform>(需要%n GB空间)</numerusform>
-        </translation>
-    </message>
-</context>
+    </context>
 <context>
     <name>ModalOverlay</name>
     <message>
@@ -1004,7 +1454,7 @@
         <translation>表单</translation>
     </message>
     <message>
-        <source>Recent transactions may not yet be visible, and therefore your wallet&apos;s balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the silubium network, as detailed below.</source>
+        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the silubium network, as detailed below.</source>
         <translation>近期交易可能尚未显示，因此当前余额可能不准确。以上信息将在与SILUBIUM网络完全同步后更正。详情如下</translation>
     </message>
     <message>
@@ -1045,7 +1495,7 @@
     </message>
     <message>
         <source>Unknown. Syncing Headers (%1)...</source>
-        <translation>未知状态。同步区块头（%1）</translation>
+        <translation>未知状态。同步区块头(%1)...</translation>
     </message>
 </context>
 <context>
@@ -1102,6 +1552,10 @@
         <translation>数据库缓存大小(&amp;D)</translation>
     </message>
     <message>
+        <source>MB</source>
+        <translation>MB</translation>
+    </message>
+    <message>
         <source>Reserve</source>
         <translation>保留</translation>
     </message>
@@ -1151,12 +1605,16 @@
         <translation>接收外部连接</translation>
     </message>
     <message>
-        <source>Allow incoming connections</source>
-        <translation>允许流入连接</translation>
+        <source>Allow incomin&amp;g connections</source>
+        <translation>允许流入连接(&amp;g)</translation>
     </message>
     <message>
         <source>IP address of the proxy (e.g. IPv4: 127.0.0.1 / IPv6: ::1)</source>
         <translation>代理的 IP 地址 (例如 IPv4: 127.0.0.1 / IPv6: ::1)</translation>
+    </message>
+    <message>
+        <source>Shows if the supplied default SOCKS5 proxy is used to reach peers via this network type.</source>
+        <translation>显示默认的SOCKS5代理是否被用于在该类型的网络下连接同伴</translation>
     </message>
     <message>
         <source>Minimize instead of exit the application when the window is closed. When this option is enabled, the application will be closed only after selecting Exit in the menu.</source>
@@ -1167,12 +1625,20 @@
         <translation>出现在交易的选项卡的上下文菜单项的第三方网址 (例如：区块链接查询) 。 %s的URL被替换为交易哈希。多个的URL需要竖线 | 分隔。</translation>
     </message>
     <message>
-        <source>Third party transaction URLs</source>
-        <translation>区块链浏览器网址：</translation>
+        <source>&amp;Third party transaction URLs</source>
+        <translation>区块链浏览器网址(&amp;T)：</translation>
     </message>
     <message>
         <source>Active command-line options that override above options:</source>
         <translation>有效的命令行参数覆盖上述选项:</translation>
+    </message>
+    <message>
+        <source>Open the %1 configuration file from the working directory.</source>
+        <translation>从工作目录下打开配置文件 %1。</translation>
+    </message>
+    <message>
+        <source>Open Configuration File</source>
+        <translation>打开配置文件</translation>
     </message>
     <message>
         <source>Reset all client options to default.</source>
@@ -1188,7 +1654,7 @@
     </message>
     <message>
         <source>(0 = auto, &lt;0 = leave that many cores free)</source>
-        <translation>(0 = 自动, &lt;0 = 离开很多免费的核心)</translation>
+        <translation>(0 = 自动, &lt;0 = 保持指定数量的CPU核心空闲)</translation>
     </message>
     <message>
         <source>W&amp;allet</source>
@@ -1263,7 +1729,7 @@
         <translation>在 Tor 匿名网络下通过不同的 SOCKS5 代理连接SILUBIUM网络</translation>
     </message>
     <message>
-        <source>Use separate SOCKS5 proxy to reach peers via Tor hidden services:</source>
+        <source>Use separate SOCKS&amp;5 proxy to reach peers via Tor hidden services:</source>
         <translation>通过Tor隐藏服务连接节点时 使用不同的SOCKS5代理</translation>
     </message>
     <message>
@@ -1275,8 +1741,8 @@
         <translation>不在通知区显示图标</translation>
     </message>
     <message>
-        <source>Hide tray icon</source>
-        <translation>不显示通知区图标</translation>
+        <source>&amp;Hide tray icon</source>
+        <translation>不显示通知区图标(&amp;H)</translation>
     </message>
     <message>
         <source>Show only a tray icon after minimizing the window.</source>
@@ -1343,6 +1809,22 @@
         <translation>客户端即将关闭，您想继续吗？</translation>
     </message>
     <message>
+        <source>Configuration options</source>
+        <translation>配置选项</translation>
+    </message>
+    <message>
+        <source>The configuration file is used to specify advanced user options which override GUI settings. Additionally, any command-line options will override this configuration file.</source>
+        <translation>配置文件可以用来设置高级选项。配置文件会覆盖设置界面窗口中的选项。此外，命令行会覆盖配置文件指定的选项。</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>错误</translation>
+    </message>
+    <message>
+        <source>The configuration file could not be opened.</source>
+        <translation>配置文件无法打开。</translation>
+    </message>
+    <message>
         <source>This change would require a client restart.</source>
         <translation>此更改需要重启客户端。</translation>
     </message>
@@ -1353,6 +1835,24 @@
 </context>
 <context>
     <name>OverviewPage</name>
+    <!-- Wujiang Added -->
+    <message>
+        <source>Other Tokens</source>
+        <translation>其他代币</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation>添加</translation>
+    </message>
+    <message>
+        <source>RecentTransactions</source>
+        <translation>最近的交易</translation>
+    </message>
+    <message>
+        <source>Show more...</source>
+        <translation>显示更多...</translation>
+    </message>
+    <!-- Wujiang Added -->
     <message>
         <source>Form</source>
         <translation>表单</translation>
@@ -1363,7 +1863,7 @@
     </message>
     <message>
         <source>Watch-only:</source>
-        <translation>查看-只有:</translation>
+        <translation>仅观察:</translation>
     </message>
     <message>
         <source>Available:</source>
@@ -1398,16 +1898,8 @@
         <translation>余额</translation>
     </message>
     <message>
-        <source>Total:        </source>
-        <translation>总额：       </translation>
-    </message>
-    <message>
-        <source>Other Tokens</source>
-        <translation>其他代币</translation>
-    </message>
-    <message>
-        <source>ADD</source>
-        <translation>添加代币</translation>
+        <source>Total:</source>
+        <translation>总额：</translation>
     </message>
     <message>
         <source>Your current total balance</source>
@@ -1422,7 +1914,7 @@
         <translation>可使用：</translation>
     </message>
     <message>
-        <source>RecentTransactions</source>
+        <source>Recent transactions</source>
         <translation>最近交易记录</translation>
     </message>
     <message>
@@ -1494,16 +1986,12 @@
         <translation>付款请求已被拒绝</translation>
     </message>
     <message>
-        <source>Payment request network doesn&apos;t match client network.</source>
+        <source>Payment request network doesn't match client network.</source>
         <translation>付款请求的网络类型跟客户端不符。</translation>
     </message>
     <message>
         <source>Payment request expired.</source>
         <translation>付款请求已过期。</translation>
-    </message>
-    <message>
-        <source>Payment request is not initialized.</source>
-        <translation>支付请求未成形。</translation>
     </message>
     <message>
         <source>Unverified payment requests to custom payment scripts are unsupported.</source>
@@ -1515,11 +2003,11 @@
     </message>
     <message>
         <source>Requested payment amount of %1 is too small (considered dust).</source>
-        <translation>请求支付的金额 %1 太小（就像尘埃）。</translation>
+        <translation>请求支付的金额 %1 太小 (可被忽略)。</translation>
     </message>
     <message>
         <source>Refund from %1</source>
-        <translation>退款来自 %1</translation>
+        <translation>来自 %1 的退款</translation>
     </message>
     <message>
         <source>Payment request %1 is too large (%2 bytes, allowed %3 bytes).</source>
@@ -1527,15 +2015,15 @@
     </message>
     <message>
         <source>Error communicating with %1: %2</source>
-        <translation>%1: %2 通讯出错</translation>
+        <translation>与 %1 通信出错: %2</translation>
     </message>
     <message>
         <source>Payment request cannot be parsed!</source>
-        <translation>无法解析 付款请求！</translation>
+        <translation>无法解析付款请求！</translation>
     </message>
     <message>
         <source>Bad response from server %1</source>
-        <translation>来自 %1 服务器的错误响应</translation>
+        <translation>来自服务器 %1 的响应无效</translation>
     </message>
     <message>
         <source>Network request error</source>
@@ -1563,6 +2051,14 @@
     <message>
         <source>Ping</source>
         <translation> </translation>
+    </message>
+    <message>
+        <source>Sent</source>
+        <translation>发送</translation>
+    </message>
+    <message>
+        <source>Received</source>
+        <translation>收到</translation>
     </message>
 </context>
 <context>
@@ -1603,55 +2099,39 @@
         <source>%1 ms</source>
         <translation>%1 毫秒</translation>
     </message>
-    <message numerus="yes">
-        <source>%n second(s)</source>
-        <translation>
-            <numerusform>%n 秒</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%n minute(s)</source>
-        <translation>
-            <numerusform>%n 分钟</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%n hour(s)</source>
-        <translation>
-            <numerusform>%n 小时</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%n day(s)</source>
-        <translation>
-            <numerusform>%n 天</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%n week(s)</source>
-        <translation>
-            <numerusform>%n 周</numerusform>
-        </translation>
-    </message>
     <message>
         <source>%1 and %2</source>
         <translation>%1 和 %2</translation>
     </message>
-    <message numerus="yes">
-        <source>%n year(s)</source>
-        <translation>
-            <numerusform>%n 年</numerusform>
-        </translation>
+    <message>
+        <source>%1 B</source>
+        <translation>%1 字节</translation>
     </message>
     <message>
-        <source>%1 didn&apos;t yet exit safely...</source>
+        <source>%1 KB</source>
+        <translation>%1 KB</translation>
+    </message>
+    <message>
+        <source>%1 MB</source>
+        <translation>%1 MB</translation>
+    </message>
+    <message>
+        <source>%1 GB</source>
+        <translation>%1 GB</translation>
+    </message>
+    <message>
+        <source>%1 didn't yet exit safely...</source>
         <translation>%1 尚未安全退出</translation>
+    </message>
+    <message>
+        <source>unknown</source>
+        <translation>未知</translation>
     </message>
 </context>
 <context>
     <name>QObject::QObject</name>
     <message>
-        <source>Error: Specified data directory &quot;%1&quot; does not exist.</source>
+        <source>Error: Specified data directory "%1" does not exist.</source>
         <translation>错误：指定的数据目录“%1”不存在。</translation>
     </message>
     <message>
@@ -1747,6 +2227,10 @@
     <message>
         <source>Memory usage</source>
         <translation>内存使用</translation>
+    </message>
+    <message>
+        <source>&amp;Reset</source>
+        <translation>&amp;重启</translation>
     </message>
     <message>
         <source>Received</source>
@@ -1918,15 +2402,11 @@
     </message>
     <message>
         <source>Use up and down arrows to navigate history, and %1 to clear screen.</source>
-        <translation>使用上下方向键浏览历史,  %1清除屏幕。</translation>
-    </message>
-    <message>
-        <source>Type &lt;b&gt;help&lt;/b&gt; for an overview of available commands.</source>
-        <translation>使用 &lt;b&gt;help&lt;/b&gt; 命令显示帮助信息。</translation>
+        <translation>使用上下方向键浏览历史,  以及 %1 清除屏幕。</translation>
     </message>
     <message>
         <source>WARNING: Scammers have been active, telling users to type commands here, stealing their wallet contents. Do not use this console without fully understanding the ramifications of a command.</source>
-        <translation>警告：已有骗子通过要求用户在此输入指令以盗取钱包。不要在没有完全理解命令规范时使用控制台。</translation>
+        <translation>警告： 已有骗子通过要求用户在此输入指令以盗取钱包。不要在没有完全理解命令规范时使用控制台。</translation>
     </message>
     <message>
         <source>Network activity disabled</source>
@@ -2185,6 +2665,26 @@
 <context>
     <name>SendCoinsDialog</name>
     <message>
+        <source>Amount&lt;=1,000 SLU:0.00005% SLU/kB</source>
+        <translation>当金额&lt;=1,000SLU时,手续费:0.00005% SLU/kB</translation>
+    </message>
+    <message>
+        <source>Amount&lt;=10,000 SLU:0.00004% SLU/kB</source>
+        <translation>当金额&lt;=10,000SLU时,手续费:0.00004% SLU/kB</translation>
+    </message>
+    <message>
+        <source>Amount&lt;=100,000 SLU:0.00003% SLU/kB</source>
+        <translation>当金额&lt;=100,000SLU时,手续费:0.00003% SLU/kB</translation>
+    </message>
+    <message>
+        <source>Amount&lt;=1,000,000 SLU:0.00002% SLU/kB</source>
+        <translation>当金额&lt;=1,000,000SLU时,手续费:0.00002% SLU/kB</translation>
+    </message>
+    <message>
+        <source>Amount&gt;1,000,000 SLU:0.00001% SLU/kB</source>
+        <translation>当金额&gt;1,000,000SLU时,手续费:0.00001% SLU/kB</translation>
+    </message>
+    <message>
         <source>Send Coins</source>
         <translation>发送SILUBIUM</translation>
     </message>
@@ -2245,6 +2745,14 @@
         <translation>选择... </translation>
     </message>
     <message>
+        <source>Using the fallbackfee can result in sending a transaction that will take several hours or days (or never) to confirm. Consider choosing your fee manually or wait until you have validated the complete chain.</source>
+        <translation>如果使用备用交易费设置，有可能会导致交易经过几个小时、几天（甚至永远）无法被确认。请考虑手动选择交易费，或等待整个链完成验证。</translation>
+    </message>
+    <message>
+        <source>Warning: Fee estimation is currently not possible.</source>
+        <translation>警告: 目前无法进行交易费估计。</translation>
+    </message>
+    <message>
         <source>collapse fee-settings</source>
         <translation>收起  费用设置 </translation>
     </message>
@@ -2253,8 +2761,8 @@
         <translation>每kb</translation>
     </message>
     <message>
-        <source>If the custom fee is set to 1000 satoshis and the transaction is only 250 bytes, then &quot;per kilobyte&quot; only pays 250 satoshis in fee, while &quot;total at least&quot; pays 1000 satoshis. For transactions bigger than a kilobyte both pay by kilobyte.</source>
-        <translation>如果自定义交易费设置为 1000聪而交易大小只有250字节，则“每千字节&quot; 模式只支付250聪交易费， 而&quot;最少&quot;模式则支付1000聪。 大于1000字节的交易按每千字节付费。</translation>
+        <source>If the custom fee is set to 1000 satoshis and the transaction is only 250 bytes, then "per kilobyte" only pays 250 satoshis in fee, while "total at least" pays 1000 satoshis. For transactions bigger than a kilobyte both pay by kilobyte.</source>
+        <translation>如果自定义交易费设置为 1000聪而交易大小只有250字节，则“每千字节" 模式只支付250聪交易费， 而"最少"模式则支付1000聪。 大于1000字节的交易按每千字节付费。</translation>
     </message>
     <message>
         <source>Hide</source>
@@ -2266,7 +2774,7 @@
     </message>
     <message>
         <source>Paying only the minimum fee is just fine as long as there is less transaction volume than space in the blocks. But be aware that this can end up in a never confirming transaction once there is more demand for silubium transactions than the network can process.</source>
-        <translation>交易量小时只支付最小交易费是可以的。但是请注意，当交易量大到超出网络可处理时您的交易可能永远无法确认。</translation>
+        <translation>交易量小时允许只支付最小交易费。但是请注意，当交易量大到超出网络可处理时您的交易可能永远无法确认。</translation>
     </message>
     <message>
         <source>(read the tooltip)</source>
@@ -2365,6 +2873,10 @@
         <translation>复制找零金额</translation>
     </message>
     <message>
+        <source>%1 (%2 blocks)</source>
+        <translation>%1 (%2个块)</translation>
+    </message>
+    <message>
         <source>%1 to %2</source>
         <translation>%1 到 %2</translation>
     </message>
@@ -2386,7 +2898,7 @@
     </message>
     <message>
         <source>Confirm send coins</source>
-        <translation>确认发送货币</translation>
+        <translation>确认发送</translation>
     </message>
     <message>
         <source>The recipient address is not valid. Please recheck.</source>
@@ -2398,11 +2910,11 @@
     </message>
     <message>
         <source>The amount exceeds your balance.</source>
-        <translation>金额超出您的账上余额。</translation>
+        <translation>金额超出您的余额。</translation>
     </message>
     <message>
         <source>The total exceeds your balance when the %1 transaction fee is included.</source>
-        <translation>计入 %1 交易费后的金额超出您的账上余额。</translation>
+        <translation>计入 %1 交易费后的金额超出您的余额。</translation>
     </message>
     <message>
         <source>Duplicate address found: addresses should only be used once each.</source>
@@ -2418,7 +2930,7 @@
     </message>
     <message>
         <source>A fee higher than %1 is considered an absurdly high fee.</source>
-        <translation>超过 %1 的交易费被认为是荒谬的高费率。</translation>
+        <translation>交易费一般不应超过 %1。</translation>
     </message>
     <message>
         <source>Payment request expired.</source>
@@ -2449,6 +2961,10 @@
         <translation>警告：未知的更改地址</translation>
     </message>
     <message>
+        <source>Confirm custom change address</source>
+        <translation>确认用户找零地址</translation>
+    </message>
+    <message>
         <source>The address you selected for change is not part of this wallet. Any or all funds in your wallet may be sent to this address. Are you sure?</source>
         <translation>你选择的找零地址未被包含在本钱包中，你钱包中的部分或全部金额将被发送至该地址。你确定要这样做吗？</translation>
     </message>
@@ -2474,6 +2990,10 @@
     <message>
         <source>Choose previously used address</source>
         <translation>选择以前用过的地址</translation>
+    </message>
+    <message>
+        <source>Use available balance</source>
+        <translation>使用全部可用余额</translation>
     </message>
     <message>
         <source>This is a normal payment.</source>
@@ -2570,7 +3090,7 @@
     </message>
     <message>
         <source>You can sign messages/agreements with your addresses to prove you can receive silubiums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
-        <translation>您可以用您的地址对消息/协议进行签名，以证明您可以接收发送到该地址的SILUBIUM。注意不要对任何模棱两可或者随机的消息进行签名，以免遭受钓鱼式攻击。请确保消息内容准确地表达了您的真实意愿。</translation>
+        <translation>您可以用你的地址对消息/协议进行签名，以证明您可以接收发送到该地址的SILUBIUM。注意不要对任何模棱两可或者随机的消息进行签名，以免遭受钓鱼式攻击。请确保消息内容准确的表达了您的真实意愿。</translation>
     </message>
     <message>
         <source>The Silubium address to sign the message with</source>
@@ -2625,7 +3145,7 @@
         <translation>验证消息(&amp;V)</translation>
     </message>
     <message>
-        <source>Enter the receiver&apos;s address, message (ensure you copy line breaks, spaces, tabs, etc. exactly) and signature below to verify the message. Be careful not to read more into the signature than what is in the signed message itself, to avoid being tricked by a man-in-the-middle attack. Note that this only proves the signing party receives with the address, it cannot prove sendership of any transaction!</source>
+        <source>Enter the receiver's address, message (ensure you copy line breaks, spaces, tabs, etc. exactly) and signature below to verify the message. Be careful not to read more into the signature than what is in the signed message itself, to avoid being tricked by a man-in-the-middle attack. Note that this only proves the signing party receives with the address, it cannot prove sendership of any transaction!</source>
         <translation>请在下面输入接收者地址、消息（确保换行符、空格符、制表符等完全相同）和签名以验证消息。请仔细核对签名信息，以提防中间人攻击。请注意，这只是证明接收方签名的地址，它不能证明任何交易！</translation>
     </message>
     <message>
@@ -2645,12 +3165,12 @@
         <translation>清空所有验证消息栏</translation>
     </message>
     <message>
-        <source>Click &quot;Sign Message&quot; to generate signature</source>
+        <source>Click "Sign Message" to generate signature</source>
         <translation>单击“签名消息“产生签名。</translation>
     </message>
     <message>
         <source>The entered address is invalid.</source>
-        <translation>输入的地址非法。</translation>
+        <translation>输入的地址无效。</translation>
     </message>
     <message>
         <source>Please check the address and try again.</source>
@@ -2753,7 +3273,7 @@
     </message>
     <message>
         <source>%1 confirmations</source>
-        <translation>%1 已确认</translation>
+        <translation>%1 个确认</translation>
     </message>
     <message>
         <source>Status</source>
@@ -2841,7 +3361,7 @@
     </message>
     <message>
         <source>Transaction fee</source>
-        <translation>交易费</translation>
+        <translation>交易费用</translation>
     </message>
     <message>
         <source>Net amount</source>
@@ -2857,7 +3377,7 @@
     </message>
     <message>
         <source>Transaction ID</source>
-        <translation>交易ID</translation>
+        <translation>交易 ID</translation>
     </message>
     <message>
         <source>Transaction total size</source>
@@ -3131,7 +3651,7 @@
     </message>
     <message>
         <source>Type</source>
-        <translation>类型</translation>
+        <translation>种类</translation>
     </message>
     <message>
         <source>Label</source>
@@ -3143,11 +3663,11 @@
     </message>
     <message>
         <source>Offline</source>
-        <translation>掉线</translation>
+        <translation>离线</translation>
     </message>
     <message>
         <source>Unconfirmed</source>
-        <translation>未确认的 </translation>
+        <translation>未确认</translation>
     </message>
     <message>
         <source>Abandoned</source>
@@ -3231,11 +3751,11 @@
     </message>
     <message>
         <source>Date and time that the transaction was received.</source>
-        <translation>接收到交易的时间</translation>
+        <translation>交易被接收的时间和日期。</translation>
     </message>
     <message>
         <source>Type of transaction.</source>
-        <translation>交易类别。</translation>
+        <translation>交易类型。</translation>
     </message>
     <message>
         <source>Whether or not a watch-only address is involved in this transaction.</source>
@@ -3252,6 +3772,20 @@
 </context>
 <context>
     <name>TransactionView</name>
+    <!-- Wujiang Added -->
+    <message>
+        <source>Contract Receive</source>
+        <translation>收到的合约</translation>
+    </message>
+    <message>
+        <source>Contract Send</source>
+        <translation>发送的合约</translation>
+    </message>
+    <message>
+        <source>Enter address, transaction id, or label to search</source>
+        <translation>请输入要搜寻的地址、交易ID或者标签</translation>
+    </message>
+    <!-- Wujiang Added -->
     <message>
         <source>All</source>
         <translation>全部</translation>
@@ -3337,6 +3871,10 @@
         <translation>放弃交易</translation>
     </message>
     <message>
+        <source>Increase transaction fee</source>
+        <translation>增加交易费</translation>
+    </message>
+    <message>
         <source>Copy address</source>
         <translation>复制地址</translation>
     </message>
@@ -3354,11 +3892,7 @@
     </message>
     <message>
         <source>Copy raw transaction</source>
-        <translation>复制原始交易</translation>
-    </message>
-    <message>
-        <source>Increase transaction fee</source>
-        <translation>增加交易费用</translation>
+        <translation>拷贝原始交易</translation>
     </message>
     <message>
         <source>Copy full transaction details</source>
@@ -3394,7 +3928,7 @@
     </message>
     <message>
         <source>Type</source>
-        <translation>类型</translation>
+        <translation>种类</translation>
     </message>
     <message>
         <source>Label</source>
@@ -3414,7 +3948,7 @@
     </message>
     <message>
         <source>There was an error trying to save the transaction history to %1.</source>
-        <translation>导出交易历史到 %1 时发生错误。</translation>
+        <translation>尝试保存交易历史 %1 时发生了错误。</translation>
     </message>
     <message>
         <source>Exporting Successful</source>
@@ -3453,6 +3987,34 @@
         <source>Send Coins</source>
         <translation>发送SILUBIUM</translation>
     </message>
+    <message>
+        <source>Increasing transaction fee failed</source>
+        <translation>增加交易费失败</translation>
+    </message>
+    <message>
+        <source>Do you want to increase the fee?</source>
+        <translation>你是否愿意增加交易费?</translation>
+    </message>
+    <message>
+        <source>Current fee:</source>
+        <translation>当前交易费:</translation>
+    </message>
+    <message>
+        <source>Increase:</source>
+        <translation>增加量:</translation>
+    </message>
+    <message>
+        <source>New fee:</source>
+        <translation>新交易费:</translation>
+    </message>
+    <message>
+        <source>Can't sign transaction.</source>
+        <translation>无法签署交易。</translation>
+    </message>
+    <message>
+        <source>Could not commit transaction</source>
+        <translation>无法提交交易</translation>
+    </message>
 </context>
 <context>
     <name>WalletView</name>
@@ -3462,7 +4024,7 @@
     </message>
     <message>
         <source>Export the data in the current tab to a file</source>
-        <translation>导出当前分页里的数据到文件</translation>
+        <translation>将当前标签页数据导出到文件</translation>
     </message>
     <message>
         <source>Backup Wallet</source>
@@ -3478,7 +4040,7 @@
     </message>
     <message>
         <source>There was an error trying to save the wallet data to %1.</source>
-        <translation>尝试保存钱包数据至 %1 时发生错误。</translation>
+        <translation>尝试保存钱包数据至 %1 时发生了错误。</translation>
     </message>
     <message>
         <source>Backup Successful</source>
@@ -3486,7 +4048,7 @@
     </message>
     <message>
         <source>The wallet data was successfully saved to %1.</source>
-        <translation>钱包数据成功保存至 %1 。</translation>
+        <translation>钱包数据成功保存至 %1。</translation>
     </message>
 </context>
 <context>
@@ -3522,7 +4084,8 @@
     </message>
     <message>
         <source>Accept command line and JSON-RPC commands</source>
-        <translation>接受命令行和 JSON-RPC 命令</translation>
+        <translation>接受命令行和 JSON-RPC 命令
+</translation>
     </message>
     <message>
         <source>Distributed under the MIT software license, see the accompanying file %s or %s</source>
@@ -3558,7 +4121,9 @@
     </message>
     <message>
         <source>Run in the background as a daemon and accept commands</source>
-        <translation>在后台运行并接受命令</translation>
+        <translation>在后台运行并接受命令
+
+</translation>
     </message>
     <message>
         <source>Unable to start HTTP server. See debug log for details.</source>
@@ -3586,7 +4151,7 @@
     </message>
     <message>
         <source>Cannot obtain a lock on data directory %s. %s is probably already running.</source>
-        <translation>无法给数据目录 %s 上锁。%s 可能已经在运行。</translation>
+        <translation>无法锁定数据目录 %s。%s 可能已经在运行。</translation>
     </message>
     <message>
         <source>Delete all wallet transactions and only recover those parts of the blockchain through -rescan on startup</source>
@@ -3597,15 +4162,19 @@
         <translation>读取 %s 时发生错误！所有的密钥都可以正确读取，但是交易记录或地址簿数据可能已经丢失或出错。</translation>
     </message>
     <message>
+        <source>Exclude debugging information for a category. Can be used in conjunction with -debug=1 to output debug logs for all categories except one or more specified categories.</source>
+        <translation>排除某一类Debug信息。可以与 -debug=1 一起使用，以输出除了指定类别以外的Debug日志。</translation>
+    </message>
+    <message>
         <source>Execute command when a wallet transaction changes (%s in cmd is replaced by TxID)</source>
         <translation>当最佳区块变化时执行命令 (命令行中的 %s 会被替换成区块哈希值)</translation>
     </message>
     <message>
         <source>Maximum total fees (in %s) to use in a single wallet transaction or raw transaction; setting this too low may abort large transactions (default: %s)</source>
-        <translation>最大的单次钱包或原始转账费用（%s），设置太低可能导致大尺寸交易失败（默认：%s）</translation>
+        <translation>最大的单次钱包或原始转账费用(%s)，设置太低可能导致大尺寸交易失败(默认：%s)</translation>
     </message>
     <message>
-        <source>Please check that your computer&apos;s date and time are correct! If your clock is wrong, %s will not work properly.</source>
+        <source>Please check that your computer's date and time are correct! If your clock is wrong, %s will not work properly.</source>
         <translation>请检查电脑的日期时间设置是否正确！时间错误可能会导致 %s 运行异常。</translation>
     </message>
     <message>
@@ -3617,12 +4186,36 @@
         <translation>设置脚本验证的程序 (%u 到 %d, 0 = 自动, &lt;0 = 保留自由的核心, 默认值: %d)</translation>
     </message>
     <message>
-        <source>The block database contains a block which appears to be from the future. This may be due to your computer&apos;s date and time being set incorrectly. Only rebuild the block database if you are sure that your computer&apos;s date and time are correct</source>
+        <source>The block database contains a block which appears to be from the future. This may be due to your computer's date and time being set incorrectly. Only rebuild the block database if you are sure that your computer's date and time are correct</source>
         <translation>区块数据库包含未来的交易，这可能是由本机错误的日期时间引起。若确认本机日期时间正确，请重新建立区块数据库。</translation>
+    </message>
+    <message>
+        <source>This is a pre-release test build - use at your own risk - do not use for mining or merchant applications</source>
+        <translation>这是测试用的预发布版本 - 请谨慎使用 - 不要用来挖矿，或者在正式商用环境下使用</translation>
+    </message>
+    <message>
+        <source>This is the transaction fee you may discard if change is smaller than dust at this level</source>
+        <translation>如果对你的交易量来说，消耗的手续费微乎其微，那么这笔手续费你或许可以忽略它。</translation>
     </message>
     <message>
         <source>Use UPnP to map the listening port (default: 1 when listening and no -proxy)</source>
         <translation>使用UPnP暴露本机监听端口（默认：1 当正在监听且不使用代理）</translation>
+    </message>
+    <message>
+        <source>Warning: The network does not appear to fully agree! Some miners appear to be experiencing issues.</source>
+        <translation>警告：网络似乎并不完全同意！有些矿工似乎遇到了问题。</translation>
+    </message>
+    <message>
+        <source>Warning: We do not appear to fully agree with our peers! You may need to upgrade, or other nodes may need to upgrade.</source>
+        <translation>警告：我们的同行似乎不完全同意！您可能需要升级，或者其他节点可能需要升级。</translation>
+    </message>
+    <message>
+        <source>Whether to save the mempool on shutdown and load on restart (default: %u)</source>
+        <translation>是否在退出时保存内存池，并在启动时重新载入(默认值: %u)</translation>
+    </message>
+    <message>
+        <source>%d of last 100 blocks have unexpected version</source>
+        <translation>最后100个区块中的%d个包含未知的版本号</translation>
     </message>
     <message>
         <source>%s corrupt, salvage failed</source>
@@ -3637,6 +4230,10 @@
         <translation>&lt;category&gt; 可能是：</translation>
     </message>
     <message>
+        <source>Accept connections from outside (default: 1 if no -proxy or -connect)</source>
+        <translation>接受来自外部的连接 (缺省: 如果不带 -proxy or -connect 参数设置为1)</translation>
+    </message>
+    <message>
         <source>Append comment to the user agent string</source>
         <translation>为用户代理字符串附加说明</translation>
     </message>
@@ -3649,12 +4246,16 @@
         <translation>数据块创建选项：</translation>
     </message>
     <message>
-        <source>Cannot resolve -%s address: &apos;%s&apos;</source>
-        <translation>无法解析 - %s 地址： &apos;%s&apos;</translation>
+        <source>Cannot resolve -%s address: '%s'</source>
+        <translation>无法解析 - %s 地址： '%s'</translation>
     </message>
     <message>
         <source>Chain selection options:</source>
         <translation>区块链选择选项:</translation>
+    </message>
+    <message>
+        <source>Change index out of range</source>
+        <translation>修改索引超过范围</translation>
     </message>
     <message>
         <source>Connection options:</source>
@@ -3706,7 +4307,7 @@
     </message>
     <message>
         <source>Error initializing wallet database environment %s!</source>
-        <translation>Error initializing wallet database environment %s!</translation>
+        <translation>初始化钱包数据库环境错误 %s!</translation>
     </message>
     <message>
         <source>Error loading %s</source>
@@ -3745,24 +4346,28 @@
         <translation>不正确或没有找到起源区块。网络错误？</translation>
     </message>
     <message>
-        <source>Invalid -onion address: &apos;%s&apos;</source>
-        <translation>无效的 -onion 地址：“%s”</translation>
+        <source>Invalid amount for -%s=&lt;amount&gt;: '%s'</source>
+        <translation>无效的金额 -%s=&lt;amount&gt;: '%s'</translation>
     </message>
     <message>
-        <source>Invalid amount for -%s=&lt;amount&gt;: &apos;%s&apos;</source>
-        <translation>非法金额 -%s=&lt;amount&gt;: &apos;%s&apos;</translation>
+        <source>Invalid amount for -discardfee=&lt;amount&gt;: '%s'</source>
+        <translation>无效的金额 -discardfee=&lt;amount&gt;: '%s'</translation>
     </message>
     <message>
-        <source>Invalid amount for -fallbackfee=&lt;amount&gt;: &apos;%s&apos;</source>
-        <translation>-fallbackfee 的无效数额=&lt;amount&gt;: &apos;%s&apos;</translation>
+        <source>Invalid amount for -fallbackfee=&lt;amount&gt;: '%s'</source>
+        <translation>-fallbackfee 的无效数额=&lt;amount&gt;: '%s'</translation>
     </message>
     <message>
         <source>Keep the transaction memory pool below &lt;n&gt; megabytes (default: %u)</source>
         <translation>保持交易内存池大小低于&lt;n&gt;MB（默认：%u）</translation>
     </message>
     <message>
+        <source>Loading P2P addresses...</source>
+        <translation>正在加载P2P地址...</translation>
+    </message>
+    <message>
         <source>Loading banlist...</source>
-        <translation>加载黑名单</translation>
+        <translation>正在加载黑名单...</translation>
     </message>
     <message>
         <source>Location of the auth cookie (default: data dir)</source>
@@ -3797,6 +4402,10 @@
         <translation>从当前索引的区块中重建链状态</translation>
     </message>
     <message>
+        <source>Rewinding blocks...</source>
+        <translation>回退区块</translation>
+    </message>
+    <message>
         <source>Set database cache size in megabytes (%d to %d, default: %d)</source>
         <translation>设置以MB为单位的数据库缓存大小(%d 到 %d, 默认值: %d)</translation>
     </message>
@@ -3827,6 +4436,14 @@
     <message>
         <source>Unsupported argument -tor found, use -onion.</source>
         <translation>忽略不支持的选项 -tor，使用 -oinon</translation>
+    </message>
+    <message>
+        <source>Unsupported logging category %s=%s.</source>
+        <translation>不支持的日志分类 %s=%s.</translation>
+    </message>
+    <message>
+        <source>Upgrading UTXO database</source>
+        <translation>升级UTXO数据库</translation>
     </message>
     <message>
         <source>Use UPnP to map the listening port (default: %u)</source>
@@ -3897,8 +4514,8 @@
         <translation>如果未设置交易费用，自动添加足够的交易费以确保交易在平均n个数据块内被确认 (默认: %u) </translation>
     </message>
     <message>
-        <source>Invalid amount for -maxtxfee=&lt;amount&gt;: &apos;%s&apos; (must be at least the minrelay fee of %s to prevent stuck transactions)</source>
-        <translation>-maxtxfee=&lt;amount&gt;: &apos;%s&apos; 的金额无效（交易费至少为 %s，以免交易滞留过久）</translation>
+        <source>Invalid amount for -maxtxfee=&lt;amount&gt;: '%s' (must be at least the minrelay fee of %s to prevent stuck transactions)</source>
+        <translation>-maxtxfee=&lt;amount&gt;: '%s' 的金额无效（交易费至少为 %s，以免交易滞留过久）</translation>
     </message>
     <message>
         <source>Maximum size of data in data carrier transactions we relay and mine (default: %u)</source>
@@ -3949,6 +4566,10 @@
         <translation>读取数据库出错，关闭中。</translation>
     </message>
     <message>
+        <source>Error upgrading chainstate database</source>
+        <translation>升级链状态数据库出错</translation>
+    </message>
+    <message>
         <source>Imports blocks from external blk000??.dat file on startup</source>
         <translation>启动时从其他来源的  blk000??.dat 文件导入区块</translation>
     </message>
@@ -3957,20 +4578,28 @@
         <translation>信息</translation>
     </message>
     <message>
-        <source>Invalid amount for -paytxfee=&lt;amount&gt;: &apos;%s&apos; (must be at least %s)</source>
-        <translation>无效的金额 -paytxfee=&lt;amount&gt;: &apos;%s&apos; (必须至少为 %s)</translation>
+        <source>Invalid -onion address or hostname: '%s'</source>
+        <translation>无效的 -onion 地址: '%s'</translation>
     </message>
     <message>
-        <source>Invalid netmask specified in -whitelist: &apos;%s&apos;</source>
-        <translation>-whitelist: &apos;%s&apos; 指定的网络掩码无效</translation>
+        <source>Invalid -proxy address or hostname: '%s'</source>
+        <translation>无效的 -proxy 地址: '%s'</translation>
+    </message>
+    <message>
+        <source>Invalid amount for -paytxfee=&lt;amount&gt;: '%s' (must be at least %s)</source>
+        <translation>无效的金额 -paytxfee=&lt;amount&gt;: '%s' (必须至少为 %s)</translation>
+    </message>
+    <message>
+        <source>Invalid netmask specified in -whitelist: '%s'</source>
+        <translation>-whitelist: '%s' 指定的网络掩码无效</translation>
     </message>
     <message>
         <source>Keep at most &lt;n&gt; unconnectable transactions in memory (default: %u)</source>
         <translation>内存中最多保留 &lt;n&gt; 笔孤立的交易 (默认: %u) </translation>
     </message>
     <message>
-        <source>Need to specify a port with -whitebind: &apos;%s&apos;</source>
-        <translation>-whitebind: &apos;%s&apos; 需要指定一个端口</translation>
+        <source>Need to specify a port with -whitebind: '%s'</source>
+        <translation>-whitebind: '%s' 需要指定一个端口</translation>
     </message>
     <message>
         <source>Node relay options:</source>
@@ -4049,6 +4678,10 @@
         <translation>JSON-RPC 连接用户名</translation>
     </message>
     <message>
+        <source>Verifying wallet(s)...</source>
+        <translation>正在检测钱包的完整性...</translation>
+    </message>
+    <message>
         <source>Warning</source>
         <translation>警告</translation>
     </message>
@@ -4059,6 +4692,10 @@
     <message>
         <source>Whether to operate in a blocks only mode (default: %u)</source>
         <translation>是否用块方进行 (%u)</translation>
+    </message>
+    <message>
+        <source>You need to rebuild the database using -reindex to change -txindex</source>
+        <translation>您需要用 -reindex 重建数据库，从而令 -txindex 的变动生效</translation>
     </message>
     <message>
         <source>Zapping all transactions from wallet...</source>
@@ -4098,6 +4735,10 @@
         <translation>不要让交易留在内存池中超过 &lt;n&gt; 个小时 (默认值: %u)</translation>
     </message>
     <message>
+        <source>Error loading wallet %s. -wallet parameter must only specify a filename (not a path).</source>
+        <translation>加载钱包出错 %s. -wallet参数必需指定为文件名(而不是目录路径)。</translation>
+    </message>
+    <message>
         <source>Fees (in %s/kB) smaller than this are considered zero fee for transaction creation (default: %s)</source>
         <translation>当产生交易时，如果每千字节 (kB) 的手续费比这个值 (单位是 %s) 低，就视为没支付手续费 (默认值: %s)</translation>
     </message>
@@ -4134,7 +4775,7 @@
         <translation>尝试保持上传带宽低于（MiB/24h），0=无限制（默认：%d）</translation>
     </message>
     <message>
-        <source>Unsupported argument -socks found. Setting SOCKS version isn&apos;t possible anymore, only SOCKS5 proxies are supported.</source>
+        <source>Unsupported argument -socks found. Setting SOCKS version isn't possible anymore, only SOCKS5 proxies are supported.</source>
         <translation>找到不再支持的 -socks 参数。现在只支持 SOCKS5 协议的代理服务器，因此不可以指定 SOCKS 协议版本。</translation>
     </message>
     <message>
@@ -4142,11 +4783,11 @@
         <translation>一个不被支持的参数 -whitelistalwaysrelay 被忽略了。请使用 -whitelistrelay 或者 -whitelistforcerelay.</translation>
     </message>
     <message>
-        <source>Use separate SOCKS5 proxy to reach peers via Tor hidden services (default: %s)</source>
-        <translation>通过Tor隐藏服务连接节点时 使用不同的SOCKS5代理 (默认: %s)</translation>
+        <source>Use separate SOCKS&amp;5 proxy to reach peers via Tor hidden services (default: %s)</source>
+        <translation>通过 Tor 隐藏服务连接节点时使用不同的 SOCKS&amp;5 代理 (默认: %s)</translation>
     </message>
     <message>
-        <source>Warning: Unknown block versions being mined! It&apos;s possible unknown rules are in effect</source>
+        <source>Warning: Unknown block versions being mined! It's possible unknown rules are in effect</source>
         <translation>警告: 未知的区块版本被挖掘！未知规则可能已生效</translation>
     </message>
     <message>
@@ -4160,6 +4801,18 @@
     <message>
         <source>Always query for peer addresses via DNS lookup (default: %u)</source>
         <translation>始终通过 DNS 查询节点地址 (默认: %u)</translation>
+    </message>
+    <message>
+        <source>Error loading wallet %s. -wallet filename must be a regular file.</source>
+        <translation>加载钱包 %s 出错。 -wallet 必须是正规文件名。</translation>
+    </message>
+    <message>
+        <source>Error loading wallet %s. Duplicate -wallet filename specified.</source>
+        <translation>加载钱包 %s 出错。 重复的 -wallet 文件名。</translation>
+    </message>
+    <message>
+        <source>Error loading wallet %s. Invalid characters in -wallet filename.</source>
+        <translation>加载钱包 %s 出错。 -wallet 文件名中包含无效字符。</translation>
     </message>
     <message>
         <source>How many blocks to check at startup (default: %u, 0 = all)</source>
@@ -4242,8 +4895,12 @@
         <translation>正在启动网络线程...</translation>
     </message>
     <message>
+        <source>The wallet will avoid paying less than the minimum relay fee.</source>
+        <translation>钱包避免低于最小交易费的支付</translation>
+    </message>
+    <message>
         <source>This is the transaction fee you will pay if you send a transaction.</source>
-        <translation>如果发送交易，这是你交易付款时所要付的手续费。</translation>
+        <translation>如果发送交易，这将是你要支付的交易费。</translation>
     </message>
     <message>
         <source>Threshold for disconnecting misbehaving peers (default: %u)</source>
@@ -4258,7 +4915,7 @@
         <translation>交易必须包含至少一个接收人</translation>
     </message>
     <message>
-        <source>Unknown network specified in -onlynet: &apos;%s&apos;</source>
+        <source>Unknown network specified in -onlynet: '%s'</source>
         <translation>-onlynet 指定的是未知网络：%s</translation>
     </message>
     <message>
@@ -4346,7 +5003,11 @@
     </message>
     <message>
         <source>Send to Contract</source>
-        <translation type="unfinished">发送智能合约</translation>
+        <translation>发送至智能合约</translation>
+    </message>
+    <message>
+        <source>Send To Contract</source>
+        <translation>发送至智能合约</translation>
     </message>
 </context>
 <context>
@@ -4377,11 +5038,11 @@
     </message>
     <message>
         <source>Gas Limit</source>
-        <translation type="unfinished">Gas限值</translation>
+        <translation>Gas限值</translation>
     </message>
     <message>
         <source>Gas Price</source>
-        <translation type="unfinished">Gas价格</translation>
+        <translation>Gas价格</translation>
     </message>
     <message>
         <source>Contract Template</source>
@@ -4402,6 +5063,14 @@
     <message>
         <source>Result %1</source>
         <translation>结果%1</translation>
+    </message>
+    <message>
+        <source>Solidity compiler</source>
+        <translation>智能合约编译器</translation>
+    </message>
+    <message>
+        <source>Token template</source>
+        <translation>代币模板</translation>
     </message>
 </context>
 <context>
@@ -4493,6 +5162,14 @@
         <translation>确定</translation>
     </message>
     <message>
+        <source>Clear</source>
+        <translation>清除</translation>
+    </message>
+    <message>
+        <source>Confirm</source>
+        <translation>确定</translation>
+    </message>
+    <message>
         <source>(This is your wallet address which will be tied to the token for send/receive operations)</source>
         <translation>(这里是你绑定用于收发代币的钱包地址)</translation>
     </message>
@@ -4525,6 +5202,14 @@
     </message>
     <message>
         <source>CONFIRM</source>
+        <translation>确定</translation>
+    </message>
+    <message>
+        <source>Clear</source>
+        <translation>清除</translation>
+    </message>
+    <message>
+        <source>Confirm</source>
         <translation>确定</translation>
     </message>
 </context>

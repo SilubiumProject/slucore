@@ -1,8 +1,8 @@
 #include <sstream>
 #include <util.h>
 #include <validation.h>
-#include "chainparams.h"
-#include "silubiumstate.h"
+#include <chainparams.h>
+#include <silubium/silubiumstate.h>
 
 using namespace std;
 using namespace dev;
