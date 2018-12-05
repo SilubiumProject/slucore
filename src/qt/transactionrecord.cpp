@@ -1,24 +1,22 @@
-// Copyright (c) 2011-2016 The Bitcoin Core developers
+// Copyright (c) 2011-2017 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "transactionrecord.h"
+#include <qt/transactionrecord.h>
 
-#include "base58.h"
-#include "consensus/consensus.h"
-#include "validation.h"
-#include "timedata.h"
-#include "wallet/wallet.h"
+#include <base58.h>
+#include <consensus/consensus.h>
+#include <validation.h>
+#include <timedata.h>
+#include <wallet/wallet.h>
 
 #include <stdint.h>
 
 /* Convert the destination into hash160 string for contract.
  */
-std::string toStringHash160(const CTxDestination& address)
+std::string toStringHash160(const CWallet* wallet, const CTxDestination& dest)
 {
-    CBitcoinAddress txAdress(address);
-    CKeyID keyid;
-    txAdress.GetKeyID(keyid);
+    CKeyID keyid = GetKeyForDestination(*wallet, dest);
     return HexStr(valtype(keyid.begin(),keyid.end()));
 }
 
@@ -80,12 +78,12 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                     if(wtx.tx->HasCreateOrCall())
                     {
                         sub.type = TransactionRecord::ContractRecv;
-                        sub.address = toStringHash160(address);
+                        sub.address = toStringHash160(wallet, address);
                     }
                     else
                     {
                         sub.type = TransactionRecord::RecvWithAddress;
-                        sub.address = CBitcoinAddress(address).ToString();
+                        sub.address = EncodeDestination(address);
                     }
                 }
                 else
@@ -164,7 +162,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
             CAmount nChange = wtx.GetChange();
 
             parts.append(TransactionRecord(hash, nTime, TransactionRecord::SendToSelf, "",
-                                           -(nDebit - nChange), nCredit - nChange,0,0));
+                            -(nDebit - nChange), nCredit - nChange,0,0));
             parts.last().involvesWatchAddress = involvesWatchAddress;   // maybe pass to TransactionRecord as constructor argument
         }
         else if (fAllFromMe)
@@ -196,7 +194,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                 {
                     // Sent to Bitcoin Address
                     sub.type = TransactionRecord::SendToAddress;
-                    sub.address = CBitcoinAddress(address).ToString();
+                    sub.address = EncodeDestination(address);
                 }
                 else
                 {
@@ -228,7 +226,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                 CWallet * const pwallet = const_cast<CWallet*>(wallet);
                 if(ExtractDestination(pwallet->mapWallet[wtx.tx->vin[0].prevout.hash].tx->vout[wtx.tx->vin[0].prevout.n].scriptPubKey, address))
                 {
-                    sub.address = toStringHash160(address);
+                    sub.address = toStringHash160(wallet, address);
                 }
 
                 parts.append(sub);
@@ -260,15 +258,15 @@ void TransactionRecord::updateStatus(const CWalletTx &wtx)
 
     // Sort order, unrecorded transactions sort to the top
     status.sortKey = strprintf("%010d-%01d-%010u-%03d",
-                               (pindex ? pindex->nHeight : std::numeric_limits<int>::max()),
-                               ((wtx.IsCoinBase() || wtx.IsCoinStake()) ? 1 : 0),
-                               wtx.nTimeReceived,
-                               idx);
+        (pindex ? pindex->nHeight : std::numeric_limits<int>::max()),
+        ((wtx.IsCoinBase() || wtx.IsCoinStake()) ? 1 : 0),
+        wtx.nTimeReceived,
+        idx);
     status.countsForBalance = wtx.IsTrusted() && !(wtx.GetBlocksToMaturity() > 0);
     status.depth = wtx.GetDepthInMainChain();
     status.cur_num_blocks = chainActive.Height();
 
-    if (!CheckFinalTx(wtx))
+    if (!CheckFinalTx(*wtx.tx))
     {
         if (wtx.tx->nLockTime < LOCKTIME_THRESHOLD)
         {
@@ -334,7 +332,7 @@ void TransactionRecord::updateStatus(const CWalletTx &wtx)
     status.needsUpdate = false;
 }
 
-bool TransactionRecord::statusUpdateNeeded()
+bool TransactionRecord::statusUpdateNeeded() const
 {
     AssertLockHeld(cs_main);
     return status.cur_num_blocks != chainActive.Height() || status.needsUpdate;

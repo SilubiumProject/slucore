@@ -1,22 +1,22 @@
-#include "createcontract.h"
-#include "ui_createcontract.h"
-#include "platformstyle.h"
-#include "walletmodel.h"
-#include "clientmodel.h"
-#include "guiconstants.h"
-#include "rpcconsole.h"
-#include "execrpccommand.h"
-#include "bitcoinunits.h"
-#include "optionsmodel.h"
-#include "validation.h"
-#include "utilmoneystr.h"
-#include "addressfield.h"
-#include "abifunctionfield.h"
-#include "contractabi.h"
-#include "tabbarinfo.h"
-#include "contractresult.h"
-#include "sendcoinsdialog.h"
-#include "styleSheet.h"
+#include <qt/createcontract.h>
+#include <qt/forms/ui_createcontract.h>
+#include <qt/platformstyle.h>
+#include <qt/walletmodel.h>
+#include <qt/clientmodel.h>
+#include <qt/guiconstants.h>
+#include <qt/rpcconsole.h>
+#include <qt/execrpccommand.h>
+#include <qt/bitcoinunits.h>
+#include <qt/optionsmodel.h>
+#include <validation.h>
+#include <utilmoneystr.h>
+#include <qt/addressfield.h>
+#include <qt/abifunctionfield.h>
+#include <qt/contractabi.h>
+#include <qt/tabbarinfo.h>
+#include <qt/contractresult.h>
+#include <qt/sendcoinsdialog.h>
+#include <qt/styleSheet.h>
 
 #include <QRegularExpressionValidator>
 
@@ -68,6 +68,9 @@ CreateContract::CreateContract(const PlatformStyle *platformStyle, QWidget *pare
     ui->lineEditGasLimit->setMaximum(DEFAULT_GAS_LIMIT_OP_CREATE);
     ui->lineEditGasLimit->setValue(DEFAULT_GAS_LIMIT_OP_CREATE);
     ui->pushButtonCreateContract->setEnabled(false);
+    ui->lineEditSenderAddress->setSenderAddress(true);
+    if (gArgs.IsArgSet("-showdbg"))
+      ui->lineEditSenderAddress->setEditable(true);
 
     // Create new PRC command line interface
     QStringList lstMandatory;
@@ -108,11 +111,11 @@ CreateContract::~CreateContract()
 void CreateContract::setLinkLabels()
 {
     ui->labelSolidity->setOpenExternalLinks(true);
-    ui->labelSolidity->setText("<a href=\"http://remix.ethereum.org\">Solidity compiler</a>");
+    ui->labelSolidity->setText("<a href=\"http://remix.ethereum.org\">"+tr("Solidity compiler")+"</a>");
     //ui->labelSolidity->setText("<a href=\"https://ethereum.github.io/browser-solidity/\">Solidity compiler</a>");
 
     ui->labelToken->setOpenExternalLinks(true);
-    ui->labelToken->setText("<a href=\"https://ethereum.org/token#the-code\">Token template</a>");
+    ui->labelToken->setText("<a href=\"https://ethereum.org/token#the-code\">"+tr("Token template")+"</a>");
 }
 
 void CreateContract::setModel(WalletModel *_model)

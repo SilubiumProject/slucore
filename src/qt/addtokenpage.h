@@ -20,7 +20,6 @@ public:
     void clearAll();
     void setModel(WalletModel *_model);
     void setClientModel(ClientModel *clientModel);
-    QString GetLangTerritory();
 
 private Q_SLOTS:
     void on_clearButton_clicked();

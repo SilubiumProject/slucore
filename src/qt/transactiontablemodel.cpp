@@ -1,24 +1,24 @@
-// Copyright (c) 2011-2016 The Bitcoin Core developers
+// Copyright (c) 2011-2017 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "transactiontablemodel.h"
+#include <qt/transactiontablemodel.h>
 
-#include "addresstablemodel.h"
-#include "guiconstants.h"
-#include "guiutil.h"
-#include "optionsmodel.h"
-#include "platformstyle.h"
-#include "transactiondesc.h"
-#include "transactionrecord.h"
-#include "walletmodel.h"
+#include <qt/addresstablemodel.h>
+#include <qt/guiconstants.h>
+#include <qt/guiutil.h>
+#include <qt/optionsmodel.h>
+#include <qt/platformstyle.h>
+#include <qt/transactiondesc.h>
+#include <qt/transactionrecord.h>
+#include <qt/walletmodel.h>
 
-#include "core_io.h"
-#include "validation.h"
-#include "sync.h"
-#include "uint256.h"
-#include "util.h"
-#include "wallet/wallet.h"
+#include <core_io.h>
+#include <validation.h>
+#include <sync.h>
+#include <uint256.h>
+#include <util.h>
+#include <wallet/wallet.h>
 
 #include <QColor>
 #include <QDateTime>
@@ -28,13 +28,13 @@
 
 // Amount column is right-aligned it contains numbers
 static int column_alignments[] = {
-    Qt::AlignLeft|Qt::AlignVCenter, /* status */
-    Qt::AlignLeft|Qt::AlignVCenter, /* watchonly */
-    Qt::AlignLeft|Qt::AlignVCenter, /* date */
-    Qt::AlignLeft|Qt::AlignVCenter, /* type */
-    Qt::AlignLeft|Qt::AlignVCenter, /* address */
-    Qt::AlignRight|Qt::AlignVCenter /* amount */
-};
+        Qt::AlignLeft|Qt::AlignVCenter, /* status */
+        Qt::AlignLeft|Qt::AlignVCenter, /* watchonly */
+        Qt::AlignLeft|Qt::AlignVCenter, /* date */
+        Qt::AlignLeft|Qt::AlignVCenter, /* type */
+        Qt::AlignLeft|Qt::AlignVCenter, /* address */
+        Qt::AlignRight|Qt::AlignVCenter /* amount */
+    };
 
 // Comparison operator for sort/binary search of model tx list
 struct TxLessThan
@@ -80,10 +80,10 @@ public:
         cachedWallet.clear();
         {
             LOCK2(cs_main, wallet->cs_wallet);
-            for(std::map<uint256, CWalletTx>::iterator it = wallet->mapWallet.begin(); it != wallet->mapWallet.end(); ++it)
+            for (const auto& entry : wallet->mapWallet)
             {
-                if(TransactionRecord::showTransaction(it->second))
-                    cachedWallet.append(TransactionRecord::decomposeTransaction(wallet, it->second));
+                if (TransactionRecord::showTransaction(entry.second))
+                    cachedWallet.append(TransactionRecord::decomposeTransaction(wallet, entry.second));
             }
         }
     }
@@ -99,9 +99,9 @@ public:
 
         // Find bounds of this transaction in model
         QList<TransactionRecord>::iterator lower = qLowerBound(
-                    cachedWallet.begin(), cachedWallet.end(), hash, TxLessThan());
+            cachedWallet.begin(), cachedWallet.end(), hash, TxLessThan());
         QList<TransactionRecord>::iterator upper = qUpperBound(
-                    cachedWallet.begin(), cachedWallet.end(), hash, TxLessThan());
+            cachedWallet.begin(), cachedWallet.end(), hash, TxLessThan());
         int lowerIndex = (lower - cachedWallet.begin());
         int upperIndex = (upper - cachedWallet.begin());
         bool inModel = (lower != upper);
@@ -230,7 +230,7 @@ public:
         std::map<uint256, CWalletTx>::iterator mi = wallet->mapWallet.find(rec->hash);
         if(mi != wallet->mapWallet.end())
         {
-            std::string strHex = EncodeHexTx(static_cast<CTransaction>(mi->second));
+            std::string strHex = EncodeHexTx(*mi->second.tx);
             return QString::fromStdString(strHex);
         }
         return QString();
@@ -238,12 +238,12 @@ public:
 };
 
 TransactionTableModel::TransactionTableModel(const PlatformStyle *_platformStyle, CWallet* _wallet, WalletModel *parent):
-    QAbstractTableModel(parent),
-    wallet(_wallet),
-    walletModel(parent),
-    priv(new TransactionTablePriv(_wallet, this)),
-    fProcessingQueuedTransactions(false),
-    platformStyle(_platformStyle)
+        QAbstractTableModel(parent),
+        wallet(_wallet),
+        walletModel(parent),
+        priv(new TransactionTablePriv(_wallet, this)),
+        fProcessingQueuedTransactions(false),
+        platformStyle(_platformStyle)
 {
     columns << QString() << QString() << tr("Date") << tr("Type") << tr("Label") << BitcoinUnits::getAmountColumnTitle(walletModel->getOptionsModel()->getDisplayUnit());
     priv->refreshWallet();
@@ -458,11 +458,11 @@ QVariant TransactionTableModel::addressColor(const TransactionRecord *wtx) const
     case TransactionRecord::ContractSend:
     case TransactionRecord::ContractRecv:
     case TransactionRecord::Generated:
-    {
+        {
         QString label = walletModel->getAddressTableModel()->labelForAddress(QString::fromStdString(wtx->address));
         if(label.isEmpty())
             return COLOR_BAREADDRESS;
-    } break;
+        } break;
     case TransactionRecord::SendToSelf:
         return COLOR_BAREADDRESS;
     default:
@@ -534,7 +534,7 @@ QVariant TransactionTableModel::txStatusDecoration(const TransactionRecord *wtx)
         int iconNum = ((wtx->status.depth - 1) * CONFIRM_ICONS) / TransactionRecord::RecommendedNumConfirmations + 1;
         if(iconNum > CONFIRM_ICONS) iconNum = CONFIRM_ICONS;
         return platformStyle->TableColorIcon(QString(":/icons/transaction_%1").arg(iconNum), PlatformStyle::Normal);
-    };
+        };
     case TransactionStatus::Confirmed:
         return platformStyle->TableColorIcon(":/icons/transaction_confirmed", PlatformStyle::Normal);
     case TransactionStatus::Conflicted:
@@ -543,7 +543,7 @@ QVariant TransactionTableModel::txStatusDecoration(const TransactionRecord *wtx)
         int total = wtx->status.depth + wtx->status.matures_in;
         int part = (wtx->status.depth * 4 / total) + 1;
         return platformStyle->TableColorIcon(QString(":/icons/transaction_%1").arg(part), PlatformStyle::Normal);
-    }
+        }
     case TransactionStatus::MaturesWarning:
     case TransactionStatus::NotAccepted:
         return platformStyle->TableColorIcon(":/icons/transaction_0", PlatformStyle::Error);
@@ -564,7 +564,7 @@ QString TransactionTableModel::formatTooltip(const TransactionRecord *rec) const
 {
     QString tooltip = formatTxStatus(rec) + QString("\n") + formatTxType(rec);
     if(rec->type==TransactionRecord::RecvFromOther || rec->type==TransactionRecord::SendToOther ||
-            rec->type==TransactionRecord::SendToAddress || rec->type==TransactionRecord::RecvWithAddress)
+       rec->type==TransactionRecord::SendToAddress || rec->type==TransactionRecord::RecvWithAddress)
     {
         tooltip += QString(" ") + formatTxToAddress(rec, true);
     }
@@ -684,33 +684,33 @@ QVariant TransactionTableModel::data(const QModelIndex &index, int role) const
     case TxHexRole:
         return priv->getTxHex(rec);
     case TxPlainTextRole:
-    {
-        QString details;
-        QDateTime date = QDateTime::fromTime_t(static_cast<uint>(rec->time));
-        QString txLabel = walletModel->getAddressTableModel()->labelForAddress(QString::fromStdString(rec->address));
+        {
+            QString details;
+            QDateTime date = QDateTime::fromTime_t(static_cast<uint>(rec->time));
+            QString txLabel = walletModel->getAddressTableModel()->labelForAddress(QString::fromStdString(rec->address));
 
-        details.append(date.toString("M/d/yy HH:mm"));
-        details.append(" ");
-        details.append(formatTxStatus(rec));
-        details.append(". ");
-        if(!formatTxType(rec).isEmpty()) {
-            details.append(formatTxType(rec));
+            details.append(date.toString("M/d/yy HH:mm"));
             details.append(" ");
-        }
-        if(!rec->address.empty()) {
-            if(txLabel.isEmpty())
-                details.append(tr("(no label)") + " ");
-            else {
-                details.append("(");
-                details.append(txLabel);
-                details.append(") ");
+            details.append(formatTxStatus(rec));
+            details.append(". ");
+            if(!formatTxType(rec).isEmpty()) {
+                details.append(formatTxType(rec));
+                details.append(" ");
             }
-            details.append(QString::fromStdString(rec->address));
-            details.append(" ");
+            if(!rec->address.empty()) {
+                if(txLabel.isEmpty())
+                    details.append(tr("(no label)") + " ");
+                else {
+                    details.append("(");
+                    details.append(txLabel);
+                    details.append(") ");
+                }
+                details.append(QString::fromStdString(rec->address));
+                details.append(" ");
+            }
+            details.append(formatTxAmount(rec, false, BitcoinUnits::separatorNever));
+            return details;
         }
-        details.append(formatTxAmount(rec, false, BitcoinUnits::separatorNever));
-        return details;
-    }
     case ConfirmedRole:
         return rec->status.countsForBalance;
     case FormattedAmountRole:

@@ -1,5 +1,5 @@
-#include "silubiumversionchecker.h"
-#include "../clientversion.h"
+#include <qt/silubiumversionchecker.h>
+#include <clientversion.h>
 
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>

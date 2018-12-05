@@ -1,49 +1,45 @@
-﻿// Copyright (c) 2011-2016 The Bitcoin Core developers
+// Copyright (c) 2011-2017 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#if defined(HAVE_CONFIG_H)
-#include "config/bitcoin-config.h"
-#endif
+#include <qt/bitcoingui.h>
 
-#include "bitcoingui.h"
-
-#include "bitcoinunits.h"
-#include "clientmodel.h"
-#include "guiconstants.h"
-#include "guiutil.h"
-#include "modaloverlay.h"
-#include "networkstyle.h"
-#include "notificator.h"
-#include "openuridialog.h"
-#include "optionsdialog.h"
-#include "optionsmodel.h"
-#include "platformstyle.h"
-#include "rpcconsole.h"
-#include "utilitydialog.h"
-#include "validation.h"
-#include "rpc/server.h"
-#include "navigationbar.h"
-#include "titlebar.h"
-#include "silubiumversionchecker.h"
-#include "upload.h"
+#include <qt/bitcoinunits.h>
+#include <qt/clientmodel.h>
+#include <qt/guiconstants.h>
+#include <qt/guiutil.h>
+#include <qt/modaloverlay.h>
+#include <qt/networkstyle.h>
+#include <qt/notificator.h>
+#include <qt/openuridialog.h>
+#include <qt/optionsdialog.h>
+#include <qt/optionsmodel.h>
+#include <qt/platformstyle.h>
+#include <qt/rpcconsole.h>
+#include <qt/utilitydialog.h>
+#include <validation.h>
+#include <rpc/server.h>
+#include <qt/navigationbar.h>
+#include <qt/titlebar.h>
+#include <qt/silubiumversionchecker.h>
+#include <qt/upload.h>
 
 #include <QProcess>
 
 #ifdef ENABLE_WALLET
-#include "walletframe.h"
-#include "walletmodel.h"
-#include "wallet/wallet.h"
+#include <qt/walletframe.h>
+#include <qt/walletmodel.h>
+#include <wallet/wallet.h>
 #endif // ENABLE_WALLET
 
 #ifdef Q_OS_MAC
-#include "macdockiconhandler.h"
+#include <qt/macdockiconhandler.h>
 #endif
 
-#include "chainparams.h"
-#include "init.h"
-#include "ui_interface.h"
-#include "util.h"
+#include <chainparams.h>
+#include <init.h>
+#include <ui_interface.h>
+#include <util.h>
 
 #include <iostream>
 
@@ -77,13 +73,13 @@
 #endif
 
 const std::string BitcoinGUI::DEFAULT_UIPLATFORM =
-        #if defined(Q_OS_MAC)
+#if defined(Q_OS_MAC)
         "macosx"
-        #elif defined(Q_OS_WIN)
+#elif defined(Q_OS_WIN)
         "windows"
-        #else
+#else
         "other"
-        #endif
+#endif
         ;
 
 /** Display name for default wallet name. Uses tilde to avoid name
@@ -158,22 +154,16 @@ BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *
         // Restore failed (perhaps missing setting), center the window
         move(QApplication::desktop()->availableGeometry().center() - frameGeometry().center());
     }
-    QString strLanguage=GetLangTerritory();
+
     QString windowTitle = tr(PACKAGE_NAME) + " - ";
 #ifdef ENABLE_WALLET
     enableWallet = WalletModel::isWalletEnabled();
 #endif // ENABLE_WALLET
     if(enableWallet)
     {
-        if(strLanguage.contains("zh"))
-            windowTitle += tr("钱包");
-        else
-            windowTitle += tr("Wallet");
+        windowTitle += tr("Wallet");
     } else {
-        if(strLanguage.contains("zh"))
-            windowTitle += tr("节点");
-        else
-            windowTitle += tr("Node");
+        windowTitle += tr("Node");
     }
     windowTitle += " " + networkStyle->getTitleAddText();
 #ifndef Q_OS_MAC
@@ -233,7 +223,6 @@ BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *
     statusBar()->setSizeGripEnabled(true);
     statusBar()->addWidget(new QSizeGrip(statusBar()));
     statusBar()->setStyleSheet("QSizeGrip { width: 3px; height: 25px; border: 0px solid black; } \n QStatusBar::item { border: 0px solid black; }");
-
     // Status bar notification icons
     QFrame *frameBlocks = new QFrame();
     frameBlocks->setContentsMargins(0,0,0,0);
@@ -346,27 +335,16 @@ BitcoinGUI::~BitcoinGUI()
 void BitcoinGUI::createActions()
 {
     QActionGroup *tabGroup = new QActionGroup(this);
-    QString strLanguage=GetLangTerritory();
 
-    if(strLanguage.contains("zh_CN"))
-    {
-        overviewAction = new QAction(platformStyle->MultiStatesIcon(":/icons/gaschange"), tr("我的钱包(&w)"), this);//overview
-        overviewAction->setStatusTip(tr("显示钱包的概况"));
-        sendCoinsAction = new QAction(platformStyle->MultiStatesIcon(":/icons/send_to"), tr("发送(&S)"), this);
-        sendCoinsAction->setStatusTip(tr("发送SLU到Silubium地址"));
-    }
-    else
-    {
-        overviewAction = new QAction(platformStyle->MultiStatesIcon(":/icons/gaschange"), tr("My &wallet"), this);//overview
-        overviewAction->setStatusTip(tr("Show general overview of wallet"));
-        sendCoinsAction = new QAction(platformStyle->MultiStatesIcon(":/icons/send_to"), tr("&Send"), this);
-        sendCoinsAction->setStatusTip(tr("Send coins to a Silubium address"));
-    }
+    overviewAction = new QAction(platformStyle->MultiStatesIcon(":/icons/gaschange"), tr("My &wallet"), this);
+    overviewAction->setStatusTip(tr("Show general overview of wallet"));
     overviewAction->setToolTip(overviewAction->statusTip());
     overviewAction->setCheckable(true);
     overviewAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_1));
     tabGroup->addAction(overviewAction);
 
+    sendCoinsAction = new QAction(platformStyle->MultiStatesIcon(":/icons/send_to"), tr("&Send"), this);
+    sendCoinsAction->setStatusTip(tr("Send coins to a Silubium address"));
     sendCoinsAction->setToolTip(sendCoinsAction->statusTip());
     sendCoinsAction->setCheckable(true);
     sendCoinsAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_2));
@@ -376,16 +354,8 @@ void BitcoinGUI::createActions()
     sendCoinsMenuAction->setStatusTip(sendCoinsAction->statusTip());
     sendCoinsMenuAction->setToolTip(sendCoinsMenuAction->statusTip());
 
-    if(strLanguage.contains("zh_CN"))
-    {
-        receiveCoinsAction = new QAction(platformStyle->MultiStatesIcon(":/icons/receive_from"), tr("接收(&R)"), this);
-        receiveCoinsAction->setStatusTip(tr("为交易生成一个Silubium地址和二维码)"));
-    }
-    else
-    {
-        receiveCoinsAction = new QAction(platformStyle->MultiStatesIcon(":/icons/receive_from"), tr("&Receive"), this);
-        receiveCoinsAction->setStatusTip(tr("Request payments (generates QR codes and silubium: URIs)"));
-    }
+    receiveCoinsAction = new QAction(platformStyle->MultiStatesIcon(":/icons/receive_from"), tr("&Receive"), this);
+    receiveCoinsAction->setStatusTip(tr("Request payments (generates QR codes and silubium: URIs)"));
     receiveCoinsAction->setToolTip(receiveCoinsAction->statusTip());
     receiveCoinsAction->setCheckable(true);
     receiveCoinsAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_3));
@@ -395,80 +365,34 @@ void BitcoinGUI::createActions()
     receiveCoinsMenuAction->setStatusTip(receiveCoinsAction->statusTip());
     receiveCoinsMenuAction->setToolTip(receiveCoinsMenuAction->statusTip());
 
-    if(strLanguage.contains("zh_CN"))
-    {
-        smartContractAction = new QAction(platformStyle->MultiStatesIcon(":/icons/smart_contract"), tr("智能合约(&C)"), this);
-        smartContractAction->setStatusTip(tr("智能合约"));
-    }
-    else
-    {
-        smartContractAction = new QAction(platformStyle->MultiStatesIcon(":/icons/smart_contract"), tr("Smart &Contracts"), this);
-        smartContractAction->setStatusTip(tr("Smart contracts"));
-    }
+    smartContractAction = new QAction(platformStyle->MultiStatesIcon(":/icons/smart_contract"), tr("Smart &Contracts"), this);
+    smartContractAction->setStatusTip(tr("Smart contracts"));
     smartContractAction->setToolTip(smartContractAction->statusTip());
     smartContractAction->setCheckable(true);
     smartContractAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_4));
-    if(gArgs.IsArgSet("-showdbg"))
-        tabGroup->addAction(smartContractAction);
+    tabGroup->addAction(smartContractAction);
 
-    if(strLanguage.contains("zh_CN"))
-    {
-        createContractAction = new QAction(tr("创建"), this);
-        sendToContractAction = new QAction(tr("发送到"), this);
-        callContractAction = new QAction(tr("调用"), this);
-    }
-    else
-    {
-        createContractAction = new QAction(tr("Create"), this);
-        sendToContractAction = new QAction(tr("Send To"), this);
-        callContractAction = new QAction(tr("Call"), this);
-    }
+    createContractAction = new QAction(tr("Create"), this);
+    sendToContractAction = new QAction(tr("Send To"), this);
+    callContractAction = new QAction(tr("Call"), this);
 
-
-
-
-    if(strLanguage.contains("zh_CN"))
-    {
-        historyAction = new QAction(platformStyle->MultiStatesIcon(":/icons/history"), tr("交易记录(&T)"), this);
-        historyAction->setStatusTip(tr("浏览交易历史"));
-    }
-    else
-    {
-        historyAction = new QAction(platformStyle->MultiStatesIcon(":/icons/history"), tr("&Transactions"), this);
-        historyAction->setStatusTip(tr("Browse transaction history"));
-    }
+    historyAction = new QAction(platformStyle->MultiStatesIcon(":/icons/history"), tr("&Transactions"), this);
+    historyAction->setStatusTip(tr("Browse transaction history"));
     historyAction->setToolTip(historyAction->statusTip());
     historyAction->setCheckable(true);
     historyAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_5));
     tabGroup->addAction(historyAction);
 
-    if(strLanguage.contains("zh_CN"))
-    {
-        QRCTokenAction = new QAction(platformStyle->MultiStatesIcon(":/icons/qrctoken"), tr("&SRC代币"), this);
-        QRCTokenAction->setStatusTip(tr("SRC代币操作 (发送, 接收或者添加代币列表)"));
-    }
-    else
-    {
-        QRCTokenAction = new QAction(platformStyle->MultiStatesIcon(":/icons/qrctoken"), tr("&SRC Tokens"), this);
-        QRCTokenAction->setStatusTip(tr("SRC Tokens (send, receive or add Tokens in list)"));
-    }
+    QRCTokenAction = new QAction(platformStyle->MultiStatesIcon(":/icons/qrctoken"), tr("&SRC Tokens"), this);
+    QRCTokenAction->setStatusTip(tr("SRC Tokens (send, receive or add Tokens in list)"));
     QRCTokenAction->setToolTip(QRCTokenAction->statusTip());
     QRCTokenAction->setCheckable(true);
     QRCTokenAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_6));
     tabGroup->addAction(QRCTokenAction);
 
-    if(strLanguage.contains("zh_CN"))
-    {
-        sendTokenAction = new QAction(tr("发送"), this);
-        receiveTokenAction = new QAction(tr("收到"), this);
-        addTokenAction = new QAction(tr("添加代币"), this);
-    }
-    else
-    {
-        sendTokenAction = new QAction(tr("Send"), this);
-        receiveTokenAction = new QAction(tr("Receive"), this);
-        addTokenAction = new QAction(tr("Add Token"), this);
-    }
+    sendTokenAction = new QAction(tr("Send"), this);
+    receiveTokenAction = new QAction(tr("Receive"), this);
+    addTokenAction = new QAction(tr("Add Token"), this);
 
 #ifdef ENABLE_WALLET
     // These showNormalIfMinimized are needed because Send Coins and Receive Coins
@@ -499,160 +423,66 @@ void BitcoinGUI::createActions()
     connect(addTokenAction, SIGNAL(triggered()), this, SLOT(gotoAddTokenPage()));
 #endif // ENABLE_WALLET
 
-    if(strLanguage.contains("zh_CN"))
-    {
-        quitAction = new QAction(platformStyle->MenuColorIcon(":/icons/quit"), tr("退出(&x)"), this);
-        quitAction->setStatusTip(tr("退出程序"));
-    }
-    else
-    {
-        quitAction = new QAction(platformStyle->MenuColorIcon(":/icons/quit"), tr("E&xit"), this);
-        quitAction->setStatusTip(tr("Quit application"));
-    }
+    quitAction = new QAction(platformStyle->MenuColorIcon(":/icons/quit"), tr("E&xit"), this);
+    quitAction->setStatusTip(tr("Quit application"));
     quitAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Q));
     quitAction->setMenuRole(QAction::QuitRole);
-
-    if(strLanguage.contains("zh_CN"))
-    {
-        aboutAction = new QAction(platformStyle->MenuColorIcon(":/icons/about"), tr("关于%1(&A)").arg(tr(PACKAGE_NAME)), this);
-        aboutAction->setStatusTip(tr("显示关于%1的信息").arg(tr(PACKAGE_NAME)));
-    }
-    else
-    {
-        aboutAction = new QAction(platformStyle->MenuColorIcon(":/icons/about"), tr("&About %1").arg(tr(PACKAGE_NAME)), this);
-        aboutAction->setStatusTip(tr("Show information about %1").arg(tr(PACKAGE_NAME)));
-    }
+    aboutAction = new QAction(platformStyle->MenuColorIcon(":/icons/about"), tr("&About %1").arg(tr(PACKAGE_NAME)), this);
+    aboutAction->setStatusTip(tr("Show information about %1").arg(tr(PACKAGE_NAME)));
     aboutAction->setMenuRole(QAction::AboutRole);
     aboutAction->setEnabled(false);
-
-
-    if(strLanguage.contains("zh_CN"))
-    {
-        aboutQtAction = new QAction(platformStyle->MenuColorIcon(":/icons/about_qt"), tr("关于&Qt"), this);
-        aboutQtAction->setStatusTip(tr("显示关于Qt的信息"));
-    }
-    else
-    {
-        aboutQtAction = new QAction(platformStyle->MenuColorIcon(":/icons/about_qt"), tr("About &Qt"), this);
-        aboutQtAction->setStatusTip(tr("Show information about Qt"));
-    }
-    aboutQtAction->setMenuRole(QAction::AboutQtRole);
-
-    if(strLanguage.contains("zh_CN"))
-    {
-        optionsAction = new QAction(platformStyle->MenuColorIcon(":/icons/options"), tr("选项(&O)..."), this);
-        optionsAction->setStatusTip(tr("修改%1配置选项").arg(tr(PACKAGE_NAME)));
-    }
-    else
-    {
-        optionsAction = new QAction(platformStyle->MenuColorIcon(":/icons/options"), tr("&Options..."), this);
-        optionsAction->setStatusTip(tr("Modify configuration options for %1").arg(tr(PACKAGE_NAME)));
-    }
+//    aboutQtAction = new QAction(platformStyle->MenuColorIcon(":/icons/about_qt"), tr("About &Qt"), this);
+//    aboutQtAction->setStatusTip(tr("Show information about Qt"));
+//    aboutQtAction->setMenuRole(QAction::AboutQtRole);
+    optionsAction = new QAction(platformStyle->MenuColorIcon(":/icons/options"), tr("&Options..."), this);
+    optionsAction->setStatusTip(tr("Modify configuration options for %1").arg(tr(PACKAGE_NAME)));
     optionsAction->setMenuRole(QAction::PreferencesRole);
     optionsAction->setEnabled(false);
+    toggleHideAction = new QAction(platformStyle->MenuColorIcon(":/icons/about"), tr("&Show / Hide"), this);
+    toggleHideAction->setStatusTip(tr("Show or hide the main Window"));
 
-
-    if(strLanguage.contains("zh_CN"))
-    {
-        toggleHideAction = new QAction(platformStyle->MenuColorIcon(":/icons/about"), tr("显示(&S) / 隐藏"), this);
-        toggleHideAction->setStatusTip(tr("显示或隐藏主窗口"));
-
-        encryptWalletAction = new QAction(platformStyle->MenuColorIcon(":/icons/encrypt"), tr("加密钱包(&E)..."), this);
-        encryptWalletAction->setStatusTip(tr("加密属于你的钱包的私钥"));
-    }
-    else
-    {
-        toggleHideAction = new QAction(platformStyle->MenuColorIcon(":/icons/about"), tr("&Show / Hide"), this);
-        toggleHideAction->setStatusTip(tr("Show or hide the main Window"));
-
-        encryptWalletAction = new QAction(platformStyle->MenuColorIcon(":/icons/encrypt"), tr("&Encrypt Wallet..."), this);
-        encryptWalletAction->setStatusTip(tr("Encrypt the private keys that belong to your wallet"));
-    }
+    encryptWalletAction = new QAction(platformStyle->MenuColorIcon(":/icons/encrypt"), tr("&Encrypt Wallet..."), this);
+    encryptWalletAction->setStatusTip(tr("Encrypt the private keys that belong to your wallet"));
     encryptWalletAction->setCheckable(true);
-
-    if(strLanguage.contains("zh_CN"))
-    {
-        backupWalletAction = new QAction(platformStyle->MenuColorIcon(":/icons/filesave"), tr("备份钱包(&B)..."), this);
-        backupWalletAction->setStatusTip(tr("备份钱包数据到另一个地方"));
-        restoreWalletAction = new QAction(platformStyle->MenuColorIcon(":/icons/restore"), tr("恢复钱包(&R)..."), this);
-        restoreWalletAction->setStatusTip(tr("从另一个地方恢复钱包"));
-        changePassphraseAction = new QAction(platformStyle->MenuColorIcon(":/icons/key"), tr("改变口令(&C)..."), this);
-        changePassphraseAction->setStatusTip(tr("改变用作钱包加密的口令"));
-        unlockWalletAction = new QAction(platformStyle->MenuColorIcon(":/icons/lock_open"), tr("解锁钱包(&U)..."), this);
-        unlockWalletAction->setToolTip(tr("解锁钱包"));
-    }
-    else
-    {
-        backupWalletAction = new QAction(platformStyle->MenuColorIcon(":/icons/filesave"), tr("&Backup Wallet..."), this);
-        backupWalletAction->setStatusTip(tr("Backup wallet to another location"));
-        restoreWalletAction = new QAction(platformStyle->MenuColorIcon(":/icons/restore"), tr("&Restore Wallet..."), this);
-        restoreWalletAction->setStatusTip(tr("Restore wallet from another location"));
-        changePassphraseAction = new QAction(platformStyle->MenuColorIcon(":/icons/key"), tr("&Change Passphrase..."), this);
-        changePassphraseAction->setStatusTip(tr("Change the passphrase used for wallet encryption"));
-        unlockWalletAction = new QAction(platformStyle->MenuColorIcon(":/icons/lock_open"), tr("&Unlock Wallet..."), this);
-        unlockWalletAction->setToolTip(tr("Unlock wallet"));
-    }
+    backupWalletAction = new QAction(platformStyle->MenuColorIcon(":/icons/filesave"), tr("&Backup Wallet..."), this);
+    backupWalletAction->setStatusTip(tr("Backup wallet to another location"));
+    restoreWalletAction = new QAction(platformStyle->MenuColorIcon(":/icons/restore"), tr("&Restore Wallet..."), this);
+    restoreWalletAction->setStatusTip(tr("Restore wallet from another location"));
+    changePassphraseAction = new QAction(platformStyle->MenuColorIcon(":/icons/key"), tr("&Change Passphrase..."), this);
+    changePassphraseAction->setStatusTip(tr("Change the passphrase used for wallet encryption"));
+    unlockWalletAction = new QAction(platformStyle->MenuColorIcon(":/icons/lock_open"), tr("&Unlock Wallet..."), this);
+    unlockWalletAction->setToolTip(tr("Unlock wallet"));
     unlockWalletAction->setObjectName("unlockWalletAction");
-    if(strLanguage.contains("zh_CN"))
-    {
-        lockWalletAction = new QAction(platformStyle->MenuColorIcon(":/icons/lock_closed"), tr("加锁钱包(&L)"), this);
-        lockWalletAction->setToolTip(tr("解锁钱包"));
-        signMessageAction = new QAction(platformStyle->MenuColorIcon(":/icons/edit"), tr("签名信息(&m)..."), this);
-        signMessageAction->setStatusTip(tr("用SILUBIUM地址关联的私钥为消息签名，以证明您拥有这个SILUBIUM地址"));
-        verifyMessageAction = new QAction(platformStyle->MenuColorIcon(":/icons/verify"), tr("校验信息(&V)..."), this);
-        verifyMessageAction->setStatusTip(tr("校验消息，确保该消息是由指定的SILUBIUM地址所有者签名的"));
-        openRPCConsoleAction = new QAction(platformStyle->MenuColorIcon(":/icons/debugwindow"), tr("调试窗口(&D)"), this);
-        openRPCConsoleAction->setStatusTip(tr("打开调试和分析控制台窗口"));
-    }
-    else
-    {
-        lockWalletAction = new QAction(platformStyle->MenuColorIcon(":/icons/lock_closed"), tr("&Lock Wallet"), this);
-        lockWalletAction->setToolTip(tr("Lock wallet"));
-        signMessageAction = new QAction(platformStyle->MenuColorIcon(":/icons/edit"), tr("Sign &message..."), this);
-        signMessageAction->setStatusTip(tr("Sign messages with your Silubium addresses to prove you own them"));
-        verifyMessageAction = new QAction(platformStyle->MenuColorIcon(":/icons/verify"), tr("&Verify message..."), this);
-        verifyMessageAction->setStatusTip(tr("Verify messages to ensure they were signed with specified Silubium addresses"));
+    lockWalletAction = new QAction(platformStyle->MenuColorIcon(":/icons/lock_closed"), tr("&Lock Wallet"), this);
+    lockWalletAction->setToolTip(tr("Lock wallet"));
+    signMessageAction = new QAction(platformStyle->MenuColorIcon(":/icons/edit"), tr("Sign &message..."), this);
+    signMessageAction->setStatusTip(tr("Sign messages with your Silubium addresses to prove you own them"));
+    verifyMessageAction = new QAction(platformStyle->MenuColorIcon(":/icons/verify"), tr("&Verify message..."), this);
+    verifyMessageAction->setStatusTip(tr("Verify messages to ensure they were signed with specified Silubium addresses"));
 
-        openRPCConsoleAction = new QAction(platformStyle->MenuColorIcon(":/icons/debugwindow"), tr("&Debug window"), this);
-        openRPCConsoleAction->setStatusTip(tr("Open debugging and diagnostic console"));
-    }
+    openRPCConsoleAction = new QAction(platformStyle->MenuColorIcon(":/icons/debugwindow"), tr("&Debug window"), this);
+    openRPCConsoleAction->setStatusTip(tr("Open debugging and diagnostic console"));
     // initially disable the debug window menu item
     openRPCConsoleAction->setEnabled(false);
 
-    if(strLanguage.contains("zh_CN"))
-    {
-        usedSendingAddressesAction = new QAction(platformStyle->MenuColorIcon(":/icons/address-book"), tr("发送地址表(&S)..."), this);
-        usedSendingAddressesAction->setStatusTip(tr("显示用于发送的地址和标签列表"));
-        usedReceivingAddressesAction = new QAction(platformStyle->MenuColorIcon(":/icons/address-book"), tr("接收地址表(&R)..."), this);
-        usedReceivingAddressesAction->setStatusTip(tr("显示用于接收的地址和标签列表"));
-        openAction = new QAction(platformStyle->MenuColorIcon(":/icons/open"), tr("打开&URI..."), this);
-        openAction->setStatusTip(tr("打开一个silubium的URI或者付款请求"));
-        showHelpMessageAction = new QAction(platformStyle->MenuColorIcon(":/icons/info"), tr("显示命令行选项(&C)"), this);
-        showHelpMessageAction->setStatusTip(tr("显示%1的帮助消息以帮助你选择一个合适的Silubium命令行选项").arg(tr(PACKAGE_NAME)));
-        merketAction =new QAction(platformStyle->MenuColorIcon(":/icons/interest"), tr("交易所"), this);
-        merketAction->setStatusTip(tr("欢迎访问Silubium交易所!"));
-        updaterAction = new QAction(platformStyle->MenuColorIcon(":/icons/updater"),tr("在线升级"), this);
-        updaterAction->setStatusTip(tr("检测是否存在新版本，Windows版本可以在线升级。"));
-    }
-    else
-    {
-        usedSendingAddressesAction = new QAction(platformStyle->MenuColorIcon(":/icons/address-book"), tr("&Sending addresses..."), this);
-        usedSendingAddressesAction->setStatusTip(tr("Show the list of used sending addresses and labels"));
-        usedReceivingAddressesAction = new QAction(platformStyle->MenuColorIcon(":/icons/address-book"), tr("&Receiving addresses..."), this);
-        usedReceivingAddressesAction->setStatusTip(tr("Show the list of used receiving addresses and labels"));
-        openAction = new QAction(platformStyle->MenuColorIcon(":/icons/open"), tr("Open &URI..."), this);
-        openAction->setStatusTip(tr("Open a silubium: URI or payment request"));
-        showHelpMessageAction = new QAction(platformStyle->MenuColorIcon(":/icons/info"), tr("&Command-line options"), this);
-        showHelpMessageAction->setStatusTip(tr("Show the %1 help message to get a list with possible Silubium command-line options").arg(tr(PACKAGE_NAME)));
-        merketAction =new QAction(platformStyle->MenuColorIcon(":/icons/interest"), tr("Markets"), this);
-        merketAction->setStatusTip(tr("Welcome to Silubium matkets!"));
-        updaterAction = new QAction(platformStyle->MenuColorIcon(":/icons/updater"),tr("Online Update"), this);
-        updaterAction->setStatusTip(tr("Check whether there is a new version, and the Windows version can be upgraded online."));
-    }
+    usedSendingAddressesAction = new QAction(platformStyle->MenuColorIcon(":/icons/address-book"), tr("&Sending addresses..."), this);
+    usedSendingAddressesAction->setStatusTip(tr("Show the list of used sending addresses and labels"));
+    usedReceivingAddressesAction = new QAction(platformStyle->MenuColorIcon(":/icons/address-book"), tr("&Receiving addresses..."), this);
+    usedReceivingAddressesAction->setStatusTip(tr("Show the list of used receiving addresses and labels"));
+
+    openAction = new QAction(platformStyle->MenuColorIcon(":/icons/open"), tr("Open &URI..."), this);
+    openAction->setStatusTip(tr("Open a silubium: URI or payment request"));//SILUBIUM_LINE
+
+    showHelpMessageAction = new QAction(platformStyle->MenuColorIcon(":/icons/info"), tr("&Command-line options"), this);
     showHelpMessageAction->setMenuRole(QAction::NoRole);
+    showHelpMessageAction->setStatusTip(tr("Show the %1 help message to get a list with possible Silubium command-line options").arg(tr(PACKAGE_NAME)));
+    merketAction =new QAction(platformStyle->MenuColorIcon(":/icons/interest"), tr("Markets"), this);
+    merketAction->setStatusTip(tr("Welcome to Silubium matkets!"));
+    updaterAction = new QAction(platformStyle->MenuColorIcon(":/icons/updater"),tr("Online Update"), this);
+    updaterAction->setStatusTip(tr("Check whether there is a new version, and the Windows version can be upgraded online."));
     connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
     connect(aboutAction, SIGNAL(triggered()), this, SLOT(aboutClicked()));
-    connect(aboutQtAction, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
+//    connect(aboutQtAction, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
     connect(optionsAction, SIGNAL(triggered()), this, SLOT(optionsClicked()));
     connect(toggleHideAction, SIGNAL(triggered()), this, SLOT(toggleHidden()));
     connect(showHelpMessageAction, SIGNAL(triggered()), this, SLOT(showHelpMessageClicked()));
@@ -693,24 +523,14 @@ void BitcoinGUI::createMenuBar()
 #endif
 
     // Configure the menus
-
-    bool ischina=isChina();
-    QMenu *file,*settings,*help;
-
-    if(ischina)
-        file = appMenuBar->addMenu(tr("文件(&F)"));
-    else
-        file = appMenuBar->addMenu(tr("&File"));
+    QMenu *file = appMenuBar->addMenu(tr("&File"));
     if(walletFrame)
     {
         file->addAction(openAction);
         file->addAction(backupWalletAction);
         file->addAction(restoreWalletAction);
-        if (gArgs.IsArgSet("-showdbg"))
-        {
-            file->addAction(signMessageAction);
-            file->addAction(verifyMessageAction);
-        }
+        file->addAction(signMessageAction);
+        file->addAction(verifyMessageAction);
         file->addSeparator();
         file->addAction(usedSendingAddressesAction);
         file->addAction(usedReceivingAddressesAction);
@@ -718,10 +538,7 @@ void BitcoinGUI::createMenuBar()
     }
     file->addAction(quitAction);
 
-    if(ischina)
-        settings = appMenuBar->addMenu(tr("设置(&S)"));
-    else
-        settings = appMenuBar->addMenu(tr("&Settings"));
+    QMenu *settings = appMenuBar->addMenu(tr("&Settings"));
     if(walletFrame)
     {
         settings->addAction(encryptWalletAction);
@@ -732,10 +549,7 @@ void BitcoinGUI::createMenuBar()
     }
     settings->addAction(optionsAction);
 
-    if(ischina)//判断是否中文
-        help = appMenuBar->addMenu(tr("帮助(&H)"));
-    else
-        help = appMenuBar->addMenu(tr("&Help"));
+    QMenu *help = appMenuBar->addMenu(tr("&Help"));
     if(walletFrame)
     {
         if (gArgs.IsArgSet("-showdbg"))
@@ -746,8 +560,8 @@ void BitcoinGUI::createMenuBar()
     help->addAction(updaterAction);
     help->addSeparator();
     help->addAction(aboutAction);
-    if (gArgs.IsArgSet("-showdbg"))
-        help->addAction(aboutQtAction);
+//    if (gArgs.IsArgSet("-showdbg"))
+//        help->addAction(aboutQtAction);
 }
 
 void BitcoinGUI::createToolBars()
@@ -828,7 +642,7 @@ void BitcoinGUI::setClientModel(ClientModel *_clientModel)
         {
             // be aware of the tray icon disable state change reported by the OptionsModel object.
             connect(optionsModel,SIGNAL(hideTrayIconChanged(bool)),this,SLOT(setTrayIconVisible(bool)));
-
+        
             // initialize the disable state of the tray icon with the current value in the model.
             setTrayIconVisible(optionsModel->getHideTrayIcon());
         }
@@ -1021,28 +835,13 @@ void BitcoinGUI::onlineUpgrade()
         }
         else
         {
-            if(isChina())
-            {
-                QString link = QString("<a href=%1>%2</a>").arg(SILUBIUM_RELEASES, SILUBIUM_RELEASES);
-                QString message(tr("源代码仓库有新版本的Silubium钱包可用！<br/>%1<br/>强烈建议下载并升级这个应用。").arg(link));
-                QMessageBox::information(this, tr("检测升级"), message);
-            }
-            else
-            {
-                QString link = QString("<a href=%1>%2</a>").arg(SILUBIUM_RELEASES, SILUBIUM_RELEASES);
-                QString message(tr("New version of Silubium wallet is available on the Silubium source code repository: <br /> %1. <br />It is recommended to download it and update this application").arg(link));
-                QMessageBox::information(this, tr("Check for Updates"), message);
-            }
+            QString link = QString("<a href=%1>%2</a>").arg(SILUBIUM_RELEASES, SILUBIUM_RELEASES);
+            QString message(tr("New version of Silubium wallet is available on the Silubium source code repository: <br /> %1. <br />It is recommended to download it and update this application.").arg(link));
+            QMessageBox::information(this, tr("Check for Updates"), message);
         }
-
     }
     else
-    {
-        if(!isChina())
-            QMessageBox::information(this,tr("Check for updates"),tr("This is the latest version!"));
-        else
-            QMessageBox::information(this,tr("检测升级"),tr("当前已经是最新版本！"));
-    }
+        QMessageBox::information(this,tr("Check for updates"),tr("This is the latest version!"));
 }
 
 #ifdef ENABLE_WALLET
@@ -1140,25 +939,12 @@ void BitcoinGUI::updateNetworkState()
     }
 
     QString tooltip;
-    if(isChina())
-    {
-        if (clientModel->getNetworkActive()) {
 
-            tooltip = tr("%n个活跃的连接到Silubium网络", "", count) + QString(".<br>") + tr("单击这里可以关闭网络连接。");
-        } else {
-            tooltip = tr("网络连接关闭。") + QString("<br>") + tr("单击这里再次使能网络连接。");
-            icon = ":/icons/network_disabled";
-        }
-    }
-    else
-    {
-        if (clientModel->getNetworkActive()) {
-
-            tooltip = tr("%n active connection(s) to Silubium network", "", count) + QString(".<br>") + tr("Click to disable network activity.");
-        } else {
-            tooltip = tr("Network activity disabled.") + QString("<br>") + tr("Click to enable network activity again.");
-            icon = ":/icons/network_disabled";
-        }
+    if (clientModel->getNetworkActive()) {
+        tooltip = tr("%n active connection(s) to Silubium network", "", count) + QString(".<br>") + tr("Click to disable network activity.");
+    } else {
+        tooltip = tr("Network activity disabled.") + QString("<br>") + tr("Click to enable network activity again.");
+        icon = ":/icons/network_disabled";
     }
 
     // Don't word-wrap this (fixed-width) tooltip
@@ -1187,18 +973,8 @@ void BitcoinGUI::updateHeadersSyncProgressLabel()
         progressBarLabel->setText(tr("Syncing Headers (%1%)...").arg(QString::number(100.0 / (headersTipHeight+estHeadersLeft)*headersTipHeight, 'f', 1)));
 }
 
-bool BitcoinGUI::isChina()
-{
-    bool bFindChina=false;
-    if(GetLangTerritory().contains("zh_CN"))
-        bFindChina=true;
-    return bFindChina;
-}
-
 void BitcoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVerificationProgress, bool header)
 {
-    bool china=isChina();
-
     if (modalOverlay)
     {
         if (header)
@@ -1215,50 +991,30 @@ void BitcoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
     // Acquire current block source
     enum BlockSource blockSource = clientModel->getBlockSource();
     switch (blockSource) {
-    case BLOCK_SOURCE_NETWORK:
-        if (header) {
-            updateHeadersSyncProgressLabel();
-            return;
-        }
-        if(china)
-            progressBarLabel->setText(tr("从网络同步..."));
-        else
+        case BLOCK_SOURCE_NETWORK:
+            if (header) {
+                updateHeadersSyncProgressLabel();
+                return;
+            }
             progressBarLabel->setText(tr("Synchronizing with network..."));
-        updateHeadersSyncProgressLabel();
-        break;
-    case BLOCK_SOURCE_DISK:
-        if(!china)
-        {
+            updateHeadersSyncProgressLabel();
+            break;
+        case BLOCK_SOURCE_DISK:
             if (header) {
                 progressBarLabel->setText(tr("Indexing blocks on disk..."));
             } else {
                 progressBarLabel->setText(tr("Processing blocks on disk..."));
             }
-        }
-        else
-        {
-            if (header) {
-                progressBarLabel->setText(tr("在磁盘上建立块索引..."));
-            } else {
-                progressBarLabel->setText(tr("在磁盘上处理块..."));
-            }
-        }
-        break;
-    case BLOCK_SOURCE_REINDEX:
-        if(china)
-            progressBarLabel->setText(tr("在磁盘上重建块索引..."));
-        else
+            break;
+        case BLOCK_SOURCE_REINDEX:
             progressBarLabel->setText(tr("Reindexing blocks on disk..."));
-        break;
-    case BLOCK_SOURCE_NONE:
-        if (header) {
-            return;
-        }
-        if(china)
-            progressBarLabel->setText(tr("连接到节点..."));
-        else
+            break;
+        case BLOCK_SOURCE_NONE:
+            if (header) {
+                return;
+            }
             progressBarLabel->setText(tr("Connecting to peers..."));
-        break;
+            break;
     }
 
     QString tooltip;
@@ -1266,17 +1022,12 @@ void BitcoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
     QDateTime currentDate = QDateTime::currentDateTime();
     qint64 secs = blockDate.secsTo(currentDate);
 
-    if(!china)
-        tooltip = tr("Processed %n block(s) of transaction history.", "", count);
-    else
-        tooltip = tr("已处理%n块的交易历史。", "", count);
+    tooltip = tr("Processed %n block(s) of transaction history.", "", count);
+
     // Set icon state: spinning if catching up, tick otherwise
     if(secs < 90*60)
     {
-        if(china)
-            tooltip = tr("到目前为止") + QString(".<br>") + tooltip;
-        else
-            tooltip = tr("Up to date") + QString(".<br>") + tooltip;
+        tooltip = tr("Up to date") + QString(".<br>") + tooltip;
         labelBlocksIcon->setPixmap(QIcon(":/icons/synced").pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
 
 #ifdef ENABLE_WALLET
@@ -1302,23 +1053,17 @@ void BitcoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
         QString timeBehindText = GUIUtil::formatNiceTimeOffset(secs);
 
         progressBarLabel->setVisible(true);
-        if(china)
-            progressBar->setFormat(tr("落后%1").arg(timeBehindText));
-        else
-            progressBar->setFormat(tr("%1 behind").arg(timeBehindText));
+        progressBar->setFormat(tr("%1 behind").arg(timeBehindText));
         progressBar->setMaximum(1000000000);
         progressBar->setValue(nVerificationProgress * 1000000000.0 + 0.5);
         progressBar->setVisible(true);
 
-        if(china)
-            tooltip = tr("追加数据...") + QString("<br>") + tooltip;
-        else
-            tooltip = tr("Catching up...") + QString("<br>") + tooltip;
+        tooltip = tr("Catching up...") + QString("<br>") + tooltip;
         if(count != prevBlocks)
         {
             labelBlocksIcon->setPixmap(QIcon(QString(
-                                                 ":/movies/spinner-%1").arg(spinnerFrame, 3, 10, QChar('0')))
-                                       .pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
+                ":/movies/spinner-%1").arg(spinnerFrame, 3, 10, QChar('0')))
+                .pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
             spinnerFrame = (spinnerFrame + 1) % SPINNER_FRAMES;
         }
         prevBlocks = count;
@@ -1330,20 +1075,11 @@ void BitcoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
             modalOverlay->showHide();
         }
 #endif // ENABLE_WALLET
-        if(china)
-        {
-            tooltip += QString("<br>");
-            tooltip += tr("最后收到的块在%1前被生成。").arg(timeBehindText);
-            tooltip += QString("<br>");
-            tooltip += tr("此后的交易将不可见.");
-        }
-        else
-        {
-            tooltip += QString("<br>");
-            tooltip += tr("Last received block was generated %1 ago.").arg(timeBehindText);
-            tooltip += QString("<br>");
-            tooltip += tr("Transactions after this will not yet be visible.");
-        }
+
+        tooltip += QString("<br>");
+        tooltip += tr("Last received block was generated %1 ago.").arg(timeBehindText);
+        tooltip += QString("<br>");
+        tooltip += tr("Transactions after this will not yet be visible.");
     }
 
     // Don't word-wrap this (fixed-width) tooltip
@@ -1405,8 +1141,6 @@ void BitcoinGUI::message(const QString &title, const QString &message, unsigned 
 
         showNormalIfMinimized();
         QMessageBox mBox((QMessageBox::Icon)nMBoxIcon, strTitle, message, buttons, this);
-        if(isChina())
-            mBox.setButtonText (QMessageBox::Ok,QString("确 定(&O)"));
         int r = mBox.exec();
         if (ret != nullptr)
             *ret = r == QMessageBox::Ok;
@@ -1469,60 +1203,30 @@ void BitcoinGUI::showEvent(QShowEvent *event)
 void BitcoinGUI::incomingTransaction(const QString& date, int unit, const CAmount& amount, const QString& type, const QString& address, const QString& label)
 {
     // On new transaction, make an info balloon
-    if(isChina())
-    {
-        QString msg = tr("日期: %1\n").arg(date) +
-                tr("金额: %1\n").arg(BitcoinUnits::formatWithUnit(unit, amount, true)) +
-                tr("类型: %1\n").arg(type);
-        if (!label.isEmpty())
-            msg += tr("标签: %1\n").arg(label);
-        else if (!address.isEmpty())
-            msg += tr("地址: %1\n").arg(address);
-        message((amount)<0 ? tr("发送交易") : tr("流入交易"),
-                msg, CClientUIInterface::MSG_INFORMATION);
-    }
-    else
-    {
-        QString msg = tr("Date: %1\n").arg(date) +
-                tr("Amount: %1\n").arg(BitcoinUnits::formatWithUnit(unit, amount, true)) +
-                tr("Type: %1\n").arg(type);
-        if (!label.isEmpty())
-            msg += tr("Label: %1\n").arg(label);
-        else if (!address.isEmpty())
-            msg += tr("Address: %1\n").arg(address);
-        message((amount)<0 ? tr("Sent transaction") : tr("Incoming transaction"),
-                msg, CClientUIInterface::MSG_INFORMATION);
-    }
-
+    QString msg = tr("Date: %1").arg(date) + "\n" +
+                  tr("Amount: %1").arg(BitcoinUnits::formatWithUnit(unit, amount, true)) + "\n" +
+                  tr("Type: %1").arg(type)+ "\n";
+    if (!label.isEmpty())
+        msg += tr("Label: %1").arg(label)+"\n";
+    else if (!address.isEmpty())
+        msg += tr("Address: %1").arg(address)+"\n";
+    message((amount)<0 ? tr("Sent transaction") : tr("Incoming transaction"),
+             msg, CClientUIInterface::MSG_INFORMATION);
 }
 
 void BitcoinGUI::incomingTokenTransaction(const QString& date, const QString& amount, const QString& type, const QString& address, const QString& label, const QString& title)
 {
     // On new transaction, make an info balloon
-    if(isChina())
-    {
-        QString msg = tr("日期: %1\n").arg(date) +
-                tr("金额: %1\n").arg(amount) +
-                tr("类型: %1\n").arg(type);
-        if (!label.isEmpty())
-            msg += tr("标签: %1\n").arg(label);
-        else if (!address.isEmpty())
-            msg += tr("地址: %1\n").arg(address);
-        message(title, msg, CClientUIInterface::MSG_INFORMATION);
-    }
-    else
-    {
-        QString msg = tr("Date: %1\n").arg(date) +
-                tr("Amount: %1\n").arg(amount) +
-                tr("Type: %1\n").arg(type);
-        if (!label.isEmpty())
-            msg += tr("Label: %1\n").arg(label);
-        else if (!address.isEmpty())
-            msg += tr("Address: %1\n").arg(address);
-        message(title, msg, CClientUIInterface::MSG_INFORMATION);
-    }
-
+    QString msg = tr("Date: %1").arg(date) + "\n"+
+                  tr("Amount: %1").arg(amount) + "\n"+
+                  tr("Type: %1").arg(type)+"\n";
+    if (!label.isEmpty())
+        msg += tr("Label: %1").arg(label)+"\n";
+    else if (!address.isEmpty())
+        msg += tr("Address: %1").arg(address)+"\n";
+    message(title, msg, CClientUIInterface::MSG_INFORMATION);
 }
+
 #endif // ENABLE_WALLET
 
 void BitcoinGUI::dragEnterEvent(QDragEnterEvent *event)
@@ -1572,12 +1276,9 @@ bool BitcoinGUI::handlePaymentRequest(const SendCoinsRecipient& recipient)
 void BitcoinGUI::setHDStatus(int hdEnabled)
 {
     labelWalletHDStatusIcon->setPixmap(QIcon(hdEnabled ? ":/icons/hd_enabled" : ":/icons/hd_disabled").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
-    if(isChina())
-        labelWalletHDStatusIcon->setToolTip(hdEnabled ? tr("高清密钥生成是<b>可能的</b>") : tr("高清密钥生成是<b>被禁止的</b>"));
-    else
-        labelWalletHDStatusIcon->setToolTip(hdEnabled ? tr("HD key generation is <b>enabled</b>") : tr("HD key generation is <b>disabled</b>"));
+    labelWalletHDStatusIcon->setToolTip(hdEnabled ? tr("HD key generation is <b>enabled</b>") : tr("HD key generation is <b>disabled</b>"));
 
-    // eventually disable the QLabel to set its opacity to 50%
+    // eventually disable the QLabel to set its opacity to 50% 
     labelWalletHDStatusIcon->setEnabled(hdEnabled);
 }
 
@@ -1670,7 +1371,7 @@ void BitcoinGUI::updateWeight(CWalletRef pwalletMain)
 
 #ifdef ENABLE_WALLET
     if (pwalletMain)
-        nWeight = pwalletMain->GetStakeWeight();
+    nWeight = pwalletMain->GetStakeWeight();
 #endif
 }
 
@@ -1716,42 +1417,22 @@ void BitcoinGUI::updateStakingIcon()
         nNetworkWeight /= COIN;
 
         labelStakingIcon->setPixmap(QIcon(":/icons/staking_on").pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
-        if(GetLangTerritory().contains("zh_CN"))
-            labelStakingIcon->setToolTip(tr("挖矿中.<br>你的权重是：%1<br>全网权重是：%2<br>预计收益时间是：%3").arg(nWeight).arg(nNetworkWeight).arg(text));
-        else
-            labelStakingIcon->setToolTip(tr("Staking.<br>Your weight is %1<br>Network weight is %2<br>Expected time to earn reward is %3").arg(nWeight).arg(nNetworkWeight).arg(text));
+        labelStakingIcon->setToolTip(tr("Staking.<br>Your weight is %1<br>Network weight is %2<br>Expected time to earn reward is %3").arg(nWeight).arg(nNetworkWeight).arg(text));
     }
     else
     {
         labelStakingIcon->setPixmap(QIcon(":/icons/staking_off").pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
-        if(GetLangTerritory().contains("zh_CN"))
-        {
-            if (g_connman == 0 || g_connman->GetNodeCount(CConnman::CONNECTIONS_ALL) == 0)
-                labelStakingIcon->setToolTip(tr("由于离线，没有挖矿。"));
-            else if (IsInitialBlockDownload())
-                labelStakingIcon->setToolTip(tr("钱包同步中，没有挖矿"));
-            else if (!nWeight)
-                labelStakingIcon->setToolTip(tr("没有成熟的COIN，没有挖矿"));
-            else if (pwalletMain && pwalletMain->IsLocked())
-                labelStakingIcon->setToolTip(tr("钱包被锁，没有挖矿"));
-            else
-                labelStakingIcon->setToolTip(tr("没有挖矿"));
-        }
+
+        if (g_connman == 0 || g_connman->GetNodeCount(CConnman::CONNECTIONS_ALL) == 0)
+            labelStakingIcon->setToolTip(tr("Not staking because wallet is offline"));
+        else if (IsInitialBlockDownload())
+            labelStakingIcon->setToolTip(tr("Not staking because wallet is syncing"));
+        else if (!nWeight)
+            labelStakingIcon->setToolTip(tr("Not staking because you don't have mature coins"));
+        else if (pwalletMain && pwalletMain->IsLocked())
+            labelStakingIcon->setToolTip(tr("Not staking because wallet is locked"));
         else
-        {
-            if (g_connman == 0 || g_connman->GetNodeCount(CConnman::CONNECTIONS_ALL) == 0)
-                labelStakingIcon->setToolTip(tr("Not staking because wallet is offline"));
-            else if (IsInitialBlockDownload())
-                labelStakingIcon->setToolTip(tr("Not staking because wallet is syncing"));
-            else if (!nWeight)
-                labelStakingIcon->setToolTip(tr("Not staking because you don't have mature coins"));
-            else if (pwalletMain && pwalletMain->IsLocked())
-                labelStakingIcon->setToolTip(tr("Not staking because wallet is locked"));
-            else
-                labelStakingIcon->setToolTip(tr("Not staking"));
-        }
-
-
+            labelStakingIcon->setToolTip(tr("Not staking"));
     }
 }
 
@@ -1825,11 +1506,11 @@ static bool ThreadSafeMessageBox(BitcoinGUI *gui, const std::string& message, co
     bool ret = false;
     // In case of modal message, use blocking connection to wait for user to click a button
     QMetaObject::invokeMethod(gui, "message",
-                              modal ? GUIUtil::blockingGUIThreadConnection() : Qt::QueuedConnection,
-                              Q_ARG(QString, QString::fromStdString(caption)),
-                              Q_ARG(QString, QString::fromStdString(message)),
-                              Q_ARG(unsigned int, style),
-                              Q_ARG(bool*, &ret));
+                               modal ? GUIUtil::blockingGUIThreadConnection() : Qt::QueuedConnection,
+                               Q_ARG(QString, QString::fromStdString(caption)),
+                               Q_ARG(QString, QString::fromStdString(message)),
+                               Q_ARG(unsigned int, style),
+                               Q_ARG(bool*, &ret));
     return ret;
 }
 
@@ -1865,21 +1546,6 @@ void BitcoinGUI::addDockWindows(Qt::DockWidgetArea area, QWidget* widget)
     dock->setWidget(widget);
     addDockWidget(area, dock);
 }
-extern ArgsManager gArgs;
-QString BitcoinGUI::GetLangTerritory()
-{
-    QSettings settings;
-    // Get desired locale (e.g. "de_DE")
-    // 1) System default language
-    QString lang_territory = QLocale::system().name();
-    // 2) Language from QSettings
-    QString lang_territory_qsettings = settings.value("language", "").toString();
-    if(!lang_territory_qsettings.isEmpty())
-        lang_territory = lang_territory_qsettings;
-    // 3) -lang command line argument
-    //    lang_territory = QString::fromStdString(gArgs.GetArg("-lang", lang_territory.toStdString()));
-    return lang_territory;
-}
 
 UnitDisplayStatusBarControl::UnitDisplayStatusBarControl(const PlatformStyle *platformStyle) :
     optionsModel(0),
@@ -1892,7 +1558,7 @@ UnitDisplayStatusBarControl::UnitDisplayStatusBarControl(const PlatformStyle *pl
     const QFontMetrics fm(font());
     for (const BitcoinUnits::Unit unit : units)
     {
-        max_width = qMax(max_width, fm.width(BitcoinUnits::name(unit)));
+        max_width = qMax(max_width, fm.width(BitcoinUnits::longName(unit)));
     }
     setMinimumSize(max_width, 0);
     setAlignment(Qt::AlignRight | Qt::AlignVCenter);
@@ -1910,7 +1576,7 @@ void UnitDisplayStatusBarControl::createContextMenu()
     menu = new QMenu(this);
     for (BitcoinUnits::Unit u : BitcoinUnits::availableUnits())
     {
-        QAction *menuAction = new QAction(QString(BitcoinUnits::name(u)), this);
+        QAction *menuAction = new QAction(QString(BitcoinUnits::longName(u)), this);
         menuAction->setData(QVariant(u));
         menu->addAction(menuAction);
     }
@@ -1935,7 +1601,7 @@ void UnitDisplayStatusBarControl::setOptionsModel(OptionsModel *_optionsModel)
 /** When Display Units are changed on OptionsModel it will refresh the display text of the control on the status bar */
 void UnitDisplayStatusBarControl::updateDisplayUnit(int newUnits)
 {
-    setText(BitcoinUnits::name(newUnits));
+    setText(BitcoinUnits::longName(newUnits));
 }
 
 /** Shows context menu with Display Unit options by the mouse coordinates */
@@ -1953,5 +1619,3 @@ void UnitDisplayStatusBarControl::onMenuSelection(QAction* action)
         optionsModel->setDisplayUnit(action->data());
     }
 }
-
-

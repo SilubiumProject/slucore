@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2016 The Bitcoin Core developers
+// Copyright (c) 2011-2017 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -6,10 +6,10 @@
 #define BITCOIN_QT_BITCOINGUI_H
 
 #if defined(HAVE_CONFIG_H)
-#include "config/bitcoin-config.h"
+#include <config/bitcoin-config.h>
 #endif
 
-#include "amount.h"
+#include <amount.h>
 
 #include <QLabel>
 #include <QMainWindow>
@@ -40,7 +40,6 @@ class QAction;
 class QProgressBar;
 class QProgressDialog;
 class QDockWidget;
-class QString;
 QT_END_NAMESPACE
 
 typedef CWallet* CWalletRef;
@@ -64,8 +63,7 @@ public:
         The client model represents the part of the core that communicates with the P2P network, and is wallet-agnostic.
     */
     void setClientModel(ClientModel *clientModel);
-    QString GetLangTerritory();
-    bool isChina();
+
 #ifdef ENABLE_WALLET
     /** Set the wallet model.
         The wallet model represents a bitcoin wallet, and offers access to the list of transactions, address book and sending
@@ -76,8 +74,6 @@ public:
     void removeAllWallets();
 #endif // ENABLE_WALLET
     bool enableWallet;
-
-
 
 protected:
     void changeEvent(QEvent *e);

@@ -27,7 +27,7 @@ public:
     bool isDataValid();
 
     void setTokenData(std::string address, std::string sender, std::string symbol, int8_t decimals, std::string balance);
-    QString GetLangTerritory();
+
 private Q_SLOTS:
     void on_clearButton_clicked();
     void on_numBlocksChanged();

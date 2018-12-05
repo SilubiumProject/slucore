@@ -1,19 +1,19 @@
 // Copyright (c) 2010 Satoshi Nakamoto
-// Copyright (c) 2009-2016 The Bitcoin Core developers
+// Copyright (c) 2009-2017 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "chainparams.h"
-#include "consensus/merkle.h"
-#include "consensus/consensus.h"
+#include <chainparams.h>
+#include <consensus/merkle.h>
+#include <consensus/consensus.h>
 
-#include "tinyformat.h"
-#include "util.h"
-#include "utilstrencodings.h"
+#include <tinyformat.h>
+#include <util.h>
+#include <utilstrencodings.h>
 
 #include <assert.h>
 
-#include "chainparamsseeds.h"
+#include <chainparamsseeds.h>
 
 ///////////////////////////////////////////// // silubium
 #include <libdevcore/SHA3.h>
@@ -86,6 +86,7 @@ public:
     CMainParams() {
         strNetworkID = "main";
         consensus.nSubsidyHalvingInterval = 985500; // silubium halving every 4 years
+        consensus.BIP16Height = 0;
         consensus.BIP34Height = 0;
         consensus.BIP34Hash = uint256S("0x000075aef83cf2853580f8ae8ce6f8c3096cfa21d98334d6e3f95e5582ed986c");
         consensus.BIP65Height = 0; // 000000000000000004c2b624ed5d7756c508d90fd0da2c7c679febfa6c4735f0
@@ -132,45 +133,40 @@ public:
         nPruneAfterHeight = 100000;
 
         //genesis = CreateGenesisBlock(1504695029,8026361, 0x1f00ffff, 1, 50 * COIN);
-
         genesis = CreateGenesisBlock(1532770381,35869 , 0x1f00ffff, 1, 50 * COIN);
-        //genesis = CreateGenesisBlock(1531131039,59921 , 0x1f00ffff, 1, 50 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
-
-        assert(consensus.hashGenesisBlock == uint256S("0x00001d10d5f89e792a149a66d48a89037f8c915c29f2cfd4f251cd2bab216b3b"));
+	assert(consensus.hashGenesisBlock == uint256S("0x00001d10d5f89e792a149a66d48a89037f8c915c29f2cfd4f251cd2bab216b3b"));
         assert(genesis.hashMerkleRoot == uint256S("0xb105667bffbd7e59f2f0c49e4386438caef9376b9292e119b216b04346064898"));
+    	//assert(consensus.hashGenesisBlock == uint256S("0x000075aef83cf2853580f8ae8ce6f8c3096cfa21d98334d6e3f95e5582ed986c"));
+        //assert(genesis.hashMerkleRoot == uint256S("0xed34050eb5909ee535fcb07af292ea55f3d2f291187617b44d3282231405b96d"));
 
-//        printf("Main GENESIS HASH: %s\n",consensus.hashGenesisBlock.ToString().c_str());
-//        printf("Main MERKLE ROOT: %s\n",genesis.hashMerkleRoot.ToString().c_str());
+        // Note that of those which support the service bits prefix, most only support a subset of
+        // possible options.
+        // This is fine at runtime as we'll fall back to using them as a oneshot if they dont support the
+        // service bits we want, but we should get them updated to support all service bits wanted by any
+        // release ASAP to avoid it where possible.
+        //vSeeds.emplace_back("silubium3.dynu.net"); // Silubium mainnet
+        //vSeeds.emplace_back("silubium5.dynu.net"); // Silubium mainnet
+        //vSeeds.emplace_back("silubium6.dynu.net"); // Silubium mainnet
+        //vSeeds.emplace_back("silubium7.dynu.net"); // Silubium mainnet
+        vSeeds.emplace_back("slunode1.silubium.org");
+        vSeeds.emplace_back("slunode2.silubium.org");
+        vSeeds.emplace_back("slunode3.silubium.org");
+        vSeeds.emplace_back("slunode4.silubium.org");
+        vSeeds.emplace_back("slunode5.silubium.org");
+        vSeeds.emplace_back("slunode6.silubium.org");
+        vSeeds.emplace_back("slunode7.silubium.org");
+        vSeeds.emplace_back("slunode8.silubium.org");
+        vSeeds.emplace_back("slunode9.silubium.org");
+        vSeeds.emplace_back("slunode10.silubium.org");
 
-//	assert(consensus.hashGenesisBlock == uint256S("0x000075aef83cf2853580f8ae8ce6f8c3096cfa21d98334d6e3f95e5582ed986c"));
-//        assert(genesis.hashMerkleRoot == uint256S("0xed34050eb5909ee535fcb07af292ea55f3d2f291187617b44d3282231405b96d"));
-
-//        assert(consensus.hashGenesisBlock == uint256S("0x000030e5a13726230e6d717245fe4411bca6632e8fb2d5eb61827b87aae091aa"));
-//        assert(genesis.hashMerkleRoot == uint256S("0xe22a17b9875423a528e6bde5f59030cf46533832cbcc1bbef680ff2fa440154a"));
-
-        // Note that of those with the service bits flag, most only support a subset of possible options
-//        vSeeds.emplace_back("silubium3.dynu.net", false); // Silubium mainnet
-//        vSeeds.emplace_back("silubium5.dynu.net", false); // Silubium mainnet
-//        vSeeds.emplace_back("silubium6.dynu.net", false); // Silubium mainnet
-//        vSeeds.emplace_back("silubium7.dynu.net", false); // Silubium mainnet
-        vSeeds.emplace_back("slunode1.silubium.org",false);
-        vSeeds.emplace_back("slunode2.silubium.org",false);
-        vSeeds.emplace_back("slunode3.silubium.org",false);
-        vSeeds.emplace_back("slunode4.silubium.org",false);
-        vSeeds.emplace_back("slunode5.silubium.org",false);
-        vSeeds.emplace_back("slunode6.silubium.org",false);
-        vSeeds.emplace_back("slunode7.silubium.org",false);
-        vSeeds.emplace_back("slunode8.silubium.org",false);
-        vSeeds.emplace_back("slunode9.silubium.org",false);
-        vSeeds.emplace_back("slunode10.silubium.org",false);
-
-
-        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,68);//o:115  U:68);
+        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,68);//o:115  U:68 Q:58;
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,130);//std::vector<unsigned char>(1,50);
         base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,128);
         base58Prefixes[EXT_PUBLIC_KEY] = {0x04, 0x88, 0xB2, 0x1E};
         base58Prefixes[EXT_SECRET_KEY] = {0x04, 0x88, 0xAD, 0xE4};
+
+        bech32_hrp = "qc";
 
         vFixedSeeds = std::vector<SeedSpec6>(pnSeed6_main, pnSeed6_main + ARRAYLEN(pnSeed6_main));
 
@@ -178,12 +174,16 @@ public:
         fRequireStandard = true;
         fMineBlocksOnDemand = false;
 
-        checkpointData = (CCheckpointData) {
-        {
-        {0,uint256S("00001d10d5f89e792a149a66d48a89037f8c915c29f2cfd4f251cd2bab216b3b")},
-        {15000,uint256S("b85f95a372c8b03beea7d481c550a8a7efd5022df39ec265a7aa79ffbe83dc22")},
-    }
-    };
+        checkpointData = {
+            {
+        	{0,uint256S("00001d10d5f89e792a149a66d48a89037f8c915c29f2cfd4f251cd2bab216b3b")},
+        	{15000,uint256S("b85f95a372c8b03beea7d481c550a8a7efd5022df39ec265a7aa79ffbe83dc22")},
+                //{ 0, uint256S("000075aef83cf2853580f8ae8ce6f8c3096cfa21d98334d6e3f95e5582ed986c")},
+                //{ 5000, uint256S("00006a5338e5647872bd91de1d291365e941e14dff1939b5f16d1804d1ce61cd")}, //last PoW block
+                //{ 45000, uint256S("060c6af680f6975184c7a17059f2ff4970544fcfd4104e73744fe7ab7be14cfc")},
+                //{ 90000, uint256S("66fcf426b0aa6f2c9e3330cb2775e9e13c4a2b8ceedb50f8931ae0e12078ad50")},
+            }
+        };
 
         chainTxData = ChainTxData{
             // Data as of block a1bab8db27f26952ce94fff6563931943554e36fc3a23f99cc8513270d685b2c (height 92662)
@@ -210,6 +210,7 @@ public:
     CTestNetParams() {
         strNetworkID = "test";
         consensus.nSubsidyHalvingInterval = 985500; // silubium halving every 4 years
+        consensus.BIP16Height = 0;
         consensus.BIP34Height = 0;
         consensus.BIP34Hash = uint256S("0x0000e803ee215c0684ca0d2f9220594d3f828617972aad66feb2ba51f5e14222");
         consensus.BIP65Height = 0; // 00000000007f6655f22f98e72ed80d8b06dc761d5da09df0fa1dc4be4f861eb6
@@ -243,38 +244,34 @@ public:
         // By default assume that the signatures in ancestors of this block are valid.
         consensus.defaultAssumeValid = uint256S("0x39ffa0c5924550db0e75030ff8513c3145d491dff2e17b8e3ea1cea7b4662ff0"); //1079274
 
-        pchMessageStart[0] = 0xae;//0xf1;
-        pchMessageStart[1] = 0xf2;//0xcf;
-        pchMessageStart[2] = 0xa7;//0xa6;
-        pchMessageStart[3] = 0xd4;//0xd3;
+        pchMessageStart[0] = 0xae;//0x0d;
+        pchMessageStart[1] = 0xf2;//0x22;
+        pchMessageStart[2] = 0xa7;//0x15;
+        pchMessageStart[3] = 0xd4;//0x06;
 
-        //        pchMessageStart[0] = 0x0d;
-        //        pchMessageStart[1] = 0x22;
-        //        pchMessageStart[2] = 0x15;
-        //        pchMessageStart[3] = 0x06;
         nDefaultPort = 15906;//13888;
         nPruneAfterHeight = 1000;
-
 
         genesis = CreateGenesisBlock(1532770711, 7523, 0x1f00ffff, 1, 50 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
         assert(consensus.hashGenesisBlock == uint256S("0x00007277f7e3dd31107c9033a619b8d5885ff5da8561979754cdf1cf74f87ee5"));
         assert(genesis.hashMerkleRoot == uint256S("0xb105667bffbd7e59f2f0c49e4386438caef9376b9292e119b216b04346064898"));
-
 //        assert(consensus.hashGenesisBlock == uint256S("0x000030e5a13726230e6d717245fe4411bca6632e8fb2d5eb61827b87aae091aa"));
 //        assert(genesis.hashMerkleRoot == uint256S("0xe22a17b9875423a528e6bde5f59030cf46533832cbcc1bbef680ff2fa440154a"));
 
         vFixedSeeds.clear();
         vSeeds.clear();
         // nodes with support for servicebits filtering should be at the top
-        //        vSeeds.emplace_back("silubium4.dynu.net", false); // Silubium testnet
-        vSeeds.emplace_back("slunodetest.silubium.org",false);
+        //        vSeeds.emplace_back("silubium4.dynu.net"); // Silubium testnet
+        vSeeds.emplace_back("slunodetest.silubium.org");
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,63);//std::vector<unsigned char>(1,120);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,125);//std::vector<unsigned char>(1,110);
         base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,239);
         base58Prefixes[EXT_PUBLIC_KEY] = {0x04, 0x35, 0x87, 0xCF};
         base58Prefixes[EXT_SECRET_KEY] = {0x04, 0x35, 0x83, 0x94};
+
+        bech32_hrp = "tq";
 
         vFixedSeeds = std::vector<SeedSpec6>(pnSeed6_test, pnSeed6_test + ARRAYLEN(pnSeed6_test));
 
@@ -283,22 +280,15 @@ public:
         fMineBlocksOnDemand = false;
 
 
-        checkpointData = (CCheckpointData) {
-        {
-        {0,uint256S("00007277f7e3dd31107c9033a619b8d5885ff5da8561979754cdf1cf74f87ee5")},
-        {14000,uint256S("b8c71ac74402b782e10c6ae09a376358b0085a8509ab06cf72a5e65a57d18abb")},
-    }
-    };
-//        checkpointData = (CCheckpointData) {
-//        {
-//        {0,uint256S("00007277f7e3dd31107c9033a619b8d5885ff5da8561979754cdf1cf74f87ee5")};
-//                //                { 0,uint256S("00000b80927f4f120c70bcd9516f4de56c571ee39eb74ad639fb132a34f20af4")},
-//                //		{0, uint256S("0000e803ee215c0684ca0d2f9220594d3f828617972aad66feb2ba51f5e14222")},
-//                //{0, uint256S("000030e5a13726230e6d717245fe4411bca6632e8fb2d5eb61827b87aae091aa")},//uint256S("0000e803ee215c0684ca0d2f9220594d3f828617972aad66feb2ba51f5e14222")},
-//                //                {5000, uint256S("000000302bc22f2f65995506e757fff5c824545db5413e871d57d27a0997e8a0")}, //last PoW block
-//                //                { 77000, uint256S("f41e2e8d09bca38827c23cad46ed6d434902da08415d2314d0c8ce285b1970cb")},
-//    }
-//    };
+        checkpointData = {
+            {
+        	{0,uint256S("00007277f7e3dd31107c9033a619b8d5885ff5da8561979754cdf1cf74f87ee5")},
+        	{14000,uint256S("b8c71ac74402b782e10c6ae09a376358b0085a8509ab06cf72a5e65a57d18abb")},
+                //{0, uint256S("0000e803ee215c0684ca0d2f9220594d3f828617972aad66feb2ba51f5e14222")},
+                //{5000, uint256S("000000302bc22f2f65995506e757fff5c824545db5413e871d57d27a0997e8a0")}, //last PoW block
+                //{77000, uint256S("f41e2e8d09bca38827c23cad46ed6d434902da08415d2314d0c8ce285b1970cb")},
+            }
+        };
 
         chainTxData = ChainTxData{
                 // Data as of block 493cccf2ba87ffdabd7afc0f3242c1357fdebdc0b8c7e7adc3c6dc2b1c8ca797 (height 79167)
@@ -325,6 +315,7 @@ public:
     CRegTestParams() {
         strNetworkID = "regtest";
         consensus.nSubsidyHalvingInterval = 150;
+        consensus.BIP16Height = 0;
         consensus.BIP34Height = 0; // BIP34 has not activated on regtest (far in the future so block v1 are not rejected in tests) // activate for silubium
         consensus.BIP34Hash = uint256S("0x665ed5b402ac0b44efc37d8926332994363e8a7278b7ee9a58fb972efadae943");
         consensus.BIP65Height = 0; // BIP65 activated on regtest (Used in rpc activation tests)
@@ -373,7 +364,7 @@ public:
         fRequireStandard = false;
         fMineBlocksOnDemand = true;
 
-        checkpointData = (CCheckpointData) {
+        checkpointData = {
             {
                 {0, uint256S("665ed5b402ac0b44efc37d8926332994363e8a7278b7ee9a58fb972efadae943")},
             }
@@ -395,6 +386,8 @@ public:
         base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,239);
         base58Prefixes[EXT_PUBLIC_KEY] = {0x04, 0x35, 0x87, 0xCF};
         base58Prefixes[EXT_SECRET_KEY] = {0x04, 0x35, 0x83, 0x94};
+
+        bech32_hrp = "qcrt";
     }
 };
 
@@ -407,6 +400,7 @@ public:
     CUnitTestParams()
     {
         // Activate the the BIPs for regtest as in Bitcoin
+        consensus.BIP16Height = 0;
         consensus.BIP34Height = 100000000; // BIP34 has not activated on regtest (far in the future so block v1 are not rejected in tests)
         consensus.BIP65Height = 1351; // BIP65 activated on regtest (Used in rpc activation tests)
         consensus.BIP66Height = 1251; // BIP66 activated on regtest (Used in rpc activation tests)

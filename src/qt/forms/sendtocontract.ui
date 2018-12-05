@@ -226,7 +226,7 @@
                <x>0</x>
                <y>0</y>
                <width>639</width>
-               <height>182</height>
+               <height>161</height>
               </rect>
              </property>
             </widget>
@@ -296,11 +296,17 @@
           </item>
           <item row="3" column="1" colspan="4">
            <widget class="AddressField" name="lineEditSenderAddress">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="minimumSize">
              <size>
               <width>370</width>
               <height>0</height>
              </size>
+            </property>
+            <property name="editable">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -446,23 +452,23 @@
   <customwidget>
    <class>QValidatedLineEdit</class>
    <extends>QLineEdit</extends>
-   <header>qvalidatedlineedit.h</header>
+   <header>qt/qvalidatedlineedit.h</header>
   </customwidget>
   <customwidget>
    <class>BitcoinAmountField</class>
    <extends>QLineEdit</extends>
-   <header>bitcoinamountfield.h</header>
+   <header>qt/bitcoinamountfield.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>QValidatedTextEdit</class>
    <extends>QTextEdit</extends>
-   <header>qvalidatedtextedit.h</header>
+   <header>qt/qvalidatedtextedit.h</header>
   </customwidget>
   <customwidget>
    <class>AddressField</class>
    <extends>QComboBox</extends>
-   <header>addressfield.h</header>
+   <header>qt/addressfield.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -253,7 +253,7 @@
                <x>0</x>
                <y>0</y>
                <width>656</width>
-               <height>172</height>
+               <height>157</height>
               </rect>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_5"/>
@@ -288,6 +288,9 @@
               <width>370</width>
               <height>0</height>
              </size>
+            </property>
+            <property name="editable">
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -453,20 +456,20 @@
  </widget>
  <customwidgets>
   <customwidget>
+   <class>BitcoinAmountField</class>
+   <extends>QLineEdit</extends>
+   <header>qt/bitcoinamountfield.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
    <class>QValidatedTextEdit</class>
    <extends>QTextEdit</extends>
-   <header>qvalidatedtextedit.h</header>
+   <header>qt/qvalidatedtextedit.h</header>
   </customwidget>
   <customwidget>
    <class>AddressField</class>
    <extends>QComboBox</extends>
-   <header>addressfield.h</header>
-  </customwidget>
-  <customwidget>
-   <class>BitcoinAmountField</class>
-   <extends>QLineEdit</extends>
-   <header>bitcoinamountfield.h</header>
-   <container>1</container>
+   <header>qt/addressfield.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
