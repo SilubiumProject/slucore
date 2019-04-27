@@ -15,6 +15,6 @@ SLU是一条集多种开放功能于一体的公链，可以实现基于UTXO安�
 
 ### 官网地址：http://www.silubium.org 
 
-### 区块浏览器地址：https://silkchain2.silubium.org 
+### 区块浏览器地址：https://silkchain.silubium.org 
 
 ### 钱包下载地址：http://update.silubium.org 
