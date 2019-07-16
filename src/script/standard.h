@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2017 The Bitcoin Core developers
+// Copyright (c) 2009-2018 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -30,7 +30,7 @@ class CScriptID : public uint160
 {
 public:
     CScriptID() : uint160() {}
-    CScriptID(const CScript& in);
+    explicit CScriptID(const CScript& in);
     CScriptID(const uint160& in) : uint160(in) {}
 };
 
@@ -86,6 +86,7 @@ struct WitnessV0ScriptHash : public uint256
 {
     WitnessV0ScriptHash() : uint256() {}
     explicit WitnessV0ScriptHash(const uint256& hash) : uint256(hash) {}
+    explicit WitnessV0ScriptHash(const CScript& script);
     using uint256::uint256;
 };
 
@@ -196,5 +197,19 @@ CScript GetScriptForMultisig(int nRequired, const std::vector<CPubKey>& keys);
  * the various witness-specific CTxDestination subtypes.
  */
 CScript GetScriptForWitness(const CScript& redeemscript);
+
+#ifdef ENABLE_BITCORE_RPC
+struct DataVisitor : public boost::static_visitor<valtype>
+{
+    valtype operator()(const CNoDestination& noDest) const;
+    valtype operator()(const CKeyID& keyID) const;
+    valtype operator()(const CScriptID& scriptID) const;
+    valtype operator()(const WitnessV0ScriptHash& witnessScriptHash) const;
+    valtype operator()(const WitnessV0KeyHash& witnessKeyHash) const;
+    valtype operator()(const WitnessUnknown& witnessUnknown) const;
+};
+
+bool ExtractDestination(const COutPoint& prevout, const CScript& scriptPubKey, CTxDestination& addressRet, txnouttype* typeRet = NULL);
+#endif
 
 #endif // BITCOIN_SCRIPT_STANDARD_H

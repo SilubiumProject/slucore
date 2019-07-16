@@ -19,6 +19,7 @@
 // To decrease granularity of timestamp
 // Supposed to be 2^n-1
 static const uint32_t STAKE_TIMESTAMP_MASK = 15;
+static const uint32_t SILKWORM_TIMESTAMP_MASK = 3;
 
 struct CStakeCache{
     CStakeCache(uint32_t blockFromTime_, CAmount amount_) : blockFromTime(blockFromTime_), amount(amount_){
@@ -42,11 +43,21 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, CValidationState& state, const C
 
 // Check whether the coinstake timestamp meets protocol
 bool CheckCoinStakeTimestamp(uint32_t nTimeBlock);
+bool CheckCoinStakeTimestampSW(uint32_t nTimeBlock);
+
+// Should be called in ConnectBlock to make sure that the input pubkey == output pubkey
+// Since it is only used in ConnectBlock, we know that we have access to the full contextual utxo set
+bool CheckBlockInputPubKeyMatchesOutputPubKey(const CBlock& block, CCoinsViewCache& view);
+
+// Recover the pubkey and check that it matches the prevoutStake's scriptPubKey.
+bool CheckRecoveredPubKeyFromBlockSignature(CBlockIndex* pindexPrev, const CBlockHeader& block, CCoinsViewCache& view);
 
 // Wrapper around CheckStakeKernelHash()
 // Also checks existence of kernel input and min age
 // Convenient for searching a kernel
 bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBlock, const COutPoint& prevout, CCoinsViewCache& view);
+bool CheckKernelSW(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBlock, const COutPoint& prevout, CCoinsViewCache& view);
 bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBlock, const COutPoint& prevout, CCoinsViewCache& view, const std::map<COutPoint, CStakeCache>& cache);
+bool CheckKernelSW(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBlock, const COutPoint& prevout, CCoinsViewCache& view, const std::map<COutPoint, CStakeCache>& cache);
 
 #endif // QUANTUM_POS_H

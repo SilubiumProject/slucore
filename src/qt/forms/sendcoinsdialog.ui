@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>850</width>
-    <height>624</height>
+    <height>570</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -621,7 +621,7 @@
            <x>0</x>
            <y>0</y>
            <width>830</width>
-           <height>68</height>
+           <height>136</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,1">
@@ -867,7 +867,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="groupBoxFeeSelection">
+       <widget class="QFrame" name="frameFeeSelection">
         <property name="enabled">
          <bool>false</bool>
         </property>
@@ -1056,7 +1056,7 @@
                <item>
                 <widget class="QLabel" name="labelMinFeeWarning">
                  <property name="enabled">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                  <property name="toolTip">
                   <string>Paying only the minimum fee is just fine as long as there is less transaction volume than space in the blocks. But be aware that this can end up in a never confirming transaction once there is more demand for bitcoin transactions than the network can process.</string>

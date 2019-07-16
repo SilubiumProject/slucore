@@ -12,12 +12,20 @@
 #include <QMenu>
 #include <QSortFilterProxyModel>
 
+#include <QFile>
+#include <QTextStream>
+#include <QStringList>
+#include <util.h>
+
 ContractBookPage::ContractBookPage(const PlatformStyle *platformStyle, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ContractBookPage),
     model(0)
 {
     ui->setupUi(this);
+
+    if(!gArgs.IsArgSet("-showdbg"))
+       ui->importButton->hide();
 
     SetObjectStyleSheet(ui->tableView, StyleSheetNames::TableViewLight);
 
@@ -266,4 +274,79 @@ void ContractBookPage::selectNewContractInfo(const QModelIndex &parent, int begi
         ui->tableView->selectRow(idx.row());
         newContractInfoToSelect.clear();
     }
+}
+
+void ContractBookPage::on_importButton_clicked()
+{
+    // CSV is currently the only supported format
+    QString filename = GUIUtil::getOpenFileName(this,
+        tr("Import Contract List"), QString(),
+        tr("Comma separated file (*.csv)"), NULL);
+
+    if (filename.isNull())
+        return;
+
+    QFile file(filename);
+    if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        return;
+
+    QTextStream* out=new QTextStream(&file);
+    QStringList tempLine=out->readAll().split("\n");
+    QString strLabel,strAddress,strABI;
+    bool isEnd=true;
+    for(int i=1;i<tempLine.count();i++)
+    {
+        if(tempLine[i].contains(",") && isEnd)
+        {
+
+            QStringList tempL=tempLine.at(i).split(",");
+            strLabel=tempL.at(0);
+            strAddress=tempL.at(1);
+            strABI=tempL.at(2);
+            if(strABI.contains("]\""))
+                isEnd=true;
+            else
+                {
+                strABI+="\n";
+                isEnd=false;
+                }
+        }
+        else if(tempLine[i].count()==2 && tempLine[i].contains("]\""))
+        {
+            strABI+=tempLine[i];
+            strABI=strABI.mid(1,strABI.length()-2);
+            strABI=strABI.replace("\"\"","\"");
+            strLabel=strLabel.mid(1,strLabel.length()-2);
+            strAddress=strAddress.mid(1,strAddress.length()-2);
+            isEnd=true;
+            this->model->addRow(strLabel,strAddress,strABI);
+ //           qDebug()<<strLabel<<"\t"<<strAddress<<"\t"<<strABI;
+        }
+        else
+            strABI+=tempLine[i]+"\n";
+
+    }
+    file.close();
+//    CSVModelReader reader(filename);
+
+//    CSVModelReader reader(filename);
+
+
+//    reader.setModel(model);
+
+//    if(!reader.read()){
+//        QMessageBox::critical(this,tr("Importing Failed"),
+//                              tr("There was an error trying to read the address list to %1. Please try again.").arg(filename));
+//    }
+
+//    // name, column, role
+//    writer.setModel(proxyModel);
+//    writer.addColumn("Label", ContractTableModel::Label, Qt::EditRole);
+//    writer.addColumn("Address", ContractTableModel::Address, Qt::EditRole);
+//    writer.addColumn("ABI", ContractTableModel::ABI, Qt::EditRole);
+
+//    if(!writer.write()) {
+//        QMessageBox::critical(this, tr("Exporting Failed"),
+//            tr("There was an error trying to save the address list to %1. Please try again.").arg(filename));
+//    }
 }

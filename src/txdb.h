@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2017 The Bitcoin Core developers
+// Copyright (c) 2009-2018 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -9,8 +9,10 @@
 #include <coins.h>
 #include <dbwrapper.h>
 #include <chain.h>
+#include <primitives/block.h>
 
 #include <map>
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
@@ -20,6 +22,17 @@
 class CBlockIndex;
 class CCoinsViewDBCursor;
 class uint256;
+#ifdef ENABLE_BITCORE_RPC
+//////////////////////////////////// //silubium
+struct CAddressIndexKey;
+struct CAddressUnspentKey;
+struct CAddressUnspentValue;
+struct CMempoolAddressDeltaKey;
+struct CTimestampIndexKey;
+struct CTimestampBlockIndexKey;
+struct CTimestampBlockIndexValue;
+////////////////////////////////////
+#endif
 
 //! Compensate for extra memory peak (x1.5-x1.9) at flush time.
 static constexpr int DB_PEAK_USAGE_FACTOR = 2;
@@ -38,7 +51,7 @@ static const int64_t nMaxBlockDBCache = 2;
 //! Max memory allocated to block tree DB specific cache, if -txindex (MiB)
 // Unlike for the UTXO database, for the txindex scenario the leveldb cache make
 // a meaningful difference: https://github.com/bitcoin/bitcoin/pull/8273#issuecomment-229601991
-static const int64_t nMaxBlockDBAndTxIndexCache = 1024;
+static const int64_t nMaxTxIndexCache = 1024;
 //! Max memory allocated to coin DB specific cache (MiB)
 static const int64_t nMaxCoinsDBCache = 8;
 
@@ -50,7 +63,7 @@ struct CDiskTxPos : public CDiskBlockPos
 
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action) {
-        READWRITE(*(CDiskBlockPos*)this);
+        READWRITEAS(CDiskBlockPos, *this);
         READWRITE(VARINT(nTxOffset));
     }
 
@@ -115,16 +128,11 @@ class CBlockTreeDB : public CDBWrapper
 public:
     explicit CBlockTreeDB(size_t nCacheSize, bool fMemory = false, bool fWipe = false);
 
-    CBlockTreeDB(const CBlockTreeDB&) = delete;
-    CBlockTreeDB& operator=(const CBlockTreeDB&) = delete;
-
     bool WriteBatchSync(const std::vector<std::pair<int, const CBlockFileInfo*> >& fileInfo, int nLastFile, const std::vector<const CBlockIndex*>& blockinfo);
     bool ReadBlockFileInfo(int nFile, CBlockFileInfo &info);
     bool ReadLastBlockFile(int &nFile);
     bool WriteReindexing(bool fReindexing);
-    bool ReadReindexing(bool &fReindexing);
-    bool ReadTxIndex(const uint256 &txid, CDiskTxPos &pos);
-    bool WriteTxIndex(const std::vector<std::pair<uint256, CDiskTxPos> > &vect);
+    void ReadReindexing(bool &fReindexing);
     bool WriteFlag(const std::string &name, bool fValue);
     bool ReadFlag(const std::string &name, bool &fValue);
     bool LoadBlockIndexGuts(const Consensus::Params& consensusParams, std::function<CBlockIndex*(const uint256&)> insertBlockIndex);
@@ -154,6 +162,25 @@ public:
     bool ReadStakeIndex(unsigned int height, uint160& address);
     bool ReadStakeIndex(unsigned int high, unsigned int low, std::vector<uint160> addresses);
     bool EraseStakeIndex(unsigned int height);
+
+#ifdef ENABLE_BITCORE_RPC
+    // Block explorer database functions
+    bool WriteAddressIndex(const std::vector<std::pair<CAddressIndexKey, CAmount> > &vect);
+    bool EraseAddressIndex(const std::vector<std::pair<CAddressIndexKey, CAmount> > &vect);
+    bool ReadAddressIndex(uint256 addressHash, int type,
+                        std::vector<std::pair<CAddressIndexKey, CAmount> > &addressIndex,
+                        int start = 0, int end = 0);
+    bool UpdateAddressUnspentIndex(const std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue > >&vect);
+    bool ReadAddressUnspentIndex(uint256 addressHash, int type,
+                                std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > &vect);
+    bool WriteTimestampIndex(const CTimestampIndexKey &timestampIndex);
+    bool ReadTimestampIndex(const unsigned int &high, const unsigned int &low, const bool fActiveOnly, std::vector<std::pair<uint256, unsigned int> > &vect);
+    bool WriteTimestampBlockIndex(const CTimestampBlockIndexKey &blockhashIndex, const CTimestampBlockIndexValue &logicalts);
+    bool ReadTimestampBlockIndex(const uint256 &hash, unsigned int &logicalTS);
+    bool ReadSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value);
+    bool UpdateSpentIndex(const std::vector<std::pair<CSpentIndexKey, CSpentIndexValue> >&vect);
+    bool blockOnchainActive(const uint256 &hash);
+#endif
 
     //////////////////////////////////////////////////////////////////////////////
 

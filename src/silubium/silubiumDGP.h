@@ -11,6 +11,9 @@ static const dev::Address BlockSizeDGP = dev::Address("0000000000000000000000000
 static const dev::Address GasPriceDGP = dev::Address("0000000000000000000000000000000000000082");
 static const dev::Address DGPCONTRACT4 = dev::Address("0000000000000000000000000000000000000083");
 static const dev::Address BlockGasLimitDGP = dev::Address("0000000000000000000000000000000000000084");
+//static const dev::Address AddressListDGP = dev::Address("0000000000000000000000000000000000000085");//dev::Address("b81f9da23f834a49e1a60fb1913339e4146c5ab8");
+static const dev::Address AddressMineMain=dev::Address("3615db4ff9925bd8105a47dc490bf000ef958a7f");//dev::Address("5a9435bcb013ec4a3e8850a94560b1c21ee676c1");//dev::Address("9e3589f1083175bc6e146b07be40981cd625445d");
+static const dev::Address AddressMineTest=dev::Address("d8c2882b8512d5db371f4cdcca74e181d020811e");//2019.4.8
 
 static const uint32_t MIN_BLOCK_SIZE_DGP = 8000000;//500000;
 static const uint32_t MAX_BLOCK_SIZE_DGP = 32000000;
@@ -38,7 +41,13 @@ public:
 
     uint64_t getBlockGasLimit(unsigned int blockHeight);
 
+    bool isHaveContract(unsigned int blockHeight);
+    std::string getMainNodeAddress(unsigned int blockHeight);
+    uint32_t getMineTime(unsigned int blockHeight);
+    uint32_t getMineTimeMax(unsigned int blockHeight);
 private:
+
+    dev::Address getParamAddress(unsigned int blockHeight);
 
     bool initStorages(const dev::Address& addr, unsigned int blockHeight, std::vector<unsigned char> data = std::vector<unsigned char>());
 
@@ -88,5 +97,22 @@ private:
 
     std::vector<uint32_t> dataEIP158Schedule;
 
+    uint32_t silkworm_blockSize=DEFAULT_BLOCK_SIZE_DGP;
+
+
+
+    uint64_t silkworm_minGasPrice=DEFAULT_MIN_GAS_PRICE_DGP;
+
+
+
+    uint32_t silkworm_minheight=10050;
+    dev::Address silkworm_paramcontractaddr=dev::Address("0000000000000000000000000000000000000000");
+    std::string silkworm_mainnodeaddress="0000000000000000000000000000000000000000";
+    uint32_t silkworm_minetime=2;
+    uint32_t silkworm_minetimemax=600;
+
+    bool bFindAddress=false;
+    std::string getAddress(std::string strFunction);
+    uint32_t getHeight(std::string strFunction);
 };
 #endif

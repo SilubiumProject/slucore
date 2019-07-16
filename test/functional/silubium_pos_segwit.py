@@ -36,7 +36,7 @@ class SilubiumPOSSegwitTest(BitcoinTestFramework):
 
         # create a new private key used for block signing.
         block_sig_key = CECKey()
-        block_sig_key.set_secretbytes(hash256(struct.pack('<I', 0xffff)))
+        block_sig_key.set_secretbytes(hash256(struct.pack('<I', 0)))
         pubkey = block_sig_key.get_pubkey()
         scriptPubKey = CScript([pubkey, OP_CHECKSIG])
         stake_tx_unsigned = CTransaction()
@@ -47,7 +47,7 @@ class SilubiumPOSSegwitTest(BitcoinTestFramework):
         stake_tx_unsigned.vout.append(CTxOut(int(10002*COIN), scriptPubKey))
         stake_tx_unsigned.vout.append(CTxOut(int(10002*COIN), scriptPubKey))
 
-        stake_tx_signed_raw_hex = self.node.signrawtransaction(bytes_to_hex_str(stake_tx_unsigned.serialize()))['hex']
+        stake_tx_signed_raw_hex = self.node.signrawtransactionwithwallet(bytes_to_hex_str(stake_tx_unsigned.serialize()))['hex']
         f = io.BytesIO(hex_str_to_bytes(stake_tx_signed_raw_hex))
         stake_tx_signed = CTransaction()
         stake_tx_signed.deserialize(f)
@@ -77,9 +77,13 @@ class SilubiumPOSSegwitTest(BitcoinTestFramework):
         return staking_prevouts
 
     def run_test(self):
+        privkey = byte_to_base58(hash256(struct.pack('<I', 0)), 239)
+        for n in self.nodes:
+            n.importprivkey(privkey)
+
         self.node = self.nodes[0]
         self.node.setmocktime(int(time.time()) - 2*COINBASE_MATURITY)
-        self.node.generate(50+COINBASE_MATURITY)
+        self.node.generatetoaddress(50+COINBASE_MATURITY, "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq")
 
         staking_prevouts = self.collect_staking_prevouts()
 
@@ -88,7 +92,7 @@ class SilubiumPOSSegwitTest(BitcoinTestFramework):
         tx.vin = [make_vin(self.node, 2*COIN)]
         tx.vout = [CTxOut(2*COIN - 100000, CScript([OP_TRUE]))]
         tx.rehash()
-        tx_hex = self.node.signrawtransaction(bytes_to_hex_str(tx.serialize()))['hex']
+        tx_hex = self.node.signrawtransactionwithwallet(bytes_to_hex_str(tx.serialize()))['hex']
         txid = self.node.sendrawtransaction(tx_hex)
         self.node.generate(1)
 
