@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2017 The Bitcoin Core developers
+// Copyright (c) 2009-2018 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -294,11 +294,21 @@ public:
     const int32_t nVersion;
     const uint32_t nLockTime;
 
+    // Operation codes
+    enum OpCode
+    {
+        OpNone = 0,
+        OpCall = 1,
+        OpCreate = 2
+    };
+
 private:
     /** Memory only. */
     const uint256 hash;
+    const uint256 m_witness_hash;
 
     uint256 ComputeHash() const;
+    uint256 ComputeWitnessHash() const;
 
 public:
     /** Construct a CTransaction that qualifies as IsNull() */
@@ -322,12 +332,8 @@ public:
         return vin.empty() && vout.empty();
     }
 
-    const uint256& GetHash() const {
-        return hash;
-    }
-
-    // Compute a hash that includes both transaction and witness data
-    uint256 GetWitnessHash() const;
+    const uint256& GetHash() const { return hash; }
+    const uint256& GetWitnessHash() const { return m_witness_hash; };
 
     // Return sum of txouts.
     CAmount GetValueOut() const;
@@ -345,6 +351,12 @@ public:
     bool HasCreateOrCall() const;
     bool HasOpSpend() const;
 ////////////////////////////////////////
+    bool HasOpCreate() const;
+    bool HasOpCall() const;
+    inline int GetCreateOrCall() const
+    {
+        return (HasOpCall() ? OpCode::OpCall : 0) + (HasOpCreate() ? OpCode::OpCreate : 0);
+    }
 
     bool IsCoinBase() const
     {
@@ -395,7 +407,7 @@ struct CMutableTransaction
     uint32_t nLockTime;
 
     CMutableTransaction();
-    CMutableTransaction(const CTransaction& tx);
+    explicit CMutableTransaction(const CTransaction& tx);
 
     template <typename Stream>
     inline void Serialize(Stream& s) const {
@@ -417,11 +429,6 @@ struct CMutableTransaction
      * fly, as opposed to GetHash() in CTransaction, which uses a cached result.
      */
     uint256 GetHash() const;
-
-    friend bool operator==(const CMutableTransaction& a, const CMutableTransaction& b)
-    {
-        return a.GetHash() == b.GetHash();
-    }
 
     bool HasWitness() const
     {

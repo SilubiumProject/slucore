@@ -1,5 +1,5 @@
 // Copyright (c) 2010 Satoshi Nakamoto
-// Copyright (c) 2009-2017 The Bitcoin Core developers
+// Copyright (c) 2009-2018 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -58,8 +58,6 @@ static CBlock CreateGenesisBlock(const char* pszTimestamp, const CScript& genesi
 static CBlock CreateGenesisBlock(uint32_t nTime, uint32_t nNonce, uint32_t nBits, int32_t nVersion, const CAmount& genesisReward)
 {
     const char* pszTimestamp = "The silubium second edition(SLU) software released. The price is $0.09055";
-    //        "The silubium second edition(SLU) software released. The price is $0.09827.";//
-    //"Created by Deaking On 2018-07-03";//"Sep 02, 2017 Bitcoin breaks $5,000 in latest price frenzy";//
     const CScript genesisOutputScript = CScript() << ParseHex("040d61d8653448c98731ee5fffd303c15e71ec2057b77f11ab3601979728cdaff2d68afbba14e4fa0bc44f2072b0b23ef63717f8cdfbe58dcd33f32b6afe98741a") << OP_CHECKSIG;
     return CreateGenesisBlock(pszTimestamp, genesisOutputScript, nTime, nNonce, nBits, nVersion, genesisReward);
 }
@@ -86,7 +84,7 @@ public:
     CMainParams() {
         strNetworkID = "main";
         consensus.nSubsidyHalvingInterval = 985500; // silubium halving every 4 years
-        consensus.BIP16Height = 0;
+        consensus.BIP16Exception = uint256S("0x000075aef83cf2853580f8ae8ce6f8c3096cfa21d98334d6e3f95e5582ed986c");
         consensus.BIP34Height = 0;
         consensus.BIP34Hash = uint256S("0x000075aef83cf2853580f8ae8ce6f8c3096cfa21d98334d6e3f95e5582ed986c");
         consensus.BIP65Height = 0; // 000000000000000004c2b624ed5d7756c508d90fd0da2c7c679febfa6c4735f0
@@ -118,7 +116,7 @@ public:
         consensus.nMinimumChainWork = uint256S("0x0");//uint256S("0x000000000000000000000000000000000000000000000036a70ae675b98824c5"); // silubium
 
         // By default assume that the signatures in ancestors of this block are valid.
-        consensus.defaultAssumeValid = uint256S("0xbfbbfc2c3be3d4e085082aff2e4e73a4e21dbf6205bc41b84b38ffac0a8bc114"); //453354
+        consensus.defaultAssumeValid = uint256S("0x739f1472b1725adcd493fc5ccefa5fec81066f4dcbf18c9e7ac4f217ef98def5"); // 363604
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.
@@ -137,12 +135,10 @@ public:
         consensus.hashGenesisBlock = genesis.GetHash();
 	assert(consensus.hashGenesisBlock == uint256S("0x00001d10d5f89e792a149a66d48a89037f8c915c29f2cfd4f251cd2bab216b3b"));
         assert(genesis.hashMerkleRoot == uint256S("0xb105667bffbd7e59f2f0c49e4386438caef9376b9292e119b216b04346064898"));
-    	//assert(consensus.hashGenesisBlock == uint256S("0x000075aef83cf2853580f8ae8ce6f8c3096cfa21d98334d6e3f95e5582ed986c"));
-        //assert(genesis.hashMerkleRoot == uint256S("0xed34050eb5909ee535fcb07af292ea55f3d2f291187617b44d3282231405b96d"));
 
         // Note that of those which support the service bits prefix, most only support a subset of
         // possible options.
-        // This is fine at runtime as we'll fall back to using them as a oneshot if they dont support the
+        // This is fine at runtime as we'll fall back to using them as a oneshot if they don't support the
         // service bits we want, but we should get them updated to support all service bits wanted by any
         // release ASAP to avoid it where possible.
         //vSeeds.emplace_back("silubium3.dynu.net"); // Silubium mainnet
@@ -178,6 +174,7 @@ public:
             {
         	{0,uint256S("00001d10d5f89e792a149a66d48a89037f8c915c29f2cfd4f251cd2bab216b3b")},
         	{15000,uint256S("b85f95a372c8b03beea7d481c550a8a7efd5022df39ec265a7aa79ffbe83dc22")},
+            {194830,uint256S("2877df13618eda388ea4c477394927b31e995a066b95e4ef6688c148a4bd824a")},
                 //{ 0, uint256S("000075aef83cf2853580f8ae8ce6f8c3096cfa21d98334d6e3f95e5582ed986c")},
                 //{ 5000, uint256S("00006a5338e5647872bd91de1d291365e941e14dff1939b5f16d1804d1ce61cd")}, //last PoW block
                 //{ 45000, uint256S("060c6af680f6975184c7a17059f2ff4970544fcfd4104e73744fe7ab7be14cfc")},
@@ -192,13 +189,18 @@ public:
                             //   (the tx=... number in the SetBestChain debug.log lines)
             0//0.125 // * estimated number of transactions per second after that timestamp
         };
+
+        /* disable fallback fee on mainnet */
+        m_fallback_fee_enabled = false;
+
         consensus.nLastPOWBlock = 10000;
         consensus.nMPoSRewardRecipients = 5;//10;
-        consensus.nFirstMPoSBlock = consensus.nLastPOWBlock +
-                consensus.nMPoSRewardRecipients +
-                COINBASE_MATURITY;
+        consensus.nFirstMPoSBlock = consensus.nLastPOWBlock + 
+                                    consensus.nMPoSRewardRecipients + 
+                                    COINBASE_MATURITY;
 
         consensus.nFixUTXOCacheHFHeight=100000;
+        consensus.nEnableHeaderSignatureHeight = 399100;
     }
 };
 
@@ -210,7 +212,7 @@ public:
     CTestNetParams() {
         strNetworkID = "test";
         consensus.nSubsidyHalvingInterval = 985500; // silubium halving every 4 years
-        consensus.BIP16Height = 0;
+        consensus.BIP16Exception = uint256S("0x0000e803ee215c0684ca0d2f9220594d3f828617972aad66feb2ba51f5e14222");
         consensus.BIP34Height = 0;
         consensus.BIP34Hash = uint256S("0x0000e803ee215c0684ca0d2f9220594d3f828617972aad66feb2ba51f5e14222");
         consensus.BIP65Height = 0; // 00000000007f6655f22f98e72ed80d8b06dc761d5da09df0fa1dc4be4f861eb6
@@ -242,13 +244,12 @@ public:
         consensus.nMinimumChainWork = uint256S("0x0");//uint256S("0x00000000000000000000000000000000000000000000000d6e528bcf5a3a556f"); // silubium
 
         // By default assume that the signatures in ancestors of this block are valid.
-        consensus.defaultAssumeValid = uint256S("0x39ffa0c5924550db0e75030ff8513c3145d491dff2e17b8e3ea1cea7b4662ff0"); //1079274
+        consensus.defaultAssumeValid = uint256S("0x91dc4e3901b6f00a14db9d9bd43a1e8700510c24b692294fdf7fc0b53af76899"); // 320000
 
-        pchMessageStart[0] = 0xae;//0x0d;
+        pchMessageStart[0] = 0xad;//0x0d;
         pchMessageStart[1] = 0xf2;//0x22;
         pchMessageStart[2] = 0xa7;//0x15;
         pchMessageStart[3] = 0xd4;//0x06;
-
         nDefaultPort = 15906;//13888;
         nPruneAfterHeight = 1000;
 
@@ -256,8 +257,6 @@ public:
         consensus.hashGenesisBlock = genesis.GetHash();
         assert(consensus.hashGenesisBlock == uint256S("0x00007277f7e3dd31107c9033a619b8d5885ff5da8561979754cdf1cf74f87ee5"));
         assert(genesis.hashMerkleRoot == uint256S("0xb105667bffbd7e59f2f0c49e4386438caef9376b9292e119b216b04346064898"));
-//        assert(consensus.hashGenesisBlock == uint256S("0x000030e5a13726230e6d717245fe4411bca6632e8fb2d5eb61827b87aae091aa"));
-//        assert(genesis.hashMerkleRoot == uint256S("0xe22a17b9875423a528e6bde5f59030cf46533832cbcc1bbef680ff2fa440154a"));
 
         vFixedSeeds.clear();
         vSeeds.clear();
@@ -283,7 +282,7 @@ public:
         checkpointData = {
             {
         	{0,uint256S("00007277f7e3dd31107c9033a619b8d5885ff5da8561979754cdf1cf74f87ee5")},
-        	{14000,uint256S("b8c71ac74402b782e10c6ae09a376358b0085a8509ab06cf72a5e65a57d18abb")},
+            //{14000,uint256S("b8c71ac74402b782e10c6ae09a376358b0085a8509ab06cf72a5e65a57d18abb")},
                 //{0, uint256S("0000e803ee215c0684ca0d2f9220594d3f828617972aad66feb2ba51f5e14222")},
                 //{5000, uint256S("000000302bc22f2f65995506e757fff5c824545db5413e871d57d27a0997e8a0")}, //last PoW block
                 //{77000, uint256S("f41e2e8d09bca38827c23cad46ed6d434902da08415d2314d0c8ce285b1970cb")},
@@ -297,13 +296,17 @@ public:
                 0//0.0132
     };
 
+        /* enable fallback fee on testnet */
+        m_fallback_fee_enabled = true;
+
         consensus.nLastPOWBlock = 10000;//5000;
         consensus.nMPoSRewardRecipients = 5;
-        consensus.nFirstMPoSBlock = consensus.nLastPOWBlock +
-                consensus.nMPoSRewardRecipients +
-                COINBASE_MATURITY;
+        consensus.nFirstMPoSBlock = consensus.nLastPOWBlock + 
+                                    consensus.nMPoSRewardRecipients + 
+                                    COINBASE_MATURITY;
 
         consensus.nFixUTXOCacheHFHeight=84500;
+        consensus.nEnableHeaderSignatureHeight = 391993;
     }
 };
 
@@ -315,7 +318,7 @@ public:
     CRegTestParams() {
         strNetworkID = "regtest";
         consensus.nSubsidyHalvingInterval = 150;
-        consensus.BIP16Height = 0;
+        consensus.BIP16Exception = uint256S("0x665ed5b402ac0b44efc37d8926332994363e8a7278b7ee9a58fb972efadae943");
         consensus.BIP34Height = 0; // BIP34 has not activated on regtest (far in the future so block v1 are not rejected in tests) // activate for silubium
         consensus.BIP34Hash = uint256S("0x665ed5b402ac0b44efc37d8926332994363e8a7278b7ee9a58fb972efadae943");
         consensus.BIP65Height = 0; // BIP65 activated on regtest (Used in rpc activation tests)
@@ -352,10 +355,10 @@ public:
         nDefaultPort = 23888;
         nPruneAfterHeight = 1000;
 
-        genesis = CreateGenesisBlock(1504695029, 17, 0x207fffff, 1, 50 * COIN);
+        genesis = CreateGenesisBlock(1532770711, 7523,0x1f00ffff, 1, 50 * COIN);//CreateGenesisBlock(1504695029, 17,0x207fffff, 1, 50 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
-        assert(consensus.hashGenesisBlock == uint256S("0x665ed5b402ac0b44efc37d8926332994363e8a7278b7ee9a58fb972efadae943"));
-        assert(genesis.hashMerkleRoot == uint256S("0xed34050eb5909ee535fcb07af292ea55f3d2f291187617b44d3282231405b96d"));
+        assert(consensus.hashGenesisBlock == uint256S("0x00007277f7e3dd31107c9033a619b8d5885ff5da8561979754cdf1cf74f87ee5"));
+        assert(genesis.hashMerkleRoot == uint256S("0xb105667bffbd7e59f2f0c49e4386438caef9376b9292e119b216b04346064898"));
 
         vFixedSeeds.clear(); //!< Regtest mode doesn't have any fixed seeds.
         vSeeds.clear();      //!< Regtest mode doesn't have any DNS seeds.
@@ -366,7 +369,7 @@ public:
 
         checkpointData = {
             {
-                {0, uint256S("665ed5b402ac0b44efc37d8926332994363e8a7278b7ee9a58fb972efadae943")},
+                {0, uint256S("00007277f7e3dd31107c9033a619b8d5885ff5da8561979754cdf1cf74f87ee5")},
             }
         };
 
@@ -377,9 +380,10 @@ public:
         };
         consensus.nLastPOWBlock = 0x7fffffff;
         consensus.nMPoSRewardRecipients = 10;
-        consensus.nFirstMPoSBlock = 5000;
+        consensus.nFirstMPoSBlock = 10000;//5000;
 
         consensus.nFixUTXOCacheHFHeight=0;
+        consensus.nEnableHeaderSignatureHeight = 0;
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,120);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,110);
@@ -388,6 +392,9 @@ public:
         base58Prefixes[EXT_SECRET_KEY] = {0x04, 0x35, 0x83, 0x94};
 
         bech32_hrp = "qcrt";
+
+        /* enable fallback fee on regtest */
+        m_fallback_fee_enabled = true;
     }
 };
 
@@ -400,8 +407,9 @@ public:
     CUnitTestParams()
     {
         // Activate the the BIPs for regtest as in Bitcoin
-        consensus.BIP16Height = 0;
+        consensus.BIP16Exception = uint256();
         consensus.BIP34Height = 100000000; // BIP34 has not activated on regtest (far in the future so block v1 are not rejected in tests)
+        consensus.BIP34Hash = uint256();
         consensus.BIP65Height = 1351; // BIP65 activated on regtest (Used in rpc activation tests)
         consensus.BIP66Height = 1251; // BIP66 activated on regtest (Used in rpc activation tests)
 

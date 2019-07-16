@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2017 The Bitcoin Core developers
+// Copyright (c) 2009-2018 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -14,7 +14,6 @@
 #include <consensus/merkle.h>
 #include <consensus/validation.h>
 #include <hash.h>
-#include <validation.h>
 #include <net.h>
 #include <policy/feerate.h>
 #include <policy/policy.h>
@@ -32,12 +31,6 @@
 #include <queue>
 #include <utility>
 
-//////////////////////////////////////////////////////////////////////////////
-//
-// BitcoinMiner
-//
-
-//
 // Unconfirmed transactions in the memory pool often depend on other
 // transactions in the memory pool. When we select transactions from the
 // pool, we select by highest fee rate of a transaction combined with all
@@ -45,7 +38,6 @@
 
 uint64_t nLastBlockTx = 0;
 uint64_t nLastBlockWeight = 0;
-int64_t nLastCoinStakeSearchInterval = 0;
 unsigned int nMinerSleep = STAKER_POLLING_PERIOD;
 
 int64_t UpdateTime(CBlockHeader* pblock, const Consensus::Params& consensusParams, const CBlockIndex* pindexPrev)
@@ -75,12 +67,10 @@ BlockAssembler::BlockAssembler(const CChainParams& params, const Options& option
     nBlockMaxWeight = std::max<size_t>(4000, std::min<size_t>(dgpMaxBlockWeight - 4000, options.nBlockMaxWeight));
 }
 
-static BlockAssembler::Options DefaultOptions(const CChainParams& params)
+static BlockAssembler::Options DefaultOptions()
 {
     // Block resource limits
-    // If neither -blockmaxsize or -blockmaxweight is given, limit to DEFAULT_BLOCK_MAX_*
-    // If only one is given, only restrict the specified resource.
-    // If both are given, restrict both.
+    // If -blockmaxweight is not given, limit to DEFAULT_BLOCK_MAX_WEIGHT
     BlockAssembler::Options options;
     options.nBlockMaxWeight = gArgs.GetArg("-blockmaxweight", DEFAULT_BLOCK_MAX_WEIGHT);
     if (gArgs.IsArgSet("-blockmintxfee")) {
@@ -93,7 +83,7 @@ static BlockAssembler::Options DefaultOptions(const CChainParams& params)
     return options;
 }
 
-BlockAssembler::BlockAssembler(const CChainParams& params) : BlockAssembler(params, DefaultOptions(params)) {}
+BlockAssembler::BlockAssembler(const CChainParams& params) : BlockAssembler(params, DefaultOptions()) {}
 
 void BlockAssembler::resetBlock()
 {
@@ -126,6 +116,159 @@ void BlockAssembler::RebuildRefundTransaction(){
     }
     pblock->vtx[refundtx] = MakeTransactionRef(std::move(contrTx));
 }
+
+std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlockSW(const CScript& scriptPubKeyIn, bool fMineWitnessTx, bool fProofOfStake, int64_t* pTotalFees, int32_t txProofTime, int32_t nTimeLimit)
+{
+    int64_t nTimeStart = GetTimeMicros();
+
+    resetBlock();
+
+    pblocktemplate.reset(new CBlockTemplate());
+
+    if(!pblocktemplate.get())
+        return nullptr;
+    pblock = &pblocktemplate->block; // pointer for convenience
+
+    this->nTimeLimit = nTimeLimit;
+    // Add dummy coinbase tx as first transaction
+    pblock->vtx.emplace_back();
+    // Add dummy coinstake tx as second transaction
+    if(fProofOfStake)
+        pblock->vtx.emplace_back();
+    pblocktemplate->vTxFees.push_back(-1); // updated at end
+    pblocktemplate->vTxSigOpsCost.push_back(-1); // updated at end
+    LOCK2(cs_main, mempool.cs);
+    CBlockIndex* pindexPrev = chainActive.Tip();
+    assert(pindexPrev != nullptr);
+    nHeight = pindexPrev->nHeight + 1;
+
+    pblock->nVersion = ComputeBlockVersion(pindexPrev, chainparams.GetConsensus())+2;
+    // -regtest only: allow overriding block.nVersion with
+    // -blockversion=N to test forking scenarios
+    if (chainparams.MineBlocksOnDemand())
+        pblock->nVersion = gArgs.GetArg("-blockversion", pblock->nVersion);
+
+    if(txProofTime == 0) {
+        txProofTime = GetAdjustedTime();
+    }
+    if(fProofOfStake)
+        txProofTime &= ~SILKWORM_TIMESTAMP_MASK;
+    pblock->nTime = txProofTime;
+    if (!fProofOfStake)
+        UpdateTime(pblock, chainparams.GetConsensus(), pindexPrev);
+    pblock->nBits = GetNextWorkRequiredSW(pindexPrev, pblock, chainparams.GetConsensus(),fProofOfStake);
+    const int64_t nMedianTimePast = pindexPrev->GetMedianTimePast();
+
+    nLockTimeCutoff = (STANDARD_LOCKTIME_VERIFY_FLAGS & LOCKTIME_MEDIAN_TIME_PAST)
+            ? nMedianTimePast
+            : pblock->GetBlockTime();
+
+    // Decide whether to include witness transactions
+    // This is only needed in case the witness softfork activation is reverted
+    // (which would require a very deep reorganization) or when
+    // -promiscuousmempoolflags is used.
+    // TODO: replace this with a call to main to assess validity of a mempool
+    // transaction (which in most cases can be a no-op).
+    fIncludeWitness = IsWitnessEnabled(pindexPrev, chainparams.GetConsensus()) && fMineWitnessTx;
+
+    int64_t nTime1 = GetTimeMicros();
+
+    nLastBlockTx = nBlockTx;
+    nLastBlockWeight = nBlockWeight;
+
+    // Create coinbase transaction.
+    CMutableTransaction coinbaseTx;
+    coinbaseTx.vin.resize(1);
+    coinbaseTx.vin[0].prevout.SetNull();
+    coinbaseTx.vout.resize(1);
+    if (fProofOfStake)
+    {
+        // Make the coinbase tx empty in case of proof of stake
+        coinbaseTx.vout[0].SetEmpty();
+    }
+    else
+    {
+        coinbaseTx.vout[0].scriptPubKey = scriptPubKeyIn;
+        coinbaseTx.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
+    }
+    coinbaseTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
+    originalRewardTx = coinbaseTx;
+    pblock->vtx[0] = MakeTransactionRef(std::move(coinbaseTx));
+
+    // Create coinstake transaction.
+    if(fProofOfStake)
+    {
+        CMutableTransaction coinstakeTx;
+        coinstakeTx.vout.resize(2);
+        coinstakeTx.vout[0].SetEmpty();
+        coinstakeTx.vout[1].scriptPubKey = scriptPubKeyIn;//0x4d696e6564206279204464616b696e67204020323021392e546869732069732061204d696e6520426c636f6b2e;//scriptPubKeyIn;
+        originalRewardTx = coinstakeTx;
+        pblock->vtx[1] = MakeTransactionRef(std::move(coinstakeTx));
+
+        //this just makes CBlock::IsProofOfStake to return true
+        //real prevoutstake info is filled in later in SignBlock
+        pblock->prevoutStake.n=0;
+
+    }
+
+    //////////////////////////////////////////////////////// silubium
+    SilubiumDGP silubiumDGP(globalState.get(), fGettingValuesDGP);
+    globalSealEngine->setSilubiumSchedule(silubiumDGP.getGasSchedule(nHeight));
+    uint32_t blockSizeDGP = silubiumDGP.getBlockSize(nHeight);
+    minGasPrice = silubiumDGP.getMinGasPrice(nHeight);
+    if(gArgs.IsArgSet("-staker-min-tx-gas-price")) {
+        CAmount stakerMinGasPrice;
+        if(ParseMoney(gArgs.GetArg("-staker-min-tx-gas-price", ""), stakerMinGasPrice)) {
+            minGasPrice = std::max(minGasPrice, (uint64_t)stakerMinGasPrice);
+        }
+    }
+    hardBlockGasLimit = silubiumDGP.getBlockGasLimit(nHeight);
+    softBlockGasLimit = gArgs.GetArg("-staker-soft-block-gas-limit", hardBlockGasLimit);
+    softBlockGasLimit = std::min(softBlockGasLimit, hardBlockGasLimit);
+    txGasLimit = gArgs.GetArg("-staker-max-tx-gas-limit", softBlockGasLimit);
+
+    nBlockMaxWeight = blockSizeDGP ? blockSizeDGP * WITNESS_SCALE_FACTOR : nBlockMaxWeight;
+
+    dev::h256 oldHashStateRoot(globalState->rootHash());
+    dev::h256 oldHashUTXORoot(globalState->rootHashUTXO());
+    int nPackagesSelected = 0;
+    int nDescendantsUpdated = 0;
+    addPackageTxs(nPackagesSelected, nDescendantsUpdated, minGasPrice);//加入交易
+    pblock->hashStateRoot = uint256(h256Touint(dev::h256(globalState->rootHash())));
+    pblock->hashUTXORoot = uint256(h256Touint(dev::h256(globalState->rootHashUTXO())));
+    globalState->setRoot(oldHashStateRoot);
+    globalState->setRootUTXO(oldHashUTXORoot);
+
+    //this should already be populated by AddBlock in case of contracts, but if no contracts
+    //then it won't get populated
+    RebuildRefundTransaction();
+    ////////////////////////////////////////////////////////
+
+    pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus(), fProofOfStake);
+    pblocktemplate->vTxFees[0] = -nFees;
+
+    LogPrintf("CreateSilkwormBlock(): block weight: %u txs: %u fees: %ld sigops %d\n", GetBlockWeight(*pblock), nBlockTx, nFees, nBlockSigOpsCost);
+
+    // The total fee is the Fees minus the Refund
+    if (pTotalFees)
+        *pTotalFees = nFees - bceResult.refundSender;
+
+    // Fill in header
+    pblock->hashPrevBlock  = pindexPrev->GetBlockHash();
+    pblock->nNonce         = 0;
+    pblocktemplate->vTxSigOpsCost[0] = WITNESS_SCALE_FACTOR * GetLegacySigOpCount(*pblock->vtx[0]);
+
+    CValidationState state;
+    if (!fProofOfStake && !TestBlockValidity(state, chainparams, *pblock, pindexPrev, false, false)) {
+        throw std::runtime_error(strprintf("%s: TestBlockValidity failed: %s", __func__, FormatStateMessage(state)));
+    }
+    int64_t nTime2 = GetTimeMicros();
+
+    LogPrint(BCLog::BENCH, "CreateSilkwormBlock() packages: %.2fms (%d packages, %d updated descendants), validity: %.2fms (total %.2fms)\n", 0.001 * (nTime1 - nTimeStart), nPackagesSelected, nDescendantsUpdated, 0.001 * (nTime2 - nTime1), 0.001 * (nTime2 - nTimeStart));
+
+    return std::move(pblocktemplate);
+}
+
 
 std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bool fMineWitnessTx, bool fProofOfStake, int64_t* pTotalFees, int32_t txProofTime, int32_t nTimeLimit)
 {
@@ -177,8 +320,11 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
 
     // Decide whether to include witness transactions
     // This is only needed in case the witness softfork activation is reverted
-    // (which would require a very deep reorganization) or when
-    // -promiscuousmempoolflags is used.
+    // (which would require a very deep reorganization).
+    // Note that the mempool would accept transactions with witness data before
+    // IsWitnessEnabled, but we would only ever mine blocks after IsWitnessEnabled
+    // unless there is a massive block reorganization with the witness softfork
+    // not activated.
     // TODO: replace this with a call to main to assess validity of a mempool
     // transaction (which in most cases can be a no-op).
     fIncludeWitness = IsWitnessEnabled(pindexPrev, chainparams.GetConsensus()) && fMineWitnessTx;
@@ -396,6 +542,121 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateEmptyBlock(const CScript& 
     return std::move(pblocktemplate);
 }
 
+std::unique_ptr<CBlockTemplate> BlockAssembler::CreateEmptyBlockSW(const CScript& scriptPubKeyIn, bool fMineWitnessTx, bool fProofOfStake, int64_t* pTotalFees, int32_t nTime)
+{
+    resetBlock();
+
+    pblocktemplate.reset(new CBlockTemplate());
+
+    if(!pblocktemplate.get())
+        return nullptr;
+    pblock = &pblocktemplate->block; // pointer for convenience
+
+    // Add dummy coinbase tx as first transaction
+    pblock->vtx.emplace_back();
+    // Add dummy coinstake tx as second transaction
+    if(fProofOfStake)
+        pblock->vtx.emplace_back();
+    pblocktemplate->vTxFees.push_back(-1); // updated at end
+    pblocktemplate->vTxSigOpsCost.push_back(-1); // updated at end
+
+    LOCK2(cs_main, mempool.cs);
+    CBlockIndex* pindexPrev = chainActive.Tip();
+    assert(pindexPrev != nullptr);
+    nHeight = pindexPrev->nHeight + 1;
+
+    pblock->nVersion = ComputeBlockVersion(pindexPrev, chainparams.GetConsensus());
+    // -regtest only: allow overriding block.nVersion with
+    // -blockversion=N to test forking scenarios
+    if (chainparams.MineBlocksOnDemand())
+        pblock->nVersion = gArgs.GetArg("-blockversion", pblock->nVersion);
+
+    uint32_t txProofTime = nTime == 0 ? GetAdjustedTime() : nTime;
+    if(fProofOfStake)
+        txProofTime &= ~SILKWORM_TIMESTAMP_MASK;
+    pblock->nTime = txProofTime;
+    const int64_t nMedianTimePast = pindexPrev->GetMedianTimePast();
+
+    nLockTimeCutoff = (STANDARD_LOCKTIME_VERIFY_FLAGS & LOCKTIME_MEDIAN_TIME_PAST)
+            ? nMedianTimePast
+            : pblock->GetBlockTime();
+
+    // Decide whether to include witness transactions
+    // This is only needed in case the witness softfork activation is reverted
+    // (which would require a very deep reorganization) or when
+    // -promiscuousmempoolflags is used.
+    // TODO: replace this with a call to main to assess validity of a mempool
+    // transaction (which in most cases can be a no-op).
+    fIncludeWitness = IsWitnessEnabled(pindexPrev, chainparams.GetConsensus()) && fMineWitnessTx;
+
+    nLastBlockTx = nBlockTx;
+    nLastBlockWeight = nBlockWeight;
+
+    // Create coinbase transaction.
+    CMutableTransaction coinbaseTx;
+    coinbaseTx.vin.resize(1);
+    coinbaseTx.vin[0].prevout.SetNull();
+    coinbaseTx.vout.resize(1);
+    if (fProofOfStake)
+    {
+        // Make the coinbase tx empty in case of proof of stake
+        coinbaseTx.vout[0].SetEmpty();
+    }
+    else
+    {
+        coinbaseTx.vout[0].scriptPubKey = scriptPubKeyIn;
+        coinbaseTx.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
+    }
+    coinbaseTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
+    originalRewardTx = coinbaseTx;
+    pblock->vtx[0] = MakeTransactionRef(std::move(coinbaseTx));
+
+    // Create coinstake transaction.
+    if(fProofOfStake)
+    {
+        CMutableTransaction coinstakeTx;
+        coinstakeTx.vout.resize(2);
+        coinstakeTx.vout[0].SetEmpty();
+        coinstakeTx.vout[1].scriptPubKey = scriptPubKeyIn;
+        originalRewardTx = coinstakeTx;
+        pblock->vtx[1] = MakeTransactionRef(std::move(coinstakeTx));
+
+        //this just makes CBlock::IsProofOfStake to return true
+        //real prevoutstake info is filled in later in SignBlock
+        pblock->prevoutStake.n=0;
+    }
+
+    //////////////////////////////////////////////////////// silubium
+    //state shouldn't change here for an empty block, but if it's not valid it'll fail in CheckBlock later
+    pblock->hashStateRoot = uint256(h256Touint(dev::h256(globalState->rootHash())));
+    pblock->hashUTXORoot = uint256(h256Touint(dev::h256(globalState->rootHashUTXO())));
+
+    RebuildRefundTransaction();
+    ////////////////////////////////////////////////////////
+
+    pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus(), fProofOfStake);
+    pblocktemplate->vTxFees[0] = -nFees;
+
+    // The total fee is the Fees minus the Refund
+    if (pTotalFees)
+        *pTotalFees = nFees - bceResult.refundSender;
+
+    // Fill in header
+    pblock->hashPrevBlock  = pindexPrev->GetBlockHash();
+    if (!fProofOfStake)
+        UpdateTime(pblock, chainparams.GetConsensus(), pindexPrev);
+    pblock->nBits          = GetNextWorkRequiredSW(pindexPrev, pblock, chainparams.GetConsensus(),fProofOfStake);
+    pblock->nNonce         = 0;
+    pblocktemplate->vTxSigOpsCost[0] = WITNESS_SCALE_FACTOR * GetLegacySigOpCount(*pblock->vtx[0]);
+
+    CValidationState state;
+    if (!fProofOfStake && !TestBlockValidity(state, chainparams, *pblock, pindexPrev, false, false)) {
+        throw std::runtime_error(strprintf("%s: TestBlockValidity failed: %s", __func__, FormatStateMessage(state)));
+    }
+
+    return std::move(pblocktemplate);
+}
+
 void BlockAssembler::onlyUnconfirmed(CTxMemPool::setEntries& testSet)
 {
     for (CTxMemPool::setEntries::iterator iit = testSet.begin(); iit != testSet.end(); ) {
@@ -425,7 +686,7 @@ bool BlockAssembler::TestPackage(uint64_t packageSize, int64_t packageSigOpsCost
 //   segwit activation)
 bool BlockAssembler::TestPackageTransactions(const CTxMemPool::setEntries& package)
 {
-    for (const CTxMemPool::txiter it : package) {
+    for (CTxMemPool::txiter it : package) {
         if (!IsFinalTx(it->GetTx(), nHeight, nLockTimeCutoff))
             return false;
         if (!fIncludeWitness && it->GetTx().HasWitness())
@@ -476,7 +737,7 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter, uint64
         }
     }
     // We need to pass the DGP's block gas limit (not the soft limit) since it is consensus critical.
-    ByteCodeExec exec(*pblock, silubiumTransactions, hardBlockGasLimit);
+    ByteCodeExec exec(*pblock, silubiumTransactions, hardBlockGasLimit, chainActive.Tip());
     if(!exec.performByteCode()){
         //error, don't add contract
         globalState->setRoot(oldHashStateRoot);
@@ -592,7 +853,7 @@ int BlockAssembler::UpdatePackagesForAdded(const CTxMemPool::setEntries& already
         indexed_modified_transaction_set &mapModifiedTx)
 {
     int nDescendantsUpdated = 0;
-    for (const CTxMemPool::txiter it : alreadyAdded) {
+    for (CTxMemPool::txiter it : alreadyAdded) {
         CTxMemPool::setEntries descendants;
         mempool.CalculateDescendants(it, descendants);
         // Insert all descendants (not yet in block) into the modified set
@@ -630,7 +891,7 @@ bool BlockAssembler::SkipMapTxEntry(CTxMemPool::txiter it, indexed_modified_tran
     return mapModifiedTx.count(it) || inBlock.count(it) || failedTx.count(it);
 }
 
-void BlockAssembler::SortForBlock(const CTxMemPool::setEntries& package, CTxMemPool::txiter entry, std::vector<CTxMemPool::txiter>& sortedEntries)
+void BlockAssembler::SortForBlock(const CTxMemPool::setEntries& package, std::vector<CTxMemPool::txiter>& sortedEntries)
 {
     // Sort package by ancestor count
     // If a transaction A depends on transaction B, then A's ancestor count
@@ -724,9 +985,9 @@ void BlockAssembler::addPackageTxs(int &nPackagesSelected, int &nDescendantsUpda
             packageSigOpsCost = modit->nSigOpCostWithAncestors;
         }
 
-//        if (packageFees < blockMinFeeRate.GetFee(packageSize)) {
+        //        if (packageFees < blockMinFeeRate.GetFee(packageSize)) {
         if (packageFees < 10000) {
-        // Everything else we might consider has a lower fee rate
+            // Everything else we might consider has a lower fee rate
             return;
         }
 
@@ -771,7 +1032,7 @@ void BlockAssembler::addPackageTxs(int &nPackagesSelected, int &nDescendantsUpda
 
         // Package can be added. Sort the entries in a valid order.
         std::vector<CTxMemPool::txiter> sortedEntries;
-        SortForBlock(ancestors, iter, sortedEntries);
+        SortForBlock(ancestors, sortedEntries);
 
         bool wasAdded=true;
         for (size_t i=0; i<sortedEntries.size(); ++i) {
@@ -880,12 +1141,23 @@ bool CheckStake(const std::shared_ptr<const CBlock> pblock, CWallet& wallet)
     return true;
 }
 
-void ThreadStakeMiner(CWallet *pwallet)
+//wujiang add
+#include <iostream>
+#include <time.h>
+#include <string>
+
+using namespace std;
+void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
 {
     SetThreadPriority(THREAD_PRIORITY_LOWEST);
 
     // Make this thread recognisable as the mining thread
-    RenameThread("silubiumcoin-miner");
+    std::string threadName = "silubiumstake";
+    if(pwallet && pwallet->GetName() != "")
+    {
+        threadName = threadName + "-" + pwallet->GetName();
+    }
+    RenameThread(threadName.c_str());
 
     CReserveKey reservekey(pwallet);
 
@@ -899,20 +1171,20 @@ void ThreadStakeMiner(CWallet *pwallet)
     {
         while (pwallet->IsLocked())
         {
-            nLastCoinStakeSearchInterval = 0;
+            pwallet->m_last_coin_stake_search_interval = 0;
             MilliSleep(10000);
         }
         //don't disable PoS mining for no connections if in regtest mode
         if(!regtestMode && !gArgs.GetBoolArg("-emergencystaking", false)) {
-            while (g_connman->GetNodeCount(CConnman::CONNECTIONS_ALL) == 0 || IsInitialBlockDownload()) {
-                nLastCoinStakeSearchInterval = 0;
+            while (connman->GetNodeCount(CConnman::CONNECTIONS_ALL) == 0 || IsInitialBlockDownload()) {
+                pwallet->m_last_coin_stake_search_interval = 0;
                 fTryToSync = true;
                 MilliSleep(1000);
             }
             if (fTryToSync) {
                 fTryToSync = false;
-                if (g_connman->GetNodeCount(CConnman::CONNECTIONS_ALL) < 3 ||
-                    pindexBestHeader->GetBlockTime() < GetTime() - 10 * 60) {
+                if (connman->GetNodeCount(CConnman::CONNECTIONS_ALL) < 3 ||
+                	chainActive.Tip()->GetBlockTime() < GetTime() - 10 * 60) {
                     MilliSleep(60000);
                     continue;
                 }
@@ -935,9 +1207,9 @@ void ThreadStakeMiner(CWallet *pwallet)
             for(uint32_t i=beginningTime;i<beginningTime + MAX_STAKE_LOOKAHEAD;i+=STAKE_TIMESTAMP_MASK+1) {
 
                 // The information is needed for status bar to determine if the staker is trying to create block and when it will be created approximately,
-                static int64_t nLastCoinStakeSearchTime = GetAdjustedTime(); // startup timestamp
+                if(pwallet->m_last_coin_stake_search_time == 0) pwallet->m_last_coin_stake_search_time = GetAdjustedTime(); // startup timestamp
                 // nLastCoinStakeSearchInterval > 0 mean that the staker is running
-                nLastCoinStakeSearchInterval = i - nLastCoinStakeSearchTime;
+                pwallet->m_last_coin_stake_search_interval = i - pwallet->m_last_coin_stake_search_time;
 
                 // Try to sign a block (this also checks for a PoS stake)
                 pblocktemplate->block.nTime = i;
@@ -997,7 +1269,7 @@ void ThreadStakeMiner(CWallet *pwallet)
                         if(validBlock) {
                             CheckStake(pblockfilled, *pwallet);
                             // Update the search time when new valid block is created, needed for status bar icon
-                            nLastCoinStakeSearchTime = pblockfilled->GetBlockTime();
+                            pwallet->m_last_coin_stake_search_time = pblockfilled->GetBlockTime();
                         }
                         break;
                     }
@@ -1010,20 +1282,359 @@ void ThreadStakeMiner(CWallet *pwallet)
     }
 }
 
-void StakeSilubiums(bool fStake, CWallet *pwallet)
+//void StakeSilubiums(bool fStake, CWallet *pwallet, CConnman* connman, boost::thread_group*& stakeThread)
+//{
+//    if (stakeThread != nullptr)
+//    {
+//        stakeThread->interrupt_all();
+//        delete stakeThread;
+//        stakeThread = nullptr;
+//    }
+//
+//    if(fStake)
+//    {
+//        stakeThread = new boost::thread_group();
+//        stakeThread->create_thread(boost::bind(&ThreadStakeMiner, pwallet, connman));
+//    }
+//}
+
+bool CheckSilkworm(const std::shared_ptr<const CBlock> pblock, CWallet& wallet)
 {
-    static boost::thread_group* stakeThread = NULL;
+    uint256 proofHash, hashTarget;
+    uint256 hashBlock = pblock->GetHash();
 
-    if (stakeThread != NULL)
+    if(pblock->nVersion!=0x20000002)
+        return error("CheckSilkworm() : %s is not a Silkwrom block", hashBlock.GetHex());
+
+    // verify hash target and signature of coinstake tx
+    //    CValidationState state;
+    //    if (!CheckProofOfStake(mapBlockIndex[pblock->hashPrevBlock], state, *pblock->vtx[1], pblock->nBits, pblock->nTime, proofHash, hashTarget, *pcoinsTip))
+    //        return error("CheckStake() : proof-of-stake checking failed");
+
+    //// debug print
+    LogPrint(BCLog::COINSTAKE, "CheckStake() : new proof-of-stake block found  \n  hash: %s \nproofhash: %s  \ntarget: %s\n", hashBlock.GetHex(), proofHash.GetHex(), hashTarget.GetHex());
+    LogPrint(BCLog::COINSTAKE, "%s\n", pblock->ToString());
+    LogPrint(BCLog::COINSTAKE, "out %s\n", FormatMoney(pblock->vtx[1]->GetValueOut()));
+
+    // Found a solution
     {
-        stakeThread->interrupt_all();
-        delete stakeThread;
-        stakeThread = NULL;
+        LOCK(cs_main);
+        if (pblock->hashPrevBlock != chainActive.Tip()->GetBlockHash())
+            return error("CheckStake() : generated block is stale");
+
+        for(const CTxIn& vin : pblock->vtx[1]->vin) {
+            if (wallet.IsSpent(vin.prevout.hash, vin.prevout.n)) {
+                return error("CheckStake() : generated block became invalid due to stake UTXO being spent");
+            }
+        }
+    }
+    //    DebugOut("SilkwormMinder checking...0");
+    // Process this block the same as if we had received it from another node
+    bool fNewBlock = false;
+    if (!ProcessNewBlock(Params(), pblock, true, &fNewBlock))
+        return error("CheckSilkworm() : ProcessBlock, block not accepted");
+
+    return true;
+}
+
+//#include <boost/date_time/posix_time/posix_time.hpp>
+int getnowms()
+{
+    // Get current time from the clock, using microseconds resolution
+    const boost::posix_time::ptime now = boost::posix_time::microsec_clock::local_time();
+    // Get the time offset in current day
+    const boost::posix_time::time_duration td = now.time_of_day();
+    return  td.total_milliseconds();
+}
+
+bool isFindAddress(CWallet *pwallet,std::string address)
+{
+    bool bFind=false;
+    pwallet->BlockUntilSyncedToCurrentChain();
+    LOCK2(cs_main, pwallet->cs_wallet);
+    int nFind=0;
+    int nstart=getnowms();
+    for (const std::set<CTxDestination>& grouping : pwallet->GetAddressGroupings())
+    {
+        for (const CTxDestination& dest : grouping)
+        {
+            nFind++;
+            if (!IsValidDestination(dest)) {
+                continue;
+            }
+
+            const CKeyID *keyID = boost::get<CKeyID>(&dest);
+            if(!keyID)
+                continue;
+            std::string straddress=keyID->GetReverseHex();
+
+            if(straddress.compare(address)==0)
+            {
+                bFind=true;
+                break;
+            }
+
+        }
     }
 
-    if(fStake)
-    {
-        stakeThread = new boost::thread_group();
-        stakeThread->create_thread(boost::bind(&ThreadStakeMiner, pwallet));
+    int nend=getnowms()-nstart;
+
+    cout<<"Total Find "<<nFind<<" using "<<nend<<"ms"<<endl;
+    return bFind;
+}
+
+void ThreadSilkwormMiner(CWallet *pwallet, CConnman* connman)
+{
+    SetThreadPriority(THREAD_PRIORITY_LOWEST);
+    //使此线程可识别为Silkworm挖矿线程
+    RenameThread("silkworm-miner");
+
+    bool fTryToSync = true;
+    bool regtestMode = Params().GetConsensus().fPoSNoRetargeting;
+    if(regtestMode){
+        nMinerSleep = 30000; //limit regtest to 30s, otherwise it'll create 2 blocks per second
     }
+
+    CReserveKey reservekey(pwallet);
+    LogPrint(BCLog::SILKWORM,"ThreadSilkwormMiner() call silubiumDGP\n");
+    SilubiumDGP silubiumDGP(globalState.get(), fGettingValuesDGP);
+    bool bFindMainNodeAddress=true;
+    std::string address160="0000000000000000000000000000000000000000";
+    uint32_t mininterval=2;//内存中有交易，pos没有挖矿，时长超过mininterval是超级节点挖矿
+    uint32_t maxinterval=600;//没有交易，也没有挖矿，时长超过maxinterval时超级节点挖矿
+#define WAITFORSILKWORM 120000//没有utxo，休息10分钟再检测
+    LogPrint(BCLog::SILKWORM,"SilkWorm Miner。。。。\n");
+    //    int utxocount=pwallet->HaveAvailableCoinsForStakingSW(address160); //CPU占用率90%
+    while(true)
+    {
+//        cout<<"================="<<FormatISO8601DateTime(GetTime()+28800)<<"["<<GetTime()<<"]"<<"================="<<endl;
+        while (pwallet->IsLocked())
+        {
+            cout<<"ThreadSilkwormMiner():Wallet is Locked!Wait For 20 Second!"<<endl;
+            LogPrint(BCLog::SILKWORM,"ThreadSilkwormMiner():Wallet is Locked!Wait For 20 Second!\n");
+//            nLastCoinStakeSearchInterval = 0;
+            MilliSleep(20000);
+        }
+
+        //don't disable PoS mining for no connections if in regtest mode
+        if(!regtestMode && !gArgs.GetBoolArg("-emergencystaking", false)) {
+            while (connman->GetNodeCount(CConnman::CONNECTIONS_ALL) == 0 || IsInitialBlockDownload()) {
+//                nLastCoinStakeSearchInterval = 0;
+                fTryToSync = true;
+                MilliSleep(1000);
+            }
+            if (fTryToSync) {
+                fTryToSync = false;
+                if (connman->GetNodeCount(CConnman::CONNECTIONS_ALL) < 3 ||
+                        pindexBestHeader->GetBlockTime() < GetTime() - 10 * 60) {
+                    cout<<"ThreadSilkwormMiner():Try To Sync!Wait For 1 Minutes!"<<endl;
+                    LogPrint(BCLog::SILKWORM,"ThreadSilkwormMiner():Try To Sync!Wait For 1 Minutes!\n");
+                    MilliSleep(60000);
+                    this_thread::yield();
+                    continue;
+                }
+            }
+        }
+
+        if(chainActive.Height()<=10050)
+        {
+            LogPrint(BCLog::SILKWORM,"Height Not Enongh!Wait For 2 Minutes!\n");
+            cout<<"Height Not Enongh!Wait For 2 Minutes!"<<endl;
+            MilliSleep(WAITFORSILKWORM);
+            this_thread::yield();
+            continue;
+        }
+
+        if(bFindMainNodeAddress || address160.compare("0000000000000000000000000000000000000000")==0)//启动或者链高度为5000的整数时查找新的超级节点地值。
+        {
+            std::string newaddress=silubiumDGP.getMainNodeAddress(chainActive.Height());
+            if(address160.compare(newaddress)!=0 && newaddress.compare("0000000000000000000000000000000000000000")!=0)
+            {
+                address160=newaddress;
+                mininterval=silubiumDGP.getMineTime(chainActive.Height());
+                maxinterval=silubiumDGP.getMineTimeMax(chainActive.Height());
+                bFindMainNodeAddress=false;
+                cout<<address160<<":"<<mininterval<<":"<<maxinterval<<":"<<(bFindMainNodeAddress?"true":"false")<<endl;
+            }
+        }
+        cout<<address160<<":"<<mininterval<<":"<<maxinterval<<":"<<(bFindMainNodeAddress?"true":"false")<<endl;
+
+        if(!isFindAddress(pwallet,address160))//CPU占用率3%
+        {
+            LogPrint(BCLog::SILKWORM,"Not MainNode!Wait For 2 Minutes!\n");
+            cout<<"Not MainNode!Wait For 2 Minutes!"<<endl;
+            MilliSleep(WAITFORSILKWORM);
+            this_thread::yield();
+            continue;
+        }
+
+
+
+
+        //        if(chainActive.Height()%1000==0)
+        int utxocount=pwallet->HaveAvailableCoinsForStakingSW(address160); //CPU占用率90%
+        if(utxocount>0 )//&& isFindAddress(pwallet,address160) && amount>=100000.0)//是超级节点，有可用的UTXO
+        {
+            do{//循环1000次，使用相同的参数
+                cout<<"================="<<FormatISO8601DateTime(GetTime()+28800)<<"["<<GetTime()<<"]"<<"================="<<endl;
+                LogPrint(BCLog::SILKWORM,"ThreadSilkwormMiner():\tUTXO Count:%d\tMempool Size:%d\n",utxocount,mempool.mapTx.size());
+                std::cout<<"ThreadSilkwormMiner():"<<"\tMempool Size:"<<mempool.mapTx.size()<<"\tUTXO Count:"<<utxocount<<std::endl;
+                CBlockIndex* pindexPrev =  chainActive.Tip();
+                uint32_t beginningTime=GetAdjustedTime();
+                int timespan=beginningTime-pindexPrev->nTime;
+                bool silkwormmine=false;//silkworm挖矿标识，设定初始为假
+                if((timespan > mininterval) && (mempool.mapTx.size() > 0)) //如果与前一区块间隔时间大于4s且有交易产生
+                {
+                    silkwormmine=true;
+                }
+                else
+                {
+                    CBlockIndex* pblock=pindexPrev;
+                    for(int i=0;i<5;i++)//保证快速确认GAS找零
+                    {
+
+                        if(pblock->nTx>2){
+                            silkwormmine=true;
+                            break;
+                        }
+                        pblock=pblock->pprev;
+                    }
+                    if (!silkwormmine and timespan>maxinterval){
+                        silkwormmine=true;
+                    }
+                }
+
+
+                if(silkwormmine)
+                {
+                    int64_t nTotalFees = 0;
+                    //首先创建一个空块。在我们确认我们能创建块之前不必要去处理交易。
+                    std::unique_ptr<CBlockTemplate> pblocktemplate(BlockAssembler(Params()).CreateEmptyBlockSW(reservekey.reserveScript, true, true, &nTotalFees));
+                    if (!pblocktemplate.get())
+                    {
+                        cout<<"ThreadSilkwormMiner():CreateEmptyBlockSW() Not Valid!"<<endl;
+                        LogPrint(BCLog::SILKWORM,"ThreadSilkwormMiner():CreateEmptyBlockSW() Not Valid!");
+                        MilliSleep(1000);
+                        this_thread::yield();
+                        continue;
+                    }
+                    pblocktemplate->block.nTime=beginningTime;
+                    std::shared_ptr<CBlock> pblock = std::make_shared<CBlock>(pblocktemplate->block);//产生空块
+                    cout<<"ThreadSilkwormMiner():CreateEmptyBlock\t"<<pblocktemplate->block.nVersion<<"\t"<<pblocktemplate->block.nTime<<endl;
+                    LogPrint(BCLog::SILKWORM,"ThreadSilkwormMiner():CreateEmptyBlock()\n");
+                    if (SignBlockSW(pblock, *pwallet, nTotalFees, beginningTime)) {
+                        SetThreadPriority(THREAD_PRIORITY_ABOVE_NORMAL);
+                        //                    cout<<"SiThreadSilkwormMiner():\t"<<pblock->nVersion<<"\t"<<pblock->hashMerkleRoot.ToString()<<"\t"<<pblock->nTime<<endl;
+                        if (chainActive.Tip()->GetBlockHash() != pblock->hashPrevBlock) {
+                            //在创建我们自己的块时又收到另一个块，抛弃创建。another block was received while building ours, scrap progress
+                            LogPrint(BCLog::SILKWORM,"ThreadSilkwormMiner(): Valid future PoS block was orphaned before becoming valid");
+                            MilliSleep(1000);
+                            this_thread::yield();
+                            continue;//break;
+                        }
+                        // 创建一个用正确的交易填充的块。Create a block that's properly populated with transactions
+                        std::unique_ptr<CBlockTemplate> pblocktemplatefilled(
+                                    BlockAssembler(Params()).CreateNewBlockSW(pblock->vtx[1]->vout[1].scriptPubKey, true, true, &nTotalFees,
+                                beginningTime, FutureDrift(GetAdjustedTime()) - STAKE_TIME_BUFFER));
+                        if (!pblocktemplatefilled.get())
+                        {
+                            cout<<"ThreadSilkwormMiner(): CreateNewBlockSW() Not Valid!"<<endl;
+                            LogPrint(BCLog::SILKWORM,"ThreadSilkwormMiner():CreateNewBlockSW() Not Valid!");
+                            MilliSleep(1000);
+                            this_thread::yield();
+                            continue;
+                        }
+                        if (chainActive.Tip()->GetBlockHash() != pblock->hashPrevBlock) {
+                            //another block was received while building ours, scrap progress
+                            LogPrint(BCLog::SILKWORM,"ThreadSilkwormMiner(): Valid future PoS block was orphaned before becoming valid");
+                            MilliSleep(1000);
+                            this_thread::yield();
+                            continue;//break;
+                        }
+                        // 签名整个块并用前面的时间戳获取有效的利益。Sign the full block and use the timestamp from earlier for a valid stake
+                        std::shared_ptr<CBlock> pblockfilled = std::make_shared<CBlock>(pblocktemplatefilled->block);
+                        cout<<"ThreadSilkwormMiner():CreateNewBlockSW\t"<<pblocktemplatefilled->block.nVersion<<"\t"<<pblocktemplatefilled->block.nTime<<endl;
+                        LogPrint(BCLog::SILKWORM,"ThreadSilkwormMiner():CreateNewBlockSW()\t%d\t%d\t%s\n",pblocktemplatefilled->block.nVersion,pblocktemplatefilled->block.nTime,pblocktemplatefilled->block.GetHash().ToString());
+                        if (SignBlockSW(pblockfilled, *pwallet, nTotalFees, beginningTime)) {
+                            cout<<"ThreadSilkwormMiner():SignBlockSW\t"<<pblockfilled->nVersion<<"\t"<<pblockfilled->nTime<<endl;
+                            LogPrint(BCLog::SILKWORM,"ThreadSilkwormMiner():SignBlockSW\n");
+                            CheckSilkworm(pblockfilled, *pwallet);
+                            cout<<"ThreadSilkwormMiner():CheckSilkworm\t"<<pblockfilled->nVersion<<"\t"<<pblockfilled->nTime<<endl;
+                            LogPrint(BCLog::SILKWORM,"ThreadSilkwormMiner():CheckSilkworm\n");
+                            //return back to low priority
+                            SetThreadPriority(THREAD_PRIORITY_LOWEST);
+                        }
+                        MilliSleep(1000);
+                    }
+                    else
+                    {
+                        cout<<"ThreadSilkwormMiner():Second SignBlockSW Not True!"<<endl;
+                        LogPrint(BCLog::SILKWORM,"ThreadSilkwormMiner():Second SignBlockSW Not True!\n");
+                        MilliSleep(1000);
+                    }
+                }
+                else
+                {
+                    cout<<"ThreadSilkwormMiner():silkwormmine Not True!"<<endl;
+                    LogPrint(BCLog::SILKWORM,"ThreadSilkwormMiner():silkwormmine Not True!\n");
+                    //                    MilliSleep(1000);
+                }
+                cout<<chainActive.Height()%1000<<endl;
+                MilliSleep(200);
+                this_thread::yield();
+            }
+            while(chainActive.Height()%100!=0);
+
+        }
+        else
+        {
+            cout<<"ThreadSilkwormMiner():Not Find Coin!Wait For 2 Minutes!"<<endl;
+            LogPrint(BCLog::SILKWORM,"ThreadSilkwormMiner():Not Find Coin!Wait For 2 Minutes!\n");
+            MilliSleep(WAITFORSILKWORM);//没有utxo，休息10分钟再检测
+        }
+        if(chainActive.Height()%1000==0)
+            bFindMainNodeAddress=true;
+        else
+            bFindMainNodeAddress=false;
+        MilliSleep(200);
+        this_thread::yield();
+    }
+}
+
+
+void StakeSilubiums(bool fStake, CWallet *pwallet, CConnman* connman, boost::thread_group*& stakeThread)
+{
+    if(!gArgs.IsArgSet("-enablemainnode"))
+    {
+        LogPrintf("Enable MPOS Mine!Disalbe SilkWorm Mine!\n");
+        if (stakeThread != nullptr)
+        {
+            stakeThread->interrupt_all();
+            delete stakeThread;
+            stakeThread = nullptr;
+        }
+
+        if(fStake)
+        {
+            stakeThread = new boost::thread_group();
+            stakeThread->create_thread(boost::bind(&ThreadStakeMiner, pwallet, connman));
+        }
+    }
+    else {
+        LogPrintf("Enable SilkWorm Mine!Disable MPOS Mine!\n");
+        LogPrintf("Enable MPOS Mine!Disalbe SilkWorm Mine!\n");
+        if (stakeThread != nullptr)
+        {
+            stakeThread->interrupt_all();
+            delete stakeThread;
+            stakeThread = nullptr;
+        }
+
+        if(fStake)
+        {
+            stakeThread = new boost::thread_group();
+            stakeThread->create_thread(boost::bind(&ThreadSilkwormMiner, pwallet, connman));
+        }
+    }
+
 }

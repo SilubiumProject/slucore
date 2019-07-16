@@ -413,7 +413,7 @@ void TokenTransactionView::changedAmount(const QString &amount)
     if(!tokenProxyModel)
         return;
     int256_t amount_parsed = 0;
-    if(BitcoinUnits::parseToken(18, amount, &amount_parsed))
+    if(BitcoinUnits::parseToken(8, amount, &amount_parsed))//if(BitcoinUnits::parseToken(18, amount, &amount_parsed))
     {
         tokenProxyModel->setMinAmount(amount_parsed);
     }

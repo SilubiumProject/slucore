@@ -1,4 +1,4 @@
-// Copyright (c) 2009-2017 The Bitcoin Core developers
+// Copyright (c) 2009-2018 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -15,6 +15,15 @@ static const int nCheckpointSpan = 500;
 
 namespace Checkpoints {
 
+    bool CheckHardened(int nHeight, const uint256& hash, const CCheckpointData& data)
+    {
+        const MapCheckpoints& checkpoints = data.mapCheckpoints;
+
+        MapCheckpoints::const_iterator i = checkpoints.find(nHeight);
+        if (i == checkpoints.end()) return true;
+        return hash == i->second;
+    }
+
     CBlockIndex* GetLastCheckpoint(const CCheckpointData& data)
     {
         const MapCheckpoints& checkpoints = data.mapCheckpoints;
@@ -22,9 +31,10 @@ namespace Checkpoints {
         for (const MapCheckpoints::value_type& i : reverse_iterate(checkpoints))
         {
             const uint256& hash = i.second;
-            BlockMap::const_iterator t = mapBlockIndex.find(hash);
-            if (t != mapBlockIndex.end())
-                return t->second;
+            CBlockIndex* pindex = LookupBlockIndex(hash);
+            if (pindex) {
+                return pindex;
+            }
         }
         return nullptr;
     }

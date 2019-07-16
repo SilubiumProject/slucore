@@ -1,4 +1,5 @@
-<!DOCTYPE RCC><RCC version="1.0">
+<!DOCTYPE RCC>
+<RCC version="1.0">
     <qresource prefix="/translations">
         <file alias="en">locale/bitcoin_en.qm</file>
         <file alias="zh_CN">locale/bitcoin_zh_CN.qm</file>

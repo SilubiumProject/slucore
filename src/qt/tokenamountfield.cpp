@@ -68,7 +68,7 @@ public:
     {
         bool valid = false;
         int256_t val = value(&valid);
-        val = val + steps * singleStep;
+        val = val + steps * singleStep/10000000;//val = val + steps * singleStep单位从0.1调整到0.00000001
         val = getMin(getMax(val, minAmount), totalSupply);
         setValue(val);
     }
@@ -178,7 +178,6 @@ Q_SIGNALS:
     void valueChanged();
 };
 
-//#include "qt/tokenamountfield.moc"
 #include <qt/tokenamountfield.moc>
 
 TokenAmountField::TokenAmountField(QWidget *parent) :

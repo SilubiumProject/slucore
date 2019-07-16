@@ -133,7 +133,8 @@ QT_MOC = \
   qt/overviewpage.moc \
   qt/rpcconsole.moc \
   qt/tokenamountfield.moc \
-  qt/tokenitemmodel.moc
+  qt/tokenitemmodel.moc \
+  qt/walletmodel.moc
 
 QT_QRC_CPP = qt/qrc_bitcoin.cpp
 QT_QRC = qt/bitcoin.qrc
@@ -277,6 +278,7 @@ RES_ICONS = \
   qt/res/icons/network_disabled.png \
   qt/res/icons/open.png \
   qt/res/icons/overview.png \
+  qt/res/icons/proxy.png \
   qt/res/icons/quit.png \
   qt/res/icons/receive.png \
   qt/res/icons/remove.png \
@@ -407,7 +409,7 @@ if ENABLE_WALLET
 BITCOIN_QT_CPP += $(BITCOIN_QT_WALLET_CPP)
 endif
 
-RES_IMAGES = 
+RES_IMAGES =
 
 RES_MOVIES = $(wildcard $(srcdir)/qt/res/movies/spinner-*.png)
 
@@ -505,7 +507,7 @@ if TARGET_WINDOWS
 endif
 qt_silubium_qt_LDADD = qt/libbitcoinqt.a $(LIBBITCOIN_SERVER)
 if ENABLE_WALLET
-qt_silubium_qt_LDADD += $(LIBBITCOIN_WALLET)
+qt_silubium_qt_LDADD += $(LIBBITCOIN_UTIL) $(LIBBITCOIN_WALLET)
 endif
 if ENABLE_ZMQ
 qt_silubium_qt_LDADD += $(LIBBITCOIN_ZMQ) $(ZMQ_LIBS)
@@ -515,7 +517,7 @@ qt_silubium_qt_LDADD += $(LIBBITCOIN_CLI) $(LIBBITCOIN_COMMON) $(LIBBITCOIN_UTIL
   $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(LIBETHEREUM) $(LIBETHASHSEAL) $(LIBETHASH) \
   $(LIBETHCORE) $(LIBDEVCORE) $(LIBJSONCPP) $(LIBEVM) $(LIBEVMCORE) $(LIBDEVCRYPTO) $(LIBCRYPTOPP) $(LIBSCRYIPT)
 qt_silubium_qt_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(QT_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
-qt_silubium_qt_LIBTOOLFLAGS = --tag CXX
+qt_silubium_qt_LIBTOOLFLAGS = $(AM_LIBTOOLFLAGS) --tag CXX
 
 #locale/foo.ts -> locale/foo.qm
 QT_QM=$(QT_TS:.ts=.qm)

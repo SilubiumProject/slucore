@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2017 The Bitcoin Core developers
+// Copyright (c) 2011-2018 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -11,7 +11,7 @@
 #include <qt/bitcoinunits.h>
 #include <qt/guiutil.h>
 
-#include <init.h>
+#include <interfaces/node.h>
 #include <validation.h> // For DEFAULT_SCRIPTCHECK_THREADS
 #include <net.h>
 #include <netbase.h>
@@ -29,8 +29,10 @@
 #include <utilmoneystr.h>
 const char *DEFAULT_GUI_PROXY_HOST = "127.0.0.1";
 
-OptionsModel::OptionsModel(QObject *parent, bool resetSettings) :
-    QAbstractListModel(parent)
+static const QString GetDefaultProxyAddress();
+
+OptionsModel::OptionsModel(interfaces::Node& node, QObject *parent, bool resetSettings) :
+    QAbstractListModel(parent), m_node(node)
 {
     Init(resetSettings);
 }
@@ -60,7 +62,7 @@ void OptionsModel::Init(bool resetSettings)
         settings.setValue("fHideTrayIcon", false);
     fHideTrayIcon = settings.value("fHideTrayIcon").toBool();
     Q_EMIT hideTrayIconChanged(fHideTrayIcon);
-    
+
     if (!settings.contains("fMinimizeToTray"))
         settings.setValue("fMinimizeToTray", false);
     fMinimizeToTray = settings.value("fMinimizeToTray").toBool() && !fHideTrayIcon;
@@ -75,9 +77,9 @@ void OptionsModel::Init(bool resetSettings)
     nDisplayUnit = settings.value("nDisplayUnit").toInt();
 
     if (!settings.contains("strThirdPartyTxUrls"))
-        settings.setValue("strThirdPartyTxUrls", "https://silkchain2.silubium.org/transaction/%s");
-//    strThirdPartyTxUrls = settings.value("strThirdPartyTxUrls", "https://silkchain2.silubium.org/transaction/%s").toString();
-    strThirdPartyTxUrls="https://silkchain2.silubium.org/transaction/%s";
+        settings.setValue("strThirdPartyTxUrls", "");
+    strThirdPartyTxUrls = settings.value("strThirdPartyTxUrls", "").toString();
+
     if (!settings.contains("fCoinControlFeatures"))
         settings.setValue("fCoinControlFeatures", false);
     fCoinControlFeatures = settings.value("fCoinControlFeatures", false).toBool();
@@ -91,34 +93,34 @@ void OptionsModel::Init(bool resetSettings)
     // by command-line and show this in the UI.
 
     // Main
+    if (!settings.contains("bPrune"))
+        settings.setValue("bPrune", false);
+    if (!settings.contains("nPruneSize"))
+        settings.setValue("nPruneSize", 2);
+    // Convert prune size to MB:
+    const uint64_t nPruneSizeMB = settings.value("nPruneSize").toInt() * 1000;
+    if (!m_node.softSetArg("-prune", settings.value("bPrune").toBool() ? std::to_string(nPruneSizeMB) : "0")) {
+      addOverriddenOption("-prune");
+    }
+
     if (!settings.contains("nDatabaseCache"))
         settings.setValue("nDatabaseCache", (qint64)nDefaultDbCache);
-    if (!gArgs.SoftSetArg("-dbcache", settings.value("nDatabaseCache").toString().toStdString()))
+    if (!m_node.softSetArg("-dbcache", settings.value("nDatabaseCache").toString().toStdString()))
         addOverriddenOption("-dbcache");
-    //wujiang modify
-    if(fLogEvents)
-        if(settings.contains("fLogEvents"))
-            settings.setValue("fLogEvents",fLogEvents);
-        else
-            settings.setValue("fLogEvents",fLogEvents);
-    //wujiang modify
+
     if (!settings.contains("fLogEvents"))
         settings.setValue("fLogEvents", fLogEvents);
-    if (!gArgs.SoftSetBoolArg("-logevents", settings.value("fLogEvents").toBool()))
+    if (!m_node.softSetBoolArg("-logevents", settings.value("fLogEvents").toBool()))
         addOverriddenOption("-logevents");
 
     if (!settings.contains("nReserveBalance"))
-        settings.setValue("nReserveBalance", (qint64)nReserveBalance);
-    if (!gArgs.SoftSetArg("-reservebalance", FormatMoney(settings.value("nReserveBalance").toLongLong())))
-        ParseMoney(gArgs.GetArg("-reservebalance", ""), nReserveBalance);
-    else
-        nReserveBalance = settings.value("nReserveBalance").toLongLong();
-
-    Q_EMIT reserveBalanceChanged(nReserveBalance);
+        settings.setValue("nReserveBalance", (long long)DEFAULT_RESERVE_BALANCE);
+    if (!m_node.softSetArg("-reservebalance", FormatMoney(settings.value("nReserveBalance").toLongLong())))
+        addOverriddenOption("-reservebalance");
 
     if (!settings.contains("nThreadsScriptVerif"))
         settings.setValue("nThreadsScriptVerif", DEFAULT_SCRIPTCHECK_THREADS);
-    if (!gArgs.SoftSetArg("-par", settings.value("nThreadsScriptVerif").toString().toStdString()))
+    if (!m_node.softSetArg("-par", settings.value("nThreadsScriptVerif").toString().toStdString()))
         addOverriddenOption("-par");
 
     if (!settings.contains("strDataDir"))
@@ -128,13 +130,13 @@ void OptionsModel::Init(bool resetSettings)
 #ifdef ENABLE_WALLET
     if (!settings.contains("bSpendZeroConfChange"))
         settings.setValue("bSpendZeroConfChange", true);
-    if (!gArgs.SoftSetBoolArg("-spendzeroconfchange", settings.value("bSpendZeroConfChange").toBool()))
+    if (!m_node.softSetBoolArg("-spendzeroconfchange", settings.value("bSpendZeroConfChange").toBool()))
         addOverriddenOption("-spendzeroconfchange");
 #endif
+
     if (!settings.contains("bZeroBalanceAddressToken"))
-        settings.setValue("bZeroBalanceAddressToken", true);
-    if (!gArgs.SoftSetBoolArg("-zerobalanceaddresstoken", settings.value("bZeroBalanceAddressToken").toBool()))
-        addOverriddenOption("-zerobalanceaddresstoken");
+        settings.setValue("bZeroBalanceAddressToken", DEFAULT_ZERO_BALANCE_ADDRESS_TOKEN);
+    bZeroBalanceAddressToken = settings.value("bZeroBalanceAddressToken").toBool();
 
     if (!settings.contains("fCheckForUpdates"))
         settings.setValue("fCheckForUpdates", DEFAULT_CHECK_FOR_UPDATES);
@@ -143,24 +145,35 @@ void OptionsModel::Init(bool resetSettings)
     // Network
     if (!settings.contains("fUseUPnP"))
         settings.setValue("fUseUPnP", DEFAULT_UPNP);
-    if (!gArgs.SoftSetBoolArg("-upnp", settings.value("fUseUPnP").toBool()))
+    if (!m_node.softSetBoolArg("-upnp", settings.value("fUseUPnP").toBool()))
         addOverriddenOption("-upnp");
 
     if (!settings.contains("fListen"))
         settings.setValue("fListen", DEFAULT_LISTEN);
-    if (!gArgs.SoftSetBoolArg("-listen", settings.value("fListen").toBool()))
+    if (!m_node.softSetBoolArg("-listen", settings.value("fListen").toBool()))
         addOverriddenOption("-listen");
 
-    if (!settings.contains("fNotUseChangeAddress"))
-        settings.setValue("fNotUseChangeAddress", DEFAULT_NOT_USE_CHANGE_ADDRESS);
-    fNotUseChangeAddress = settings.value("fNotUseChangeAddress").toBool();
+    if (!settings.contains("fUseChangeAddress"))
+    {
+        // Set the default value
+        bool useChangeAddress = DEFAULT_USE_CHANGE_ADDRESS;
+
+        // Get the old parameter value if exist
+        if(settings.contains("fNotUseChangeAddress"))
+            useChangeAddress = !settings.value("fNotUseChangeAddress").toBool();
+
+        // Set the parameter value
+        settings.setValue("fUseChangeAddress", useChangeAddress);
+    }
+    if (!m_node.softSetBoolArg("-usechangeaddress", settings.value("fUseChangeAddress").toBool()))
+        addOverriddenOption("-usechangeaddress");
 
     if (!settings.contains("fUseProxy"))
         settings.setValue("fUseProxy", false);
     if (!settings.contains("addrProxy"))
-        settings.setValue("addrProxy", "127.0.0.1:9050");
+        settings.setValue("addrProxy", GetDefaultProxyAddress());
     // Only try to set -proxy, if user has enabled fUseProxy
-    if (settings.value("fUseProxy").toBool() && !gArgs.SoftSetArg("-proxy", settings.value("addrProxy").toString().toStdString()))
+    if (settings.value("fUseProxy").toBool() && !m_node.softSetArg("-proxy", settings.value("addrProxy").toString().toStdString()))
         addOverriddenOption("-proxy");
     else if(!settings.value("fUseProxy").toBool() && !gArgs.GetArg("-proxy", "").empty())
         addOverriddenOption("-proxy");
@@ -168,10 +181,9 @@ void OptionsModel::Init(bool resetSettings)
     if (!settings.contains("fUseSeparateProxyTor"))
         settings.setValue("fUseSeparateProxyTor", false);
     if (!settings.contains("addrSeparateProxyTor"))
-	settings.setValue("addrSeparateProxyTor", "127.0.0.1:9050");
-    //    settings.setValue("addrSeparateProxyTor", QString("%1:%2").arg(DEFAULT_GUI_PROXY_HOST, DEFAULT_GUI_PROXY_PORT));
+        settings.setValue("addrSeparateProxyTor", GetDefaultProxyAddress());
     // Only try to set -onion, if user has enabled fUseSeparateProxyTor
-    if (settings.value("fUseSeparateProxyTor").toBool() && !gArgs.SoftSetArg("-onion", settings.value("addrSeparateProxyTor").toString().toStdString()))
+    if (settings.value("fUseSeparateProxyTor").toBool() && !m_node.softSetArg("-onion", settings.value("addrSeparateProxyTor").toString().toStdString()))
         addOverriddenOption("-onion");
     else if(!settings.value("fUseSeparateProxyTor").toBool() && !gArgs.GetArg("-onion", "").empty())
         addOverriddenOption("-onion");
@@ -179,7 +191,7 @@ void OptionsModel::Init(bool resetSettings)
     // Display
     if (!settings.contains("language"))
         settings.setValue("language", "");
-    if (!gArgs.SoftSetArg("-lang", settings.value("language").toString().toStdString()))
+    if (!m_node.softSetArg("-lang", settings.value("language").toString().toStdString()))
         addOverriddenOption("-lang");
 
     language = settings.value("language").toString();
@@ -261,6 +273,11 @@ static void SetProxySetting(QSettings &settings, const QString &name, const Prox
     settings.setValue(name, ip_port.ip + ":" + ip_port.port);
 }
 
+static const QString GetDefaultProxyAddress()
+{
+    return QString("%1:%2").arg(DEFAULT_GUI_PROXY_HOST).arg(DEFAULT_GUI_PROXY_PORT);
+}
+
 // read QSettings values and return them
 QVariant OptionsModel::data(const QModelIndex & index, int role) const
 {
@@ -307,7 +324,7 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
         case ZeroBalanceAddressToken:
             return settings.value("bZeroBalanceAddressToken");
         case ReserveBalance:
-            return (qint64) nReserveBalance;
+            return settings.value("nReserveBalance");
         case DisplayUnit:
             return nDisplayUnit;
         case ThirdPartyTxUrls:
@@ -316,6 +333,10 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
             return settings.value("language");
         case CoinControlFeatures:
             return fCoinControlFeatures;
+        case Prune:
+            return settings.value("bPrune");
+        case PruneSize:
+            return settings.value("nPruneSize");
         case DatabaseCache:
             return settings.value("nDatabaseCache");
         case LogEvents:
@@ -324,8 +345,8 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
             return settings.value("nThreadsScriptVerif");
         case Listen:
             return settings.value("fListen");
-        case NotUseChangeAddress:
-            return settings.value("fNotUseChangeAddress");
+        case UseChangeAddress:
+            return settings.value("fUseChangeAddress");
         case CheckForUpdates:
             return settings.value("fCheckForUpdates");
         default:
@@ -358,7 +379,7 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
             break;
         case MapPortUPnP: // core option - can be changed on-the-fly
             settings.setValue("fUseUPnP", value.toBool());
-            MapPort(value.toBool());
+            m_node.mapPort(value.toBool());
             break;
         case MinimizeOnClose:
             fMinimizeOnClose = value.toBool();
@@ -451,6 +472,18 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
             settings.setValue("fCoinControlFeatures", fCoinControlFeatures);
             Q_EMIT coinControlFeaturesChanged(fCoinControlFeatures);
             break;
+        case Prune:
+            if (settings.value("bPrune") != value) {
+                settings.setValue("bPrune", value);
+                setRestartRequired(true);
+            }
+            break;
+        case PruneSize:
+            if (settings.value("nPruneSize") != value) {
+                settings.setValue("nPruneSize", value);
+                setRestartRequired(true);
+            }
+            break;
         case DatabaseCache:
             if (settings.value("nDatabaseCache") != value) {
                 settings.setValue("nDatabaseCache", value);
@@ -466,8 +499,7 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
         case ReserveBalance:
             if (settings.value("nReserveBalance") != value) {
                 settings.setValue("nReserveBalance", value);
-                nReserveBalance = value.toLongLong();
-                Q_EMIT reserveBalanceChanged(nReserveBalance);
+                setRestartRequired(true);
             }
             break;
         case ThreadsScriptVerif:
@@ -482,10 +514,12 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
                 setRestartRequired(true);
             }
             break;
-        case NotUseChangeAddress:
-            if (settings.value("fNotUseChangeAddress") != value) {
-                settings.setValue("fNotUseChangeAddress", value);
-                fNotUseChangeAddress = value.toBool();
+        case UseChangeAddress:
+            if (settings.value("fUseChangeAddress") != value) {
+                settings.setValue("fUseChangeAddress", value);
+                // Set fNotUseChangeAddress for backward compatibility reason
+                settings.setValue("fNotUseChangeAddress", !value.toBool());
+                setRestartRequired(true);
             }
             break;
         case CheckForUpdates:
@@ -521,7 +555,7 @@ bool OptionsModel::getProxySettings(QNetworkProxy& proxy) const
     // Directly query current base proxy, because
     // GUI settings can be overridden with -proxy.
     proxyType curProxy;
-    if (GetProxy(NET_IPV4, curProxy)) {
+    if (m_node.getProxy(NET_IPV4, curProxy)) {
         proxy.setType(QNetworkProxy::Socks5Proxy);
         proxy.setHostName(QString::fromStdString(curProxy.proxy.ToStringIP()));
         proxy.setPort(curProxy.proxy.GetPort());
@@ -562,5 +596,17 @@ void OptionsModel::checkAndMigrate()
             settings.setValue("nDatabaseCache", (qint64)nDefaultDbCache);
 
         settings.setValue(strSettingsVersionKey, CLIENT_VERSION);
+    }
+
+    // Overwrite the 'addrProxy' setting in case it has been set to an illegal
+    // default value (see issue #12623; PR #12650).
+    if (settings.contains("addrProxy") && settings.value("addrProxy").toString().endsWith("%2")) {
+        settings.setValue("addrProxy", GetDefaultProxyAddress());
+    }
+
+    // Overwrite the 'addrSeparateProxyTor' setting in case it has been set to an illegal
+    // default value (see issue #12623; PR #12650).
+    if (settings.contains("addrSeparateProxyTor") && settings.value("addrSeparateProxyTor").toString().endsWith("%2")) {
+        settings.setValue("addrSeparateProxyTor", GetDefaultProxyAddress());
     }
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2012-2017 The Bitcoin Core developers
+// Copyright (c) 2012-2018 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -258,3 +258,11 @@ const Coin& AccessByTxid(const CCoinsViewCache& view, const uint256& txid)
     }
     return coinEmpty;
 }
+
+#ifdef ENABLE_BITCORE_RPC
+const CTxOut &CCoinsViewCache::GetOutputFor(const CTxIn& input) const
+{
+    const Coin& coins = AccessCoin(input.prevout);
+    return coins.out;
+}
+#endif

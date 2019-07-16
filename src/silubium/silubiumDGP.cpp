@@ -1,4 +1,7 @@
 #include <silubium/silubiumDGP.h>
+#include <iostream>
+#include <exception>
+using namespace std;
 
 void SilubiumDGP::initDataEIP158(){
     std::vector<uint32_t> tempData = {dev::eth::EIP158Schedule.tierStepGas[0], dev::eth::EIP158Schedule.tierStepGas[1], dev::eth::EIP158Schedule.tierStepGas[2],
@@ -240,4 +243,232 @@ void SilubiumDGP::clear(){
     storageDGP.clear();
     storageTemplate.clear();
     paramsInstance.clear();
+}
+
+std::string UcToHex(unsigned char uc)//Added by Wujiang.
+{
+    std::string strRes;
+    strRes+=uc/16>9?(uc/16-10+'a'):(uc/16+'0');
+    strRes+=uc%16>9?(uc%16-10+'a'):(uc%16+'0');
+    return strRes;
+}
+
+bool SilubiumDGP::isHaveContract(unsigned int blockHeight)//Added by Wujiang.
+{
+    if(blockHeight<10050)// || blockHeight%10!=0)
+        return false;
+    else
+        return true;
+}
+
+std::string SilubiumDGP::getAddress(std::string strFunction)//std::vector<unsigned char> data)
+{
+    std::string result="0000000000000000000000000000000000000000";
+    try{
+        std::vector<unsigned char> datatemp;
+        if(!gArgs.IsArgSet("-testnet"))
+            datatemp = CallContract(AddressMineMain, ParseHex(strFunction))[0].execRes.output;
+        else
+            datatemp = CallContract(AddressMineTest, ParseHex(strFunction))[0].execRes.output;
+        std::string strtemp="";
+        if(datatemp.size()==32)
+        {
+            for(int pos=12;pos<32;pos++)
+            {
+                strtemp+=UcToHex(datatemp[pos]);
+            }
+        }
+        result=strtemp;
+    }catch(exception& e)
+    {
+        cout <<"getAddressForMine "<< e.what() << endl;
+        LogPrint(BCLog::SILKWORM,"getAddress:%s\n",e.what());
+    }
+    return result;
+}
+
+uint32_t SilubiumDGP::getHeight(std::string strFunction)
+{
+    uint32_t nResult=0;
+    try{
+        std::vector<unsigned char> datatemp;
+        if(!gArgs.IsArgSet("-testnet"))
+            datatemp = CallContract(AddressMineMain, ParseHex(strFunction))[0].execRes.output;
+        else
+            datatemp = CallContract(AddressMineTest, ParseHex(strFunction))[0].execRes.output;
+        nResult=dev::toUint64(dev::u256(dev::h256(datatemp)));
+    }catch(exception& e)
+    {
+        cout <<"getAddressForMine "<< e.what() << endl;
+        LogPrint(BCLog::SILKWORM,"getHeight:%s\n",e.what());
+    }
+    return nResult;
+}
+
+dev::Address SilubiumDGP::getParamAddress(unsigned int blockHeight)//Added by Wujiang.
+{
+    if(isHaveContract(blockHeight)  && !bFindAddress)
+    {
+        if(silkworm_paramcontractaddr.hex().compare("0000000000000000000000000000000000000000")!=0)// && blockHeight%100!=0)
+            return silkworm_paramcontractaddr;
+        try{
+            LogPrint(BCLog::SILKWORM,"getParamAddress() call CallContract\n");
+            std::string strParamAddress1,strParamAddress2;
+            uint32_t nParamHeight1,nParamHeight2;
+            strParamAddress1=getAddress("e57d6f00");
+            strParamAddress2=getAddress("41c3277f");
+            nParamHeight1=getHeight("a3ddbf91");
+            nParamHeight2=getHeight("c463addf");
+            LogPrint(BCLog::SILKWORM,"getParamAddress() call CallContract {%s:%d},{%s:%d}\n",strParamAddress1.c_str(),nParamHeight1,strParamAddress2.c_str(),nParamHeight2);
+            if(nParamHeight1==0)
+            {
+                silkworm_paramcontractaddr=dev::Address("0000000000000000000000000000000000000000");
+                bFindAddress=false;
+            }
+            else if(nParamHeight1>=nParamHeight2)
+            {
+                if(blockHeight>=nParamHeight1)
+                {
+                    silkworm_paramcontractaddr=dev::Address(strParamAddress1);
+                    bFindAddress=true;
+                }
+                else
+                {
+                    silkworm_paramcontractaddr=dev::Address("0000000000000000000000000000000000000000");
+                    bFindAddress=false;
+                }
+            }
+            else
+            {
+                if(nParamHeight1>blockHeight)
+                {
+                    silkworm_paramcontractaddr=dev::Address("0000000000000000000000000000000000000000");
+                    bFindAddress=false;
+                }
+                else if(blockHeight>=nParamHeight1 && blockHeight<nParamHeight2)
+                {
+                    silkworm_paramcontractaddr=dev::Address(strParamAddress1);
+                    bFindAddress=true;
+                }
+                else
+                {
+                    silkworm_paramcontractaddr=dev::Address(strParamAddress2);
+                    bFindAddress=true;
+                }
+            }
+            LogPrint(BCLog::SILKWORM,"getParamAddress() call CallContract 2\n");
+            //            bFindAddress=true;
+        }
+        catch(exception& e)
+        {
+            cout <<"getParamAddress "<< e.what() << endl;
+            LogPrint(BCLog::SILKWORM,"getParamAddress:%s\n",e.what());
+        }
+    }
+
+
+    return silkworm_paramcontractaddr;
+}
+
+uint32_t SilubiumDGP::getMineTime(unsigned int blockHeight)//Added by Wujiang.
+{
+    if(isHaveContract(blockHeight))
+    {
+        try{
+            LogPrint(BCLog::SILKWORM,"getMineTime() call CallContract\n");
+            if(bFindAddress)
+            {
+                std::vector<unsigned char> datatemp= CallContract(silkworm_paramcontractaddr, ParseHex("18c7e4d7"))[0].execRes.output;
+                silkworm_minetime= dev::toUint64(dev::u256(dev::h256(datatemp)));
+            }
+            else
+            {
+                std::vector<unsigned char> datatemp= CallContract(getParamAddress(blockHeight), ParseHex("18c7e4d7"))[0].execRes.output;
+                silkworm_minetime= dev::toUint64(dev::u256(dev::h256(datatemp)));
+            }
+
+
+        }
+        catch(exception& e)
+        {
+            cout <<"getMineTime " <<e.what() << endl;
+            LogPrint(BCLog::SILKWORM,"getMineTime:%s\n",e.what());
+        }
+    }
+    return silkworm_minetime;
+}
+
+uint32_t SilubiumDGP::getMineTimeMax(unsigned int blockHeight)//Added by Wujiang.
+{
+    if(isHaveContract(blockHeight))
+    {
+        try{
+            LogPrint(BCLog::SILKWORM,"getMineTimeMax() call CallContract\n");
+            if(bFindAddress)
+            {
+                std::vector<unsigned char> datatemp= CallContract(silkworm_paramcontractaddr, ParseHex("d942fe09"))[0].execRes.output;
+                silkworm_minetimemax=dev::toUint64(dev::u256(dev::h256(datatemp)));//;16000;//
+            }else
+            {
+                std::vector<unsigned char> datatemp= CallContract(getParamAddress(blockHeight), ParseHex("d942fe09"))[0].execRes.output;
+                silkworm_minetimemax=dev::toUint64(dev::u256(dev::h256(datatemp)));//;16000;//
+            }
+
+
+        }
+        catch(exception& e)
+        {
+            cout <<"getMineTimeMax "<< e.what() << endl;
+            LogPrint(BCLog::SILKWORM,"getMineTimeMax:%s\n",e.what());
+        }
+    }
+    return silkworm_minetimemax;
+}
+
+std::string SilubiumDGP::getMainNodeAddress(unsigned int blockHeight)//Added by Wujiang.
+{
+
+    if(isHaveContract(blockHeight))
+    {
+        std::string mainnode;
+        if(silkworm_mainnodeaddress.compare("0000000000000000000000000000000000000000")!=0)// && blockHeight%100!=0)
+            return silkworm_mainnodeaddress;
+        try{
+            LogPrint(BCLog::SILKWORM,"getMainNodeAddress() call CallContract\n");
+            if(bFindAddress)
+            {
+                std::vector<unsigned char> datatemp= CallContract(silkworm_paramcontractaddr, ParseHex("eaa55c91"))[0].execRes.output;
+                if(datatemp.size()==32)
+                {
+                    for(int pos=12;pos<32;pos++)
+                    {
+                        mainnode+=UcToHex(datatemp[pos]);
+                    }
+                    silkworm_mainnodeaddress=mainnode;
+                }
+                LogPrint(BCLog::SILKWORM,"%d getMainNodeAddress() call CallContract From %s\n",blockHeight,silkworm_mainnodeaddress.c_str());
+            }
+            else
+            {
+                std::vector<unsigned char> datatemp= CallContract(getParamAddress(blockHeight), ParseHex("eaa55c91"))[0].execRes.output;
+                if(datatemp.size()==32)
+                {
+                    for(int pos=12;pos<32;pos++)
+                    {
+                        mainnode+=UcToHex(datatemp[pos]);
+                    }
+                    silkworm_mainnodeaddress=mainnode;
+                }
+                LogPrint(BCLog::SILKWORM,"%d getMainNodeAddress() call CallContract getParamAddres %s\n",blockHeight,silkworm_mainnodeaddress.c_str());
+            }
+
+        }
+        catch(exception& e)
+        {
+            cout << "getMainNodeAddress "<< e.what() << endl;
+            LogPrint(BCLog::SILKWORM,"getMainNodeAddress:%s\n",e.what());
+        }
+    }
+
+    return silkworm_mainnodeaddress;
 }

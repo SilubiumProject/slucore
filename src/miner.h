@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2017 The Bitcoin Core developers
+// Copyright (c) 2009-2018 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -8,6 +8,7 @@
 
 #include <primitives/block.h>
 #include <txmempool.h>
+#include <validation.h>
 
 #include <stdint.h>
 #include <memory>
@@ -105,15 +106,21 @@ struct modifiedentry_iter {
 struct CompareModifiedEntry {
     bool operator()(const CTxMemPoolModifiedEntry &a, const CTxMemPoolModifiedEntry &b) const
     {
-        bool fAHasCreateOrCall = a.iter->GetTx().HasCreateOrCall();
-        bool fBHasCreateOrCall = b.iter->GetTx().HasCreateOrCall();
+        int fAHasCreateOrCall = a.iter->GetTx().GetCreateOrCall();
+        int fBHasCreateOrCall = b.iter->GetTx().GetCreateOrCall();
 
         // If either of the two entries that we are comparing has a contract scriptPubKey, the comparison here takes precedence
         if(fAHasCreateOrCall || fBHasCreateOrCall) {
 
             // Prioritze non-contract txs
-            if(fAHasCreateOrCall != fBHasCreateOrCall) {
-                return fAHasCreateOrCall ? false : true;
+            if((fAHasCreateOrCall > CTransaction::OpNone) != (fBHasCreateOrCall > CTransaction::OpNone)) {
+                return fAHasCreateOrCall > CTransaction::OpNone ? false : true;
+            }
+
+            // Prioritze create contract txs over send to contract txs
+            if((fAHasCreateOrCall > CTransaction::OpNone) && (fBHasCreateOrCall > CTransaction::OpNone) &&
+                    (fAHasCreateOrCall != fBHasCreateOrCall) && (fAHasCreateOrCall == CTransaction::OpCall || fBHasCreateOrCall == CTransaction::OpCall)){
+                return fAHasCreateOrCall == CTransaction::OpCall ? false : true;
             }
 
             // Prioritize the contract txs that have the least number of ancestors
@@ -251,6 +258,8 @@ public:
     /** Construct a new block template with coinbase to scriptPubKeyIn */
     std::unique_ptr<CBlockTemplate> CreateNewBlock(const CScript& scriptPubKeyIn, bool fMineWitnessTx=true, bool fProofOfStake=false, int64_t* pTotalFees = 0, int32_t nTime=0, int32_t nTimeLimit=0);
     std::unique_ptr<CBlockTemplate> CreateEmptyBlock(const CScript& scriptPubKeyIn, bool fMineWitnessTx=true, bool fProofOfStake=false, int64_t* pTotalFees = 0, int32_t nTime=0);
+    std::unique_ptr<CBlockTemplate> CreateEmptyBlockSW(const CScript& scriptPubKeyIn, bool fMineWitnessTx=true, bool fProofOfStake=false, int64_t* pTotalFees = 0, int32_t nTime=0);
+    std::unique_ptr<CBlockTemplate> CreateNewBlockSW(const CScript& scriptPubKeyIn, bool fMineWitnessTx=true, bool fProofOfStake=false, int64_t* pTotalFees = 0, int32_t txProofTime=0, int32_t nTimeLimit=0);
 private:
     // utility functions
     /** Clear the block's state and prepare for assembling a new block */
@@ -264,7 +273,7 @@ private:
     /** Add transactions based on feerate including unconfirmed ancestors
       * Increments nPackagesSelected / nDescendantsUpdated with corresponding
       * statistics from the package selection (for logging statistics). */
-    void addPackageTxs(int &nPackagesSelected, int &nDescendantsUpdated, uint64_t minGasPrice);
+    void addPackageTxs(int &nPackagesSelected, int &nDescendantsUpdated, uint64_t minGasPrice) EXCLUSIVE_LOCKS_REQUIRED(mempool.cs);
 
     /** Rebuild the coinbase/coinstake transaction to account for new gas refunds **/
     void RebuildRefundTransaction();
@@ -280,17 +289,17 @@ private:
     bool TestPackageTransactions(const CTxMemPool::setEntries& package);
     /** Return true if given transaction from mapTx has already been evaluated,
       * or if the transaction's cached data in mapTx is incorrect. */
-    bool SkipMapTxEntry(CTxMemPool::txiter it, indexed_modified_transaction_set &mapModifiedTx, CTxMemPool::setEntries &failedTx);
+    bool SkipMapTxEntry(CTxMemPool::txiter it, indexed_modified_transaction_set &mapModifiedTx, CTxMemPool::setEntries &failedTx) EXCLUSIVE_LOCKS_REQUIRED(mempool.cs);
     /** Sort the package in an order that is valid to appear in a block */
-    void SortForBlock(const CTxMemPool::setEntries& package, CTxMemPool::txiter entry, std::vector<CTxMemPool::txiter>& sortedEntries);
+    void SortForBlock(const CTxMemPool::setEntries& package, std::vector<CTxMemPool::txiter>& sortedEntries);
     /** Add descendants of given transactions to mapModifiedTx with ancestor
       * state updated assuming given transactions are inBlock. Returns number
       * of updated descendants. */
-    int UpdatePackagesForAdded(const CTxMemPool::setEntries& alreadyAdded, indexed_modified_transaction_set &mapModifiedTx);
+    int UpdatePackagesForAdded(const CTxMemPool::setEntries& alreadyAdded, indexed_modified_transaction_set &mapModifiedTx) EXCLUSIVE_LOCKS_REQUIRED(mempool.cs);
 };
 
 /** Generate a new block, without valid proof-of-work */
-void StakeSilubiums(bool fStake, CWallet *pwallet);
+void StakeSilubiums(bool fStake, CWallet *pwallet, CConnman* connman, boost::thread_group*& stakeThread);
 
 /** Modify the extranonce in a block */
 void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned int& nExtraNonce);

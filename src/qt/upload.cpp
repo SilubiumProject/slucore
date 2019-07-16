@@ -13,6 +13,7 @@
 #include <QDir>
 #include <QMessageBox>
 #include <QProcess>
+#include <util.h>
 #define paternVersion "silubium-([0-9]+\\.)?([0-9]+\\.)?([0-9]+\\.)?([0-9]+)-"
 
 
@@ -51,7 +52,10 @@ bool QUpload::isWin()
 QList<Version> QUpload::getVersions()
 {
     QNetworkAccessManager manager;
-    QNetworkReply *response = manager.get(QNetworkRequest(QUrl(SILUBIUM_RELEASES)));
+
+    QNetworkReply *response;
+    if(!gArgs.IsArgSet("-testnet"))
+        response= manager.get(QNetworkRequest(QUrl(SILUBIUM_RELEASES)));
     QEventLoop event;
     connect(response, SIGNAL(finished()), &event, SLOT(quit()));
     event.exec();

@@ -67,6 +67,7 @@ private Q_SLOTS:
     /** New entry/entries were added to contract info table */
     void selectNewContractInfo(const QModelIndex &parent, int begin, int /*end*/);
 
+    void on_importButton_clicked();
 };
 
 #endif // CONTRACTBOOKPAGE_H
