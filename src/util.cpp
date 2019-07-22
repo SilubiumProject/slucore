@@ -226,7 +226,7 @@ public:
      *  See also comments around ArgsManager::ArgsManager() below. */
     static inline bool UseDefaultSection(const ArgsManager& am, const std::string& arg)
     {
-        return (am.m_network == CBaseChainParams::MAIN || am.m_network_only_args.count(arg) == 0);
+        return (am.m_network == CBaseChainParams::MAIN ||am.m_network == CBaseChainParams::TESTNET || am.m_network_only_args.count(arg) == 0);
     }
 
     /** Convert regular argument into the network-specific setting */

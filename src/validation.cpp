@@ -250,7 +250,7 @@ std::atomic_bool fReindex(false);
 #ifdef ENABLE_BITCORE_RPC
 bool fAddressIndex = false; // silubium
 #endif
-bool fLogEvents = false;
+bool fLogEvents = true;//false;
 bool fHavePruned = false;
 bool fPruneMode = false;
 bool fIsBareMultisigStd = DEFAULT_PERMIT_BAREMULTISIG;
@@ -2233,7 +2233,14 @@ bool CheckMinGasPrice(std::vector<EthTransactionParams>& etps, const uint64_t& m
 bool CheckReward(const CBlock& block, CValidationState& state, int nHeight, const Consensus::Params& consensusParams, CAmount nFees, CAmount gasRefunds, CAmount nActualStakeReward, const std::vector<CTxOut>& vouts,CAmount utxo_interest)
 {
     if(!gArgs.IsArgSet("-testnet"))
+    {
         if(nHeight<194830)return true;
+        if(nHeight>241000 && utxo_interest >0 )return false;//非测试链，如果高度大于241000，利息大于零，出错。
+    }
+    else
+    {
+        if(nHeight>71000 && utxo_interest >0)return false;//测试链高度大于71000，利息大于零出错
+    }
     size_t offset = block.IsProofOfStake() ? 1 : 0;
     std::vector<CTxOut> vTempVouts=block.vtx[offset]->vout;
     std::vector<CTxOut>::iterator it;

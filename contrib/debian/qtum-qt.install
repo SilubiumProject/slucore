@@ -1,0 +1,6 @@
+usr/local/bin/silubium-qt usr/bin
+share/pixmaps/silubium32.xpm usr/share/pixmaps
+share/pixmaps/silubium16.xpm usr/share/pixmaps
+share/pixmaps/silubium128.png usr/share/pixmaps
+debian/silubium-qt.desktop usr/share/applications
+debian/silubium-qt.protocol usr/share/kde4/services/

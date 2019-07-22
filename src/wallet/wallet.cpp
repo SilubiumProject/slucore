@@ -3715,7 +3715,16 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, con
     }
 
     CAmount utxo_interest=0;
-    if(pindexPrev->nHeight<239999)utxo_interest=CalUtxoInterest(nCredit,vwtxPrev[0]->nTimeSmart);//Caluate UTXO interest
+    if(!gArgs.IsArgSet("-testnet"))
+    {
+        if(pindexPrev->nHeight<239999)
+            utxo_interest=CalUtxoInterest(nCredit,vwtxPrev[0]->nTimeSmart);//Caluate UTXO interest
+    }
+    else
+    {
+        if(pindexPrev->nHeight<69999)
+            utxo_interest=CalUtxoInterest(nCredit,vwtxPrev[0]->nTimeSmart);//Caluate UTXO interest
+    }
 
     const Consensus::Params& consensusParams = Params().GetConsensus();
     int64_t nRewardPiece = 0;
