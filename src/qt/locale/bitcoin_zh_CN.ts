@@ -642,6 +642,14 @@
                 <source>&amp;Restore Wallet...</source>
                 <translation>恢复钱包(&amp;R)...</translation>
         </message>
+    <message>
+        <source>&amp;Unlock Wallet...</source>
+        <translation>解锁钱包(&amp;U)</translation>
+    </message>
+    <message>
+        <source>&amp;Lock Wallet</source>
+        <translation>钱包加锁(&amp;L)</translation>
+    </message>
         <message>
                 <source>Restore wallet from another location</source>
                 <translation>从其他位置恢复钱包</translation>
@@ -3541,6 +3549,14 @@
         <message>
                 <source>0/unconfirmed, %1</source>
                 <translation>0/未确认，%1</translation>
+        </message>
+        <message>
+                <source>0/unconfirmed, in memory pool</source>
+                <translation>0/未确认，在内存池中</translation>
+        </message>
+        <message>
+                <source>0/unconfirmed, not in memory pool</source>
+                <translation>0/未确认，不在内存池中</translation>
         </message>
         <message>
                 <source>in memory pool</source>

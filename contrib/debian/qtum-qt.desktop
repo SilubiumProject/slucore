@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Name=Bitcoin Core
+Comment=Connect to the Silubium P2P Network
+Exec=silubium-qt %u
+Terminal=false
+Type=Application
+Icon=silubium128
+MimeType=x-scheme-handler/silubium;
+Categories=Office;Finance;
+StartupWMClass=Silubium-qt
+Name[en_US]=silubium-qt

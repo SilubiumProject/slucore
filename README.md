@@ -1,22 +1,247 @@
-## "# slucore"  
+What is Silubium?
+-------------
 
-Silubium公链第二代SLU，于北京时间2018-07-28 17:33:01启动产生创世块。
-SLU是一条集多种开放功能于一体的公链，可以实现基于UTXO安全模型的智能合约，并创新了POS共识协议新机制SILKWORM，发明了数据上链协议SILKSCREEN。主要特点有：
-1. 比特币网络是目前最大的一个区块链技术的生态系统，以太坊第一次将智能合约的概念从理论变成实际，拓展了区块链技术的边界。SLU从设计之初就充分考虑了兼容性，在SLU上拥有比特币所有特性，基于EVM的智能合约可以直接在SLU上部署运行。
-2. 与比特币和以太坊采用POW机制挖矿不一样，SLU提出了SILKWORM共识机制。SILKWORM在POS基础上进行了创新：
-（1）以用户持有的UTXO进行挖矿，UTXO不论大小都有机会获得挖矿资格，这种方式大大减小了POW机制下的能源浪费；
-（2）区块打包成功后，矿工会获得区块内所有交易的手续费，另外获得1SLU区块奖励，手续费和区块奖励会分5次发放，第1次及时发放，后4次在后续101-104个区块发放，这种方式提高了潜在攻击者的成本，降低了安全隐患；
-（3）UTXO在获得区块打包资格时，SLU会判断持有期是否超过30天，若超过按0.58%月利息发放，但最多不超过360天，这种方式鼓励SLU持有者在线并获得奖励，在线节点越多SLU越稳定、安全。
-3. 区块链除了具备价值传递的功能外，其去中心化、不可篡改的等特性更能解决在实体经济具体场景一些痛点，SLU的区块大小增至8M，数据直接上链1024B，智能合约承载最大量32M，并发明了数据上链协议SILKSCREEN：
-（1）上链数据参数通过智能合约设定，可以设置是否加密、是否授权第三方查看；
-（2）约定了数据封装格式；
-（3）设计了配套的数据上链和查询接口。
-4. SLU设计了低交易成本机制，SLU直接转帐按转帐金额比例计算0.00005%-0.00001%，交易量越大费率越低，并限定了最小值为0.0001SLU，最大值为0.5SLU。智能合约调用免费，发送操作需消耗少量GAS，最低GAS价格为0.00000010SLU。
+Silubium is a decentralized blockchain project built on Bitcoin's UTXO model, with support for Ethereum Virtual Machine based smart contracts, and secured by a proof of stake consensus model. It achieves this through the revolutionary Account Abstraction Layer which allows the EVM to communicate with Silubium's Bitcoin-like UTXO blockchain. For more general information about Silubium as well as links to join our community, go to https://silubium.org
 
-### 官网网址：http://www.silubium.org 
+Welcome to the Silubium Ignition Main Network. This is the main network where the tokens hold value and should be guarded very carefully. If you are testing the network, or developing unstable software on Silubium, we highly recommend using either testnet or regtest mode. 
 
-### 区块浏览器地址：https://silkchain2.silubium.org 
+The major features of the Silubium network include:
 
-### 钱包升级网址：http://update.silubium.org 
+1. Compatibility with the Ethereum Virtual Machine, which allows for compatibility with most existing Solidity based smart contracts. No special solidity compiler is required to deploy your smart contract to Silubium. 
+2. A Proof of Stake consensus system which is optimized for Silubium's contract model. Any user can stake and help to secure the network. There is no voting, master nodes, or minimum amount required. There have been transactions as small as 2 Silubium that have created blocks in the past. 
+3. The Decentralized Governance Protocol is completely implemented and functional, which allows certain network parameters to be modified without a fork or other network disruption. This currently controls parameters like block size, gas prices, etc. 
+4. Uses the UTXO transaction model and is compatible with Bitcoin, allowing for existing tooling and workflows to be used with Silubium. This allows for the infamous SPV protocol to be used which is ideal for light wallets on mobile phones and IoT devices.
 
-# 2018年8月31日起开始SLB兑换为SLU，期间一个月。 详细说明参见：https://www.silktrader.net/#/slu 
+Note: Silubium Core is considered beta software. We make no warranties or guarantees of its security or stability.
+
+Silubium Documentation and Usage Resources
+---------------
+
+These are some resources that might be helpful in understanding Silubium. Note that the unofficial documents are not created by the Silubium team.
+
+Basic usage resources:
+
+* [Official Silubium Usage Guide](https://github.com/silubiumproject/silubium/wiki/Silubium-Wallet-Tutorial)
+* [Unofficial Silubium staking tutorial](https://steemit.com/silubium/@cryptominder/silubium-staking-tutorial-using-silubium-qt)
+* [Unofficial Silubium staking tutorial on Raspberry Pi](https://steemit.com/silubium/@cryptominder/silubium-staking-tutorial-using-silubiumd-on-a-raspberry-pi-3)
+* [Unofficial Silubium staking tutorial on AWS EC2](https://github.com/aaronmboyd/silubium-staking-on-aws-ec2)
+* [Unofficial guide for keeping your wallet safe](https://steemit.com/silubium/@cryptominder/encrypting-backing-up-and-restoring-your-silubium-wallet)
+* [Block explorer](https://explorer.silubium.org)
+* [Unofficial block explorer](https://silubiumexplorer.io/)
+
+Development resources:
+
+* [Deploying a custom token to Silubium](https://blog.silubium.org/silubium-custom-token-walkthrough-467d725fa27d)
+* [Early example faucet contract](http://earlz.net/view/2017/06/30/2144/the-silubium-sparknet-faucet)
+* [Unofficial Silubium Hello World tutorial](https://steemit.com/silubium/@cryptominder/quantum-silubium-blockchain-developer-tutorial-hello-world)
+* [Silubium Book - A Developer's Guide To SILUBIUM](https://github.com/silubiumproject/silubiumbook)
+
+General Info about Silubium:
+
+* [Mainnet event AMA](https://www.reddit.com/r/Silubium/comments/6zs8t0/official_silubium_ama_thread_starts_at_10pm_beijing/)
+* [Silubium's PoS vs CASPER](https://www.reddit.com/r/Silubium/comments/788oa5/silubiums_pos_vs_casper_and_the_nothingatstake_problem/)
+* [Technical article explaining Silubium's PoS model in depth](http://earlz.net/view/2017/07/27/1904/the-missing-explanation-of-proof-of-stake-version)
+* [Unofficial What is Silubium article](https://storeofvalue.github.io/posts/what-is-silubium-without-the-bullshit/)
+
+Developer's Tools
+-----------------
+
+* Smart contract deployment tool
+  * https://github.com/silubiumproject/solar
+* DApp JavaScript Library
+  * https://github.com/silubiumproject/silubiumjs
+* A toolkit for building silubium light wallets
+  * https://github.com/silubiumproject/silubiumjs-wallet
+* CORS silubiumd RPC proxy for DApp
+  * https://github.com/silubiumproject/silubiumportal
+* Docker images for running silubium services
+  * https://github.com/silubiumproject/silubium-docker
+* HTTP API that powers the block explorer and the SILUBIUM web wallet
+  * https://github.com/silubiumproject/insight-api
+
+
+What is Silubium Core?
+------------------
+
+Silubium Core is our primary mainnet wallet. It implements a full node and is capable of storing, validating, and distributing all history of the Silubium network. Silubium Core is considered the reference implementation for the Silubium network. 
+
+Silubium Core currently implements the following:
+
+* Sending/Receiving Silubium
+* Sending/Receiving QRC20 tokens on the Silubium network
+* Staking and creating blocks for the Silubium network
+* Creating and interacting with smart contracts
+* Running a full node for distributing the blockchain to other users
+* "Prune" mode, which minimizes disk usage
+* Regtest mode, which enables developers to very quickly build their own private Silubium network for Dapp testing
+* Compatibility with the Bitcoin Core set of RPC commands and APIs
+
+Alternative Wallets
+-------------------
+
+Silubium Core uses a full node model, and thus requires downloading the entire blockchain. If you do not need the entire blockchain, and do not intend on developing smart contracts, it may be more ideal to use an alternative wallet such as one of our light wallets that can be synchronized in a matter of seconds. 
+
+### Silubium Electrum
+
+A light wallet that supports the Ledger hardware wallet and is based on the well known Electrum wallet software. 
+
+Download: https://github.com/silubiumproject/silubium-electrum/releases
+
+### iOS and Android Wallets
+
+These wallets run on mobile devices and synchronize quickly. 
+
+Android Download: https://play.google.com/store/apps/details?id=org.silubium.wallet
+
+iOS Download: https://github.com/silubiumproject/silubium-ios (open source, we are still working with Apple to get approval for their app store)
+
+### Ledger Chrome Wallet
+
+This light wallet runs in your Chrome browser as a browser extension. This wallet requires a Ledger device to use.
+
+How to install: https://ledger.zendesk.com/hc/en-us/articles/115003776913-How-to-install-and-use-Silubium-with-Ledger
+
+
+Building Silubium Core
+----------
+
+### Build on Ubuntu
+
+    This is a quick start script for compiling Silubium on  Ubuntu
+
+
+    sudo apt-get install build-essential libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils git cmake libboost-all-dev
+    sudo apt-get install software-properties-common
+    sudo add-apt-repository ppa:bitcoin/bitcoin
+    sudo apt-get update
+    sudo apt-get install libdb4.8-dev libdb4.8++-dev
+
+    # If you want to build the Qt GUI:
+    sudo apt-get install libqt5gui5 libqt5core5a libqt5dbus5 qttools5-dev qttools5-dev-tools libprotobuf-dev protobuf-compiler qrencode
+
+    git clone https://github.com/silubiumproject/silubium --recursive
+    cd silubium
+
+    # Note autogen will prompt to install some more dependencies if needed
+    ./autogen.sh
+    ./configure 
+    make -j2
+    
+### Build on CentOS
+
+Here is a brief description for compiling Silubium on CentOS, for more details please refer to [the specific document](https://github.com/silubiumproject/silubium/blob/master/doc/build-unix.md)
+
+    # Compiling boost manually
+    sudo yum install python-devel bzip2-devel
+    git clone https://github.com/boostorg/boost.git
+    cd boost
+    git checkout boost-1.66.0
+    git submodule update --init --recursive
+    ./bootstrap.sh --prefix=/usr --libdir=/usr/lib64
+    ./b2 headers
+    sudo ./b2 -j4 install
+    
+    # Installing Dependencies for Silubium
+    sudo yum install epel-release
+    sudo yum install libtool libdb4-cxx-devel openssl-devel libevent-devel
+    
+    # If you want to build the Qt GUI:
+    sudo yum install qt5-qttools-devel protobuf-devel qrencode-devel
+    
+    # Building Silubium
+    git clone --recursive https://github.com/silubiumproject/silubium.git
+    cd silubium
+    ./autogen.sh
+    ./configure
+    make -j4
+
+### Build on OSX
+
+The commands in this guide should be executed in a Terminal application.
+The built-in one is located in `/Applications/Utilities/Terminal.app`.
+
+#### Preparation
+
+Install the OS X command line tools:
+
+`xcode-select --install`
+
+When the popup appears, click `Install`.
+
+Then install [Homebrew](https://brew.sh).
+
+#### Dependencies
+
+    brew install cmake automake berkeley-db4 libtool boost --c++11 --without-single --without-static miniupnpc openssl pkg-config protobuf qt5 libevent imagemagick --with-librsvg qrencode
+
+NOTE: Building with Qt4 is still supported, however, could result in a broken UI. Building with Qt5 is recommended.
+
+#### Build Silubium Core
+
+1. Clone the silubium source code and cd into `silubium`
+
+        git clone --recursive https://github.com/silubiumproject/silubium.git
+        cd silubium
+
+2.  Build silubium-core:
+
+    Configure and build the headless silubium binaries as well as the GUI (if Qt is found).
+
+    You can disable the GUI build by passing `--without-gui` to configure.
+
+        ./autogen.sh
+        ./configure
+        make
+
+3.  It is recommended to build and run the unit tests:
+
+        make check
+
+### Run
+
+Then you can either run the command-line daemon using `src/silubiumd` and `src/silubium-cli`, or you can run the Qt GUI using `src/qt/silubium-qt`
+
+For in-depth description of Sparknet and how to use Silubium for interacting with contracts, please see [sparknet-guide](doc/sparknet-guide.md).
+
+License
+-------
+
+Silubium is GPLv3 licensed.
+
+
+Development Process
+-------------------
+
+The `master` branch is regularly built and tested, but is not guaranteed to be
+completely stable. [Tags](https://github.com/silubiumproject/silubium/tags) are created
+regularly to indicate new official, stable release versions of Silubium.
+
+The contribution workflow is described in [CONTRIBUTING.md](CONTRIBUTING.md).
+
+Developer IRC can be found on Freenode at #silubium-dev.
+
+Testing
+-------
+
+Testing and code review is the bottleneck for development; we get more pull
+requests than we can review and test on short notice. Please be patient and help out by testing
+other people's pull requests, and remember this is a security-critical project where any mistake might cost people
+lots of money.
+
+### Automated Testing
+
+Developers are strongly encouraged to write [unit tests](src/test/README.md) for new code, and to
+submit new unit tests for old code. Unit tests can be compiled and run
+(assuming they weren't disabled in configure) with: `make check`. Further details on running
+and extending unit tests can be found in [/src/test/README.md](/src/test/README.md).
+
+There are also [regression and integration tests](/test), written
+in Python, that are run automatically on the build server.
+These tests can be run (if the [test dependencies](/test) are installed) with: `test/functional/test_runner.py`
+
+### Manual Quality Assurance (QA) Testing
+
+Changes should be tested by somebody other than the developer who wrote the
+code. This is especially important for large or high-risk changes. It is useful
+to add a test plan to the pull request description if testing the changes is
+not straightforward.

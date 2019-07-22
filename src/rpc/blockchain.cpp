@@ -1155,7 +1155,7 @@ void assignJSON(UniValue& entry, const TransactionReceiptInfo& resExec) {
     entry.pushKV("blockNumber", uint64_t(resExec.blockNumber));
     entry.pushKV("transactionHash", resExec.transactionHash.GetHex());
     entry.pushKV("transactionIndex", uint64_t(resExec.transactionIndex));
-    entry.pushKV("from", fromHexAddress(resExec.from.hex()));//resExec.from.hex()
+    entry.pushKV("from", resExec.from.hex());//fromHexAddress(resExec.from.hex()));//resExec.from.hex()
     entry.pushKV("to", resExec.to.hex());
     entry.pushKV("cumulativeGasUsed", CAmount(resExec.cumulativeGasUsed));
     entry.pushKV("gasUsed", CAmount(resExec.gasUsed));
@@ -1173,12 +1173,12 @@ void assignJSON(UniValue& logEntry, const dev::eth::LogEntry& log,
 
     UniValue topics(UniValue::VARR);
     for (dev::h256 hash : log.topics) {
-        if(hash.hex().find("000000000000000000000000")!=std::string::npos)
-        {
-            std::string straddress=hash.hex().substr(24);
-            topics.push_back(fromHexAddress(straddress));
-        }
-        else
+//        if(hash.hex().find("000000000000000000000000")!=std::string::npos)
+//        {
+//            std::string straddress=hash.hex().substr(24);
+//            topics.push_back(fromHexAddress(straddress));
+//        }
+//        else
             topics.push_back(hash.hex());
     }
     logEntry.pushKV("topics", topics);
